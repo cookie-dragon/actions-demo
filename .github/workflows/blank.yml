@@ -45,7 +45,7 @@ jobs:
           mkdir -p out
     
       - name: Download
-      - uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v2
         with:
           name: my-a_file.txt
           path: out/a_file.txt
