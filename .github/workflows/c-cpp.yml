@@ -15,13 +15,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       
-    - name: APT
-      run: |
-        sudo apt-get update
-        sudo dpkg --add-architecture i386
-        sudo apt-get update
-        sudo apt-get install -y git build-essential python diffstat texinfo gawk chrpath dos2unix wget unzip socat doxygen libc6:i386 libncurses5:i386 libstdc++6:i386 libz1:i386
-        sudo apt-get install -y gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm python3-subunit mesa-common-dev
+#     - name: APT
+#       run: |
+#         sudo apt-get update
+#         sudo dpkg --add-architecture i386
+#         sudo apt-get update
+#         sudo apt-get install -y git build-essential python diffstat texinfo gawk chrpath dos2unix wget unzip socat doxygen libc6:i386 libncurses5:i386 libstdc++6:i386 libz1:i386
+#         sudo apt-get install -y gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm python3-subunit mesa-common-dev
     
 #     - name: Get Buildroot
 #       run: |
@@ -42,29 +42,33 @@ jobs:
     - name: Pull Kernel
       run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
 
-    - name: Build Kernel
-      env: 
-#         TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/host_2016.02/usr/bin
-        TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-#         CROSS_COMPILE: arm-buildroot-linux-gnueabihf-
-        CROSS_COMPILEL: arm-linux-gnueabihf-
-      run: |
-        export PATH=$TOOLCHAIN:$PATH
-        cd kernel
-        make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-        make ok335xs2_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-        make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-        make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
+#     - name: Build Kernel
+#       env: 
+# #         TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/host_2016.02/usr/bin
+#         TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+# #         CROSS_COMPILE: arm-buildroot-linux-gnueabihf-
+#         CROSS_COMPILEL: arm-linux-gnueabihf-
+#       run: |
+#         export PATH=$TOOLCHAIN:$PATH
+#         cd kernel
+#         make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+#         make ok335xs2_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+#         make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+#         make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
         
-    - name: UPload
-      uses: actions/upload-artifact@v2
-      with:
-        name: my-artifact
-        path: kernel/arch/arm/boot/uImage
+#     - name: UPload
+#       uses: actions/upload-artifact@v2
+#       with:
+#         name: my-uImage
+#         path: kernel/arch/arm/boot/uImage
       
     - name: Show
       run: |
         pwd
         ls -l
-        cd kernel/arch/arm/boot
+        cd kernel
         ls -l
+        cd ../gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+        ls -l
+#        cd kernel/arch/arm/boot
+#        ls -l
