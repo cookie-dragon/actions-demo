@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v2
     
     - name: pull kernel
-      run: git clone git@github.com:cookie-dragon/forlinx-335xS-II-kernel.git kernel
+      run: gh repo clone cookie-dragon/forlinx-335xS-II-kernel kernel
       
     - name: show
       run: |
