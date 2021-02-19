@@ -5,13 +5,18 @@ name: CI
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the dev branch
-#   push:
-#     branches: [ dev ]
-#   pull_request:
-#     branches: [ dev ]
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      toolchain:
+        description: 'Prebuild or build by buildroot'
+        required: true
+        default: 'Prebuild'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -21,6 +26,10 @@ jobs:
     runs-on: ubuntu-18.04
     
     steps:
+      - name: Print input
+        run: |
+          echo "Prebuild or build by buildroot: ${{ github.event.inputs.toolchain }}!"
+    
       - name: Touch File
         run: |
           pwd
