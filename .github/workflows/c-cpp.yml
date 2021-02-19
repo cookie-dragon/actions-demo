@@ -11,28 +11,37 @@ jobs:
     name: Job Build
     runs-on: ubuntu-18.04
     steps:
+    
     - name: Checkout
       uses: actions/checkout@v2
     
+#     - name: Get Buildroot
+#       run: |
+#         wget https://buildroot.org/downloads/buildroot-2016.02.tar.gz
+#         tar zxf buildroot-2016.02.tar.gz
+#         cp config.2016.02 buildroot-2016.02/.config
+        
+#     - name: Build Toolchain
+#       run: |
+#         cd buildroot-2016.02
+#         make -j$(nproc)
+
+    - name: Get Toolchain
+      run: |
+        wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+        tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
     - name: Pull Kernel
       run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
-      
-    - name: Get Buildroot
-      run: |
-        wget https://buildroot.org/downloads/buildroot-2016.02.tar.gz
-        tar zxvf buildroot-2016.02.tar.gz
-        cp config.2016.02 buildroot-2016.02/.config
-        
-    - name: Build Toolchain
-      run: |
-        cd buildroot-2016.02
-        make -j$(nproc)
 
     - name: Build Kernel
       env: 
-        CROSS_COMPILE: arm-buildroot-linux-gnueabihf-
+#         TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/host_2016.02/usr/bin
+        TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+#         CROSS_COMPILE: arm-buildroot-linux-gnueabihf-
+        CROSS_COMPILEL: arm-linux-gnueabihf-
       run: |
-        export PATH=/home/runner/work/actions-demo/actions-demo/host_2016.02/usr/bin:$PATH
+        export PATH=$TOOLCHAIN:$PATH
         cd kernel
         make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
         make ok335xs2_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
