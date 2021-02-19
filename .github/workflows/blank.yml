@@ -48,8 +48,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: my-a_file.txt
-          path: out/a_file.txt
+          path: out/
           
       - name: Show
         run: |
-          cat out/a_file.txt
+          cat out/my-a_file.txt
