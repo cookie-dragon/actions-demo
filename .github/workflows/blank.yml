@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Print input
         run: |
-          echo "Prebuild or build by buildroot: ${{ github.event.inputs.toolchain }}!"
+          echo "Prebuild or build by buildroot: ${{ github.event.inputs.toolchain }}"
     
       - name: Touch File
         run: |
@@ -61,4 +61,5 @@ jobs:
           
       - name: Show
         run: |
-          cat out/a_file.txt
+          cat a_file.txt
+        working-directory: ./out
