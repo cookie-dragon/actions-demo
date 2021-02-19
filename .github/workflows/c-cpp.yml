@@ -54,7 +54,7 @@ jobs:
         CROSS_COMPILE: arm-linux-gnueabihf-
       run: |
         sudo apt-get update
-        sudo apt-get install -y uboot-mkimage
+        sudo apt-get install -y u-boot-tools
         export PATH=$TOOLCHAIN:$PATH
         cd kernel
         make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
