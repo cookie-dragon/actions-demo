@@ -52,4 +52,4 @@ jobs:
           
       - name: Show
         run: |
-          cat out/my-a_file.txt
+          cat out/a_file.txt
