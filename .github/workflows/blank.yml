@@ -17,6 +17,7 @@ on:
 jobs:
 
   prepare:
+    name: Prepare
     runs-on: ubuntu-18.04
     
     steps:
@@ -32,6 +33,7 @@ jobs:
           path: a_file.txt
           
   build:
+    name: Build
     needs: [prepare]
     runs-on: ubuntu-18.04
     
