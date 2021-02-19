@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
     
-#     - name: Checkout
-#       uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
       
 #     - name: APT
 #       run: |
@@ -34,27 +34,27 @@ jobs:
 #         cd buildroot-2016.02
 #         make -j$(nproc)
 
-#     - name: Get Toolchain
-#       run: |
-#         wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-#         tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+    - name: Get Toolchain
+      run: |
+        wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+        tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-#     - name: Pull Kernel
-#       run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
+    - name: Pull Kernel
+      run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
 
-#     - name: Build Kernel
-#       env: 
-# #         TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/host_2016.02/usr/bin
-#         TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-# #         CROSS_COMPILE: arm-buildroot-linux-gnueabihf-
-#         CROSS_COMPILEL: arm-linux-gnueabihf-
-#       run: |
-#         export PATH=$TOOLCHAIN:$PATH
-#         cd kernel
-#         make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-#         make ok335xs2_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-#         make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-#         make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
+    - name: Build Kernel
+      env: 
+#         TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/host_2016.02/usr/bin
+        TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+#         CROSS_COMPILE: arm-buildroot-linux-gnueabihf-
+        CROSS_COMPILEL: arm-linux-gnueabihf-
+      run: |
+        export PATH=/home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin:$PATH
+        cd kernel
+        make distclean ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
+        make ok335xs2_evm_linux_defconfig ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
+        make -j$(nproc) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
+        make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- uImage
         
 #     - name: UPload
 #       uses: actions/upload-artifact@v2
@@ -64,4 +64,4 @@ jobs:
       
     - name: Show
       run: |
-        gcc -v
+        ls -l kernel/arch/arm/boot
