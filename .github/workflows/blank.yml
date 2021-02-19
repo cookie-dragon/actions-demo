@@ -29,7 +29,7 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: my-a_file.txt
+          name: a_file.txt.artifact
           path: a_file.txt
           
   build:
@@ -47,11 +47,9 @@ jobs:
       - name: Download
         uses: actions/download-artifact@v2
         with:
-          name: my-a_file.txt
+          name: a_file.txt.artifact
           path: out/
           
       - name: Show
         run: |
-          cd out
-          ls -l
-          cat my-a_file.txt
+          cat out/my-a_file.txt
