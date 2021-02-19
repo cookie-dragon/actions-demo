@@ -42,6 +42,11 @@ jobs:
 
     - name: Pull Kernel
       run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
+      
+    - name: Patch Kernel
+      run : |
+        cd kernel
+        patch -p1 < ../timeconst.pl.x64.patch
 
     - name: Build Kernel
       run: |
