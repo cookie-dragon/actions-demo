@@ -43,17 +43,12 @@ jobs:
       run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
 
     - name: Build Kernel
-#       env: 
-#         TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/host_2016.02/usr/bin
-#         CROSS_COMPILE: arm-buildroot-linux-gnueabihf-
-#         TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-#         CROSS_COMPILEL: arm-linux-gnueabihf-
       run: |
         export PATH=/home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin:$PATH
         cd kernel
         make distclean ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
         make ok335xs2_evm_linux_defconfig ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
-        make -j$(nproc) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
+        make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
         make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- uImage
         
 #     - name: UPload
