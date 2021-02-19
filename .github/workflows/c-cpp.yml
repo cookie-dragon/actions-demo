@@ -7,12 +7,17 @@ on:
     branches: [ dev ]
 
 jobs:
-  build:
-
+  job_build:
+    name: Job Build
     runs-on: ubuntu-18.04
-
     steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: pull kernel
+      run: git clone git@github.com:cookie-dragon/forlinx-335xS-II-kernel.git kernel
+      
     - name: show
-      run: pwd
-    - name: pwd
-      run: pwd > pwd.out
+      run: |
+        ls -l
+        env
