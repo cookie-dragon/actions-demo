@@ -52,4 +52,6 @@ jobs:
           
       - name: Show
         run: |
-          cat out/my-a_file.txt
+          cd out
+          ls -l
+          cat my-a_file.txt
