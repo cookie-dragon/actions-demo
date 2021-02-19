@@ -49,19 +49,24 @@ jobs:
         patch -p1 < ../timeconst.pl.x64.patch
 
     - name: Build Kernel
+      env:
+        TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+        CROSS_COMPILE: arm-linux-gnueabihf-
       run: |
-        export PATH=/home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin:$PATH
+        sudo apt-get update
+        sudo apt-get install -y uboot-mkimage
+        export PATH=$TOOLCHAIN:$PATH
         cd kernel
-        make distclean ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
-        make ok335xs2_evm_linux_defconfig ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
-        make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
-        make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- uImage
+        make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+        make ok335xs2_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+        make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+        make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
         
-#     - name: UPload
-#       uses: actions/upload-artifact@v2
-#       with:
-#         name: my-uImage
-#         path: kernel/arch/arm/boot/uImage
+    - name: UPload
+      uses: actions/upload-artifact@v2
+      with:
+        name: my-uImage
+        path: kernel/arch/arm/boot/uImage
       
     - name: Show
       run: |
