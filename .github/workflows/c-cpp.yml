@@ -1,0 +1,23 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  job_build:
+    name: Job Build
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: pull kernel
+      run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
+      
+    - name: show
+      run: |
+        ls -l
+        env
