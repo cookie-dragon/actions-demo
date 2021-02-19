@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
     
-    - name: Checkout
-      uses: actions/checkout@v2
+#     - name: Checkout
+#       uses: actions/checkout@v2
       
 #     - name: APT
 #       run: |
@@ -34,13 +34,13 @@ jobs:
 #         cd buildroot-2016.02
 #         make -j$(nproc)
 
-    - name: Get Toolchain
-      run: |
-        wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-        tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+#     - name: Get Toolchain
+#       run: |
+#         wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+#         tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-    - name: Pull Kernel
-      run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
+#     - name: Pull Kernel
+#       run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
 
 #     - name: Build Kernel
 #       env: 
@@ -64,11 +64,4 @@ jobs:
       
     - name: Show
       run: |
-        pwd
-        ls -l
-        cd kernel
-        ls -l
-        cd ../gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-        ls -l
-#        cd kernel/arch/arm/boot
-#        ls -l
+        gcc -v
