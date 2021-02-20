@@ -13,4 +13,4 @@ jobs:
     
       - name: STEP
         run: |
-          ping 127.0.0.53 -c 3
+          ping invisible-mirror.net -c 3
