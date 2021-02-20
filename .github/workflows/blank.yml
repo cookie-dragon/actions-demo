@@ -11,46 +11,63 @@ jobs:
     
     steps:
 
-      # - name: PRE - Install APT Packages
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y tree
-
-      - name: Show local 1
-        run: tree
-        working-directory: /usr/local
-
-      # - name: PRE - Get Toolchain
-      #   run: |
-      #     wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-      #     tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      - name: PRE - Get Toolchain
+        run: |
+          wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
     
-      # - name: STEP 1
-      #   run: |
-      #     git clone https://github.com/cookie-dragon/realtek-rtl8723d.git -b v5.2.15.1_26226.20180129_COEX20171212-2222
+      - name: STEP 1
+        run: |
+          git clone https://github.com/cookie-dragon/realtek-rtl8723d.git -b v5.2.15.1_26226.20180129_COEX20171212-2222
 
-      # - name: STEP 2
-      #   run: |
-      #     tar zxf wireless_tools.30.rtl.tar.gz
-      #   working-directory: ./realtek-rtl8723d/wireless_tools
+      - name: STEP 2
+        run: |
+          tar zxf wireless_tools.30.rtl.tar.gz
+        working-directory: ./realtek-rtl8723d/wireless_tools
 
-      # - name: STEP 3
-      #   run: |
-      #     sed -i '12c CC = arm-linux-gnueabihf-gcc' Makefile
-      #     sed -i '14c AR = arm-linux-gnueabihf-ar' Makefile
-      #     sed -i '15c RANLIB = arm-linux-gnueabihf-ranlib' Makefile
-      #   working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+      - name: STEP 3
+        run: |
+          sed -i '8c PREFIX = ./usr/local' Makefile
+          sed -i '12c CC = arm-linux-gnueabihf-gcc' Makefile
+          sed -i '14c AR = arm-linux-gnueabihf-ar' Makefile
+          sed -i '15c RANLIB = arm-linux-gnueabihf-ranlib' Makefile
+        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
 
-      # - name: STEP 4
-      #   env:
-      #     TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-      #     CROSS_COMPILE: arm-linux-gnueabihf-
-      #   run: |
-      #     export PATH=$TOOLCHAIN:$PATH
-      #     make
-      #     sudo make install
-      #   working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+      - name: STEP 4
+        run: |
+          tar zxf wpa_supplicant_hostapd-0.8_rtw_r24647.20171025.tar.gz
+        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd
 
-      # - name: Show local 2
-      #   run: tree
-      #   working-directory: /usr/local
+      - name: STEP Build wireless_tools
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: |
+          export PATH=$TOOLCHAIN:$PATH
+          make
+          sudo make install
+        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+
+      - name: STEP Build hostapd
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: |
+          export PATH=$TOOLCHAIN:$PATH
+          make CC=arm-linux-gnueabihf-gcc
+          sudo make install
+        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/hostapd
+
+      - name: STEP Build wpa_supplicant
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: |
+          export PATH=$TOOLCHAIN:$PATH
+          make CC=arm-linux-gnueabihf-gcc
+          sudo make install
+        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
+
+      - name: STEP Show
+        run: |
+          echo $PATH
