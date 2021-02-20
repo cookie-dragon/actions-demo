@@ -142,6 +142,7 @@ jobs:
           cp -rf buildroot-2017.02.11/package/iproute2 buildroot-2019.02.11/package/
           rm -rf buildroot-2019.02.11/package/paho-mqtt-c
           cp -rf buildroot-2017.02.11/package/paho-mqtt-c buildroot-2019.02.11/package/
+          cp -f buildroot-fix/ncurses.mk buildroot-2019.02.11/package/ncurses/
 
       - name: SETP5 - Config Buildroot
         run: cp -f buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
