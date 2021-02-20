@@ -15,17 +15,18 @@ jobs:
     name: Toolchain
     runs-on: ubuntu-18.04
     steps:
-      - name: Install Basic APT Packages
-        run: |
-          sudo dpkg --add-architecture i386
-          sudo apt-get update
-          sudo apt-get -y install git build-essential python diffstat texinfo gawk chrpath dos2unix wget unzip socat doxygen libc6:i386 libncurses5:i386 libstdc++6:i386 libz1:i386
-          sudo apt-get -y install gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm python3-subunit mesa-common-dev
+      
+      # - name: Install Basic APT Packages
+      #   run: |
+      #     sudo dpkg --add-architecture i386
+      #     sudo apt-get update
+      #     sudo apt-get -y install git build-essential python diffstat texinfo gawk chrpath dos2unix wget unzip socat doxygen libc6:i386 libncurses5:i386 libstdc++6:i386 libz1:i386
+      #     sudo apt-get -y install gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm python3-subunit mesa-common-dev
 
-      - name: Install APT Packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y u-boot-tools mtd-utils
+      # - name: Install APT Packages
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y u-boot-tools mtd-utils
 
       - name: Wget Toolchain
         run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
@@ -113,6 +114,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Install APT Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y u-boot-tools
+
       - name: Download Artifact Toolchain
         uses: actions/download-artifact@v2
         with:
@@ -180,7 +186,6 @@ jobs:
           name: rootfs.tar.gz
           path: ./rootfs.tar.gz
 
-
   job_final_rootfs:
     name: Final Root File System
     needs: [job_kernel]
@@ -188,6 +193,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Install APT Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mtd-utils
 
       - name: Download Artifact Root File System
         uses: actions/download-artifact@v2
