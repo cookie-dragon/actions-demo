@@ -13,4 +13,4 @@ jobs:
     
       - name: STEP
         run: |
-          ping invisible-mirror.net -c 3
+          wget https://invisible-mirror.net/archives/ncurses/6.1/ncurses-6.1-20190720.patch.gz
