@@ -17,8 +17,4 @@ jobs:
     
       - name: STEP
         run: |
-          wget https://buildroot.org/downloads/buildroot-2019.02.11.tar.gz
-          tar zxf buildroot-2019.02.11.tar.gz
-          cd buildroot-2019.02.11
-          make busybox-menuconfig
-          ls ./output/build/busybox-1.29.3
+          mkfs.ubifs
