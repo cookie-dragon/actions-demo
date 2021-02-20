@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Hilectro version="1.0">
+    <info>
+        <Axismask>7</Axismask>
+        <ProductionSet>0</ProductionSet>
+        <RejectsSet>0</RejectsSet>
+        <Onceout>1</Onceout>
+        <Production>0</Production>
+        <Rejects>0</Rejects>
+        <Robperiod>10</Robperiod>
+        <Tasktime>5</Tasktime>
+    </info>
+    <program>
+        <c id="BEG0"/>
+        <c id="END1000"/>
+    </program>
+    <data>
+        <position>
+            <pos num="1" active="0">
+                <p n="0">0</p>
+                <p n="0">0</p>
+                <p n="0">0</p>
+                <p n="0">0</p>
+                <p n="0">0</p>
+                <p n="0">0</p>
+                <p n="0">0</p>
+                <p n="0">0</p>
+                <p n="v0">100</p>
+                <p n="v1">100</p>
+                <p n="v2">100</p>
+                <p n="v3">100</p>
+                <p n="v4">100</p>
+                <p n="v5">100</p>
+                <p n="v6">100</p>
+                <p n="v7">100</p>
+                <p n="v">100</p>
+                <p n="a">100</p>
+            </pos>
+        </position>
+        <io>
+            <class type="vac">
+                <port out="5602" active="0">
+                    <p n="in">5602</p>
+                    <p n="odly">0</p>
+                    <p n="oexc">0</p>
+                    <p n="otim">10</p>
+                    <p n="ochk">1</p>
+                    <p n="cdly">0</p>
+                    <p n="cexc">0</p>
+                    <p n="ctim">10</p>
+                    <p n="cchk">1</p>
+                </port>
+            </class>
+            <class type="imo">
+                <port out="5563" active="0">
+                    <p n="odly">0</p>
+                </port>
+            </class>
+            <class type="imi">
+                <port in="5564" active="0">
+                    <p n="tout">50</p>
+                </port>
+            </class>
+        </io>
+        <timer>
+            <t num="1" active="0">10</t>
+        </timer>
+        <counter>
+            <cnt num="1" active="0">10</cnt>
+        </counter>
+        <matrix>
+            <mtx num="1" active="0">
+                <chamfer>0</chamfer>
+                <xseq>1</xseq>
+                <yseq>2</yseq>
+                <xnum>1</xnum>
+                <ynum>1</ynum>
+                <znum>1</znum>
+                <xdist>0</xdist>
+                <ydist>0</ydist>
+                <zdist>0</zdist>
+                <xfrist>0</xfrist>
+                <yfrist>0</yfrist>
+                <zfrist>0</zfrist>
+                <vel>100</vel>
+                <acc>100</acc>
+                <vlow>20</vlow>
+                <ddist>0</ddist>
+            </mtx>
+        </matrix>
+        <fpack>
+            <pack num="1" active="0">
+                <pnum>1</pnum>
+                <chamfer>0</chamfer>
+                <vel>100</vel>
+                <acc>100</acc>
+                <vlow>20</vlow>
+                <ddist>0</ddist>
+                <pos>
+                    <p x="0" y="0" z="0">1</p>
+                </pos>
+            </pack>
+        </fpack>
+    </data>
+</Hilectro>

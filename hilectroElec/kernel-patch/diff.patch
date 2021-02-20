@@ -1,0 +1,986 @@
+diff -ruNa 1/kernel-3.2/arch/arm/mach-omap2/board-am335xevm-xs2.c 2/kernel-3.2/arch/arm/mach-omap2/board-am335xevm-xs2.c
+--- 1/kernel-3.2/arch/arm/mach-omap2/board-am335xevm-xs2.c	2020-10-13 14:18:37.000000000 +0800
++++ 2/kernel-3.2/arch/arm/mach-omap2/board-am335xevm-xs2.c	2020-10-13 15:05:01.000000000 +0800
+@@ -149,8 +149,8 @@
+ /* AM335X EVM Phy ID and Debug Registers */
+ #if defined(CONFIG_OK335XS2)
+ //#define AM335X_EVM_PHY_ID       0x080017
+-#define AM335X_EVM_PHY_ID       0x7c0f0 
+-//#define AM335X_EVM_PHY_ID       0x20005c90 
++//#define AM335X_EVM_PHY_ID       0x7c0f0 	//Edit by Cooky.Long
++#define AM335X_EVM_PHY_ID       0x20005c90 	//Edit by Cooky.Long
+ #else
+ #define AM335X_EVM_PHY_ID		0x4dd074
+ #endif
+@@ -618,6 +618,8 @@
+ 						       | AM33XX_PULL_DISA},
+ 	{"lcd_data15.lcd_data15",	OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT
+ 						       | AM33XX_PULL_DISA},
++	{"gpmc_ad14.lcd_data17",	OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT},
++	{"gpmc_ad15.lcd_data16",	OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT},
+ 	{"lcd_vsync.lcd_vsync",		OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
+ 	{"lcd_hsync.lcd_hsync",		OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
+ 	{"lcd_pclk.lcd_pclk",		OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
+@@ -738,8 +740,11 @@
+ 
+ /* pinmux for led device */
+ static struct pinmux_config gpio_led_mux[] = {
+-	{"gpmc_a0.gpio1_16", OMAP_MUX_MODE7 | AM33XX_PIN_INPUT},
+-	{"gpmc_a1.gpio1_17", OMAP_MUX_MODE7 | AM33XX_PIN_INPUT},
++	{"gpmc_a0.gpio1_16", OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT},
++	{"gpmc_a1.gpio1_17", OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT},
++	{"gpmc_a2.gpio1_18", OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT},
++	{"gpmc_csn2.gpio1_31", OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT},
++	{"gpmc_clk.gpio2_1", OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT},
+ 	{"usb0_drvvbus.gpio0_18", OMAP_MUX_MODE7 | AM33XX_PIN_INPUT},
+ 	{NULL, 0},
+ };
+@@ -820,16 +825,51 @@
+ /* Matrix GPIO Keypad Support for profile-0 only: TODO */
+ 
+ /* pinmux for keypad device */
++static struct pinmux_config matrix_keypad_pin_mux[] = {
++	{"gpmc_a10.gpio1_26",  OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT}, 	//R3
++	{"gpmc_a11.gpio1_27",  OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT}, 	//R4
++	{"gpmc_ad9.gpio0_23",  OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT}, 	//R0
++	{"gpmc_a7.gpio1_23",  OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT}, 	//R5
++	{"gpmc_a8.gpio1_24",  OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT}, 	//R1
++	{"gpmc_a9.gpio1_25",  OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT}, 	//R2
++	{"gpmc_ad10.gpio0_26",  OMAP_MUX_MODE7 | AM33XX_PIN_INPUT_PULLDOWN}, 	//col 3
++	{"gpmc_ad11.gpio0_27",  OMAP_MUX_MODE7 | AM33XX_PIN_INPUT_PULLDOWN}, 	//col 2
++	{"gpmc_ad12.gpio1_12",  OMAP_MUX_MODE7 | AM33XX_PIN_INPUT_PULLDOWN}, 	//col 1
++	{"gpmc_ad13.gpio1_13",  OMAP_MUX_MODE7 | AM33XX_PIN_INPUT_PULLDOWN}, 	//col 0
++	{NULL, 0},
++};
+ 
+ /* Keys mapping */
+ static const uint32_t am335x_evm_matrix_keys[] = {
+-	KEY(0, 0, KEY_MENU),
+-	KEY(1, 0, KEY_BACK),
+-	KEY(2, 0, KEY_LEFT),
+-
+-	KEY(0, 1, KEY_RIGHT),
+-	KEY(1, 1, KEY_POWER),
+-	KEY(2, 1, KEY_DOWN),
++	KEY(0, 0, KEY_G),
++	KEY(1, 0, KEY_T),
++	KEY(2, 0, KEY_A),
++	KEY(3, 0, KEY_Z),
++
++	KEY(0, 1, KEY_C),
++	KEY(1, 1, KEY_V),
++	KEY(2, 1, KEY_S),
++	KEY(3, 1, KEY_X),
++	
++	KEY(0, 2, KEY_9),
++	KEY(1, 2, KEY_0),
++	KEY(2, 2, KEY_Q),
++	KEY(3, 2, KEY_W),
++
++	KEY(0, 3, KEY_F9),
++	KEY(1, 3, KEY_F10),
++	KEY(2, 3, KEY_F11),
++	KEY(3, 3, KEY_F12),
++
++	KEY(0, 4, KEY_F8),
++	KEY(1, 4, KEY_F7),
++	KEY(2, 4, KEY_F6),
++	KEY(3, 4, KEY_F5),
++
++	KEY(0, 5, KEY_F4),
++	KEY(1, 5, KEY_F3),
++	KEY(2, 5, KEY_F2),
++	KEY(3, 5, KEY_F1),
+ };
+ 
+ const struct matrix_keymap_data am335x_evm_keymap_data = {
+@@ -838,13 +878,40 @@
+ };
+ 
+ static const unsigned int am335x_evm_keypad_row_gpios[] = {
+-	GPIO_TO_PIN(1, 25), GPIO_TO_PIN(1, 26), GPIO_TO_PIN(1, 27)
++	GPIO_TO_PIN(1, 13), GPIO_TO_PIN(1, 12), GPIO_TO_PIN(0, 27), GPIO_TO_PIN(0, 26)
+ };
+ 
+ static const unsigned int am335x_evm_keypad_col_gpios[] = {
+-	GPIO_TO_PIN(1, 21), GPIO_TO_PIN(1, 22)
++	GPIO_TO_PIN(0, 23), GPIO_TO_PIN(1, 24), GPIO_TO_PIN(1, 25), GPIO_TO_PIN(1, 26), GPIO_TO_PIN(1, 27), GPIO_TO_PIN(1, 23)
++};
++
++static struct matrix_keypad_platform_data am335x_evm_keypad_platform_data = {
++	.keymap_data       = &am335x_evm_keymap_data,
++	.row_gpios         = am335x_evm_keypad_row_gpios,
++	.num_row_gpios     = ARRAY_SIZE(am335x_evm_keypad_row_gpios),
++	.col_gpios         = am335x_evm_keypad_col_gpios,
++	.num_col_gpios     = ARRAY_SIZE(am335x_evm_keypad_col_gpios),
++	.active_low        = false,
++	.debounce_ms       = 5,
++	.col_scan_delay_us = 20,
+ };
+ 
++static struct platform_device am335x_evm_keyboard = {
++	.name  = "matrix-keypad",
++	.id    = -1,
++	.dev   = {
++		.platform_data = &am335x_evm_keypad_platform_data,
++	},
++};
++
++static void matrix_keypad_init(int evm_id, int profile)
++{
++	int err;
++
++	setup_pin_mux(matrix_keypad_pin_mux);
++	err = platform_device_register(&am335x_evm_keyboard);
++}
++
+ /*
+ * @evm_id - evm id which needs to be configured
+ * @dev_cfg - single evm structure which includes
+@@ -1097,7 +1164,6 @@
+ 
+ static void usb_init(int evm_id, int profile)
+ {
+-	setup_pin_mux(usb0_pin_mux);
+ 	setup_pin_mux(usb1_pin_mux);
+ 
+ 	return;
+@@ -1184,6 +1250,11 @@
+ 	{
+ 		.name           = "File System",
+ 		.offset         = MTDPART_OFS_APPEND,   /* Offset = 0x1400000 */
++		.size           = 280 * SZ_512K,	//140M
++	},
++	{
++		.name           = "User File",
++		.offset         = MTDPART_OFS_APPEND,  
+ 		.size           = MTDPART_SIZ_FULL,
+ 	},
+ };
+@@ -1945,14 +2016,14 @@
+ 		.desc                   = "SW1",
+ 	},
+ 	{
+-		.code                   = BTN_1,
++		.code                   = KEY_I,
+ 		.gpio                   = GPIO_TO_PIN(1, 21),
+-		.desc                   = "SW2",
++		.desc                   = "SWC0",
+ 	},
+ 	{
+-		.code                   = BTN_2,
++		.code                   = KEY_U,
+ 		.gpio                   = GPIO_TO_PIN(1, 22),
+-		.desc                   = "SW3",
++		.desc                   = "SFBT",
+ 		.wakeup                 = 1,
+ 	},
+ 
+@@ -1975,23 +2046,31 @@
+ {
+ 	int err;
+ 	setup_pin_mux(gpio_keys_pin_mux_forlinx);
+-	err = platform_device_register(&am335x_evm_gpio_keys_forlinx);
+-    if (err)
+-          pr_err("failed to register gpio key device\n");
+ }
+ 
+ static struct gpio_led gpio_leds[] = {
+ 		{
+-                .name                   = "usr0",
++                .name                   = "LED_ERR",
+                 .gpio                   = GPIO_TO_PIN(1, 16),   /* D1 */
+                 .active_low     = 1,
+         },
+         {
+-                .name                   = "usr1",
++                .name                   = "LED_RUN",
+                 .gpio                   = GPIO_TO_PIN(1, 17),   /* D2 */
+                 .active_low     = 1,
+         },
+         {
++                .name                   = "BUZZER_K",
++                .gpio                   = GPIO_TO_PIN(1, 18),
++                .active_low     = 0,
++        },
++        {
++                .name                   = "LCD_POWER",
++                .gpio                   = GPIO_TO_PIN(1, 31),
++                .active_low     = 0,
++                .default_state  = LEDS_GPIO_DEFSTATE_ON,
++        },
++        {
+                 .name                   = "heartbeat",
+                 .gpio                   = GPIO_TO_PIN(0, 18),   /* D5 */
+                 .default_trigger        = "heartbeat",
+@@ -2090,6 +2169,7 @@
+ 
+         else
+ 		screen_size = SCREEN_SIZE_800X600_vga;
++    screen_size =SCREEN_SIZE_800X480_7;
+ 	return 1;
+ }
+ __setup("screensize=", screensize_setup);
+@@ -2111,7 +2191,7 @@
+ #elif defined(CONFIG_OK335XS)
+ 	ret = sprintf(buffer, "OK335xS");
+ #elif defined(CONFIG_OK335XS2)
+-	ret = sprintf(buffer, "OK335xS2");
++	ret = sprintf(buffer, "20.11.00");
+ #endif
+ 	}
+ 
+@@ -2167,7 +2247,7 @@
+ }
+ /* ok335x*/
+ static struct evm_dev_cfg ok335x_dev_cfg[] = {
+-	{mmc1_rtl8189eus_init,DEV_ON_BASEBOARD,PROFILE_ALL},
++//	{mmc1_rtl8189eus_init,DEV_ON_BASEBOARD,PROFILE_ALL},
+ 	{mmc_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
+ 	#if defined(CONFIG_ANDROID)
+ 	{tscadc_init,DEV_ON_BASEBOARD, PROFILE_ALL},
+@@ -2181,15 +2261,16 @@
+ 	{usb_init , DEV_ON_BASEBOARD, PROFILE_ALL},
+ 	{nand_init, DEV_ON_BASEBOARD, PROFILE_ALL},
+ 	{uart_init, DEV_ON_BASEBOARD, PROFILE_ALL},
+-	{spi_init , DEV_ON_BASEBOARD, PROFILE_ALL},
+-	{can_init , DEV_ON_BASEBOARD, PROFILE_ALL},
++//	{spi_init , DEV_ON_BASEBOARD, PROFILE_ALL},
++//	{can_init , DEV_ON_BASEBOARD, PROFILE_ALL},
+ 
+-	{buzzer_init,DEV_ON_BASEBOARD, PROFILE_ALL},
++//	{buzzer_init,DEV_ON_BASEBOARD, PROFILE_ALL},
+ #ifdef CONFIG_SP706P_WDT
+ 	{sp706p_init,DEV_ON_BASEBOARD, PROFILE_ALL},
+ #endif
+ 
+ 	{sgx_init , DEV_ON_BASEBOARD, PROFILE_ALL},
++	{matrix_keypad_init , DEV_ON_BASEBOARD, PROFILE_ALL},
+ 	{NULL, 0, 0},
+ };
+ 
+@@ -2239,7 +2320,7 @@
+ 	 * mode[4:7] = USB1PORT's mode
+ 	 * AM335X beta EVM has USB0 in OTG mode and USB1 in host mode.
+ 	 */
+-	.mode           = (MUSB_HOST << 4) | MUSB_OTG,
++	.mode           = (MUSB_HOST << 4),
+ 	.power		= 500,
+ 	.instances	= 1,
+ };
+diff -ruNa 1/kernel-3.2/arch/arm/mach-omap2/devices.c 2/kernel-3.2/arch/arm/mach-omap2/devices.c
+--- 1/kernel-3.2/arch/arm/mach-omap2/devices.c	2020-08-03 18:10:50.000000000 +0800
++++ 2/kernel-3.2/arch/arm/mach-omap2/devices.c	2020-10-13 14:41:25.000000000 +0800
+@@ -1206,7 +1206,7 @@
+ 		.slave_reg_ofs  = 0x200,
+ 		.sliver_reg_ofs = 0xd80,
+ #ifdef CONFIG_OK335XS2
+-		.phy_id		= "0:01",
++		.phy_id		= "0:00",
+ #else 
+ 		.phy_id 	= "0:00",
+ #endif
+@@ -1216,7 +1216,7 @@
+ 		.slave_reg_ofs  = 0x300,
+ 		.sliver_reg_ofs = 0xdc0,
+ #ifdef CONFIG_OK335XS2
+-		.phy_id		= "0:00",
++		.phy_id		= "0:01",
+ #else 
+ 		.phy_id		= "0:01",
+ #endif
+--- 1/kernel-3.2/.config        2020-10-13 15:42:58.759368000 +0800
++++ 2/kernel-3.2/.config        2020-10-13 15:48:38.505930000 +0800
+@@ -1277,9 +1277,9 @@
+ CONFIG_WL12XX_PLATFORM_DATA=y
+ # CONFIG_ZD1211RW is not set
+ # CONFIG_MWIFIEX is not set
+-CONFIG_REALTEK_WIFI=m
+-CONFIG_RTL8189ES=m
+-CONFIG_RTL8192CU=m
++CONFIG_REALTEK_WIFI=y
++# CONFIG_RTL8189ES is not set
++# CONFIG_RTL8192CU is not set
+ 
+ #
+ # Enable WiMAX (Networking options) to see the WiMAX drivers
+@@ -1319,6 +1319,7 @@
+ # CONFIG_KEYBOARD_QT2160 is not set
+ # CONFIG_KEYBOARD_LKKBD is not set
+ CONFIG_KEYBOARD_GPIO=y
++CONFIG_HT_GPIO_IN=y
+ # CONFIG_KEYBOARD_TCA6416 is not set
+ CONFIG_KEYBOARD_MATRIX=y
+ # CONFIG_KEYBOARD_LM8323 is not set
+@@ -1596,7 +1597,7 @@
+ #
+ CONFIG_GPIO_TPS65910=y
+ CONFIG_GENERIC_PWM=y
+-CONFIG_DAVINCI_EHRPWM=y
++# CONFIG_DAVINCI_EHRPWM is not set
+ CONFIG_ECAP_PWM=y
+ # CONFIG_W1 is not set
+ # CONFIG_POWER_SUPPLY is not set
+diff -ruNa 1/kernel-3.2/drivers/input/keyboard/Kconfig 2/kernel-3.2/drivers/input/keyboard/Kconfig
+--- 1/kernel-3.2/drivers/input/keyboard/Kconfig	2020-08-03 18:10:08.000000000 +0800
++++ 2/kernel-3.2/drivers/input/keyboard/Kconfig	2020-10-13 14:53:17.000000000 +0800
+@@ -187,6 +187,22 @@
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called gpio_keys.
+ 
++config HT_GPIO_IN
++	tristate "HT-GPIO-INPUT-DRV"
++	depends on GENERIC_GPIO
++	default y
++	help
++	  This driver implements support for buttons connected
++	  to GPIO pins of various CPUs (and some other chips).
++
++	  Say Y here if your device has buttons connected
++	  directly to such GPIO pins.  Your board-specific
++	  setup logic must also provide a platform device,
++	  with configuration data saying which GPIOs are used.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called htgpio-in
++
+ config KEYBOARD_GPIO_POLLED
+ 	tristate "Polled GPIO buttons"
+ 	depends on GENERIC_GPIO
+diff -ruNa 1/kernel-3.2/drivers/input/keyboard/Makefile 2/kernel-3.2/drivers/input/keyboard/Makefile
+--- 1/kernel-3.2/drivers/input/keyboard/Makefile	2020-08-03 18:10:08.000000000 +0800
++++ 2/kernel-3.2/drivers/input/keyboard/Makefile	2020-10-13 13:53:59.000000000 +0800
+@@ -51,3 +51,4 @@
+ obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
+ obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
+ obj-$(CONFIG_KEYBOARD_W90P910)		+= w90p910_keypad.o
++obj-$(CONFIG_HT_GPIO_IN)	        += htgpio-in.o
+diff -ruNa 1/kernel-3.2/drivers/input/keyboard/htgpio-in.c 2/kernel-3.2/drivers/input/keyboard/htgpio-in.c
+--- 1/kernel-3.2/drivers/input/keyboard/htgpio-in.c	1970-01-01 08:00:00.000000000 +0800
++++ 2/kernel-3.2/drivers/input/keyboard/htgpio-in.c	2020-10-13 15:30:48.000000000 +0800
+@@ -0,0 +1,260 @@
++/*
++===================================================
++Name            : htgpio-in.c
++Author          : zhangchengrui
++Date            : 09/11/2009
++Copyright       : GPL
++Description     : HT-GPIO-INPUT-DRV
++===================================================
++*/
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/fs.h>
++#include <linux/errno.h>
++#include <linux/poll.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <asm/irq.h>
++//#include <mach/regs-gpio.h>
++#include <mach/hardware.h>
++//zhangchengrui
++#include <asm/gpio.h>
++/* Convert GPIO signal to GPIO pin number */
++#ifndef GPIO_TO_PIN(bank, gpio)
++#define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
++#endif
++
++#define DEVICE_NAME         "htgpio-in"    //设备名称
++#define DEVICE_MAJOR        232                 //主设备号                
++#define KEY_TIMER_DELAY1    (HZ/50)             //按键按下去抖延时20毫秒        
++#define KEY_TIMER_DELAY2    (HZ/10)             //按键抬起去抖延时100毫秒
++#define KEY_DOWN            0                   //按键按下                    
++#define KEY_UP              1                   //按键抬起                
++#define KEY_UNCERTAIN       2                   //按键不确定                    
++#define KEY_COUNT           6                   //6个按键                    
++
++static volatile int ev_press = 0;                //按键按下产生标志
++static volatile char key_status[KEY_COUNT];       //记录6个按键的状态
++static struct timer_list key_timers[KEY_COUNT];  //定义6个按键去抖动定时器
++static DECLARE_WAIT_QUEUE_HEAD(button_waitq);    //定义并初始化等待队列
++
++//组织硬件资源结构体
++struct button_irq_desc
++{
++    int irq;            //中断号
++    int pin;            //引脚
++    int pin_setting;    //引脚配置
++    char *name;         //按键名称，注意这个名称，在后面的一个现象中会出现
++};
++
++//定义6个按键资源结构体数组
++static struct button_irq_desc button_irqs[] =
++{
++    /*
++        {IRQ_EINT8 , S3C2410_GPG0 , S3C2410_GPG0_EINT8 , "KEY0"},
++        {IRQ_EINT11, S3C2410_GPG3 , S3C2410_GPG3_EINT11 , "KEY1"},
++        {IRQ_EINT13, S3C2410_GPG5 , S3C2410_GPG5_EINT13 , "KEY2"},
++        {IRQ_EINT14, S3C2410_GPG6 , S3C2410_GPG6_EINT14 , "KEY3"},
++        {IRQ_EINT15, S3C2410_GPG7 , S3C2410_GPG7_EINT15 , "KEY4"},
++        {IRQ_EINT19, S3C2410_GPG11, S3C2410_GPG11_EINT19, "KEY5"},
++    */
++};
++
++/*
++static irqreturn_t buttons_interrupt(int irq, void *dev_id)
++{
++    //获取当前按键资源的索引
++    int key = (int)dev_id;
++
++    if(key_status[key] == KEY_UP)
++    {
++        //设置当前按键的状态为不确定
++        key_status[key] = KEY_UNCERTAIN;
++
++        //设置当前按键按下去抖定时器的延时并启动定时器
++        key_timers[key].expires = jiffies + KEY_TIMER_DELAY1;
++        add_timer(&key_timers[key]);
++    }
++
++    return IRQ_RETVAL(IRQ_HANDLED);
++}
++*/
++
++static void buttons_timer(unsigned long arg)
++{
++    //获取当前按键资源的索引
++    int key = arg;
++
++    /*
++        //获取当前按键引脚上的电平值来判断按键是按下还是抬起
++        int up = s3c2410_gpio_getpin(button_irqs[key].pin);
++
++        if(!up)//低电平，按键按下
++        {
++            if(key_status[key] == KEY_UNCERTAIN)
++            {
++                //标识当前按键状态为按下
++                key_status[key] = KEY_DOWN;
++
++                //标识当前按键已按下并唤醒等待队列
++                ev_press = 1;
++                wake_up_interruptible(&button_waitq);
++            }
++
++            //设置当前按键抬起去抖定时器的延时并启动定时器
++            key_timers[key].expires = jiffies + KEY_TIMER_DELAY2;
++            add_timer(&key_timers[key]);
++        }
++        else//高电平，按键抬起
++        {
++            //标识当前按键状态为抬起
++            key_status[key] = KEY_UP;
++        }
++    */
++}
++
++static int buttons_open(struct inode *inode, struct file *file)
++{
++    int i;
++    int ret;
++    /*
++        for(i = 0; i < KEY_COUNT; i++)
++        {
++
++            //设置6个IO口为中断触发方式
++            s3c2410_gpio_cfgpin(button_irqs[i].pin, button_irqs[i].pin_setting);
++
++            //设置中断下降沿为有效触发
++            set_irq_type(button_irqs[i].irq, IRQ_TYPE_EDGE_FALLING);
++
++            //申请中断(类型为快速中断，中断服务时屏蔽所有外部中断？)
++            ret = request_irq(button_irqs[i].irq, buttons_interrupt, IRQF_DISABLED, button_irqs[i].name, (void *)i);
++
++            if(ret)
++            {
++                break;
++            }
++
++            //初始化6个按键的状态为抬起
++            key_status[i] = KEY_UP;
++
++
++            //初始化并设置6个去抖定时器
++            setup_timer(&key_timers[i], buttons_timer, i);
++        }
++
++        if(ret)
++        {
++            //中断申请失败处理
++            i--;
++
++            for(; i >= 0; i--)
++            {
++                //释放已注册成功的中断
++                disable_irq(button_irqs[i].irq);
++                free_irq(button_irqs[i].irq, (void *)i);
++            }
++
++            return -EBUSY;
++        }
++    */
++    printk("gpio-in dirver opened\n");
++    return 0;
++}
++
++static int buttons_close(struct inode *inode, struct file *file)
++{
++    int i;
++
++    /*
++        //释放6个定时器和中断
++        for(i = 0; i < KEY_COUNT; i++)
++        {
++            del_timer(&key_timers[i]);
++
++            disable_irq(button_irqs[i].irq);
++            free_irq(button_irqs[i].irq, (void *)i);
++        }
++    */
++    printk("gpio-in dirver closed\n");
++    return 0;
++}
++
++static int buttons_read(struct file *file, char __user *buf, size_t count, loff_t *offp)
++{
++    unsigned long ret;
++
++
++
++    //zhangcr
++
++    memset(key_status, 0, sizeof(key_status));
++    key_status[0] = gpio_get_value(GPIO_TO_PIN(1, 22));
++    key_status[1] = gpio_get_value(GPIO_TO_PIN(1, 20));
++    key_status[2] = gpio_get_value(GPIO_TO_PIN(1, 21));
++
++    //将内核中的按键状态数据拷贝到用户空间给应用程序使用
++    ret = copy_to_user(buf, (void *)key_status, min(sizeof(key_status), count));
++
++    return ret ? -EFAULT : min(sizeof(key_status), count);
++}
++
++/*
++//驱动程序中的轮询，用于应用程序中的轮询查询是否可对设备进行访问
++static int buttons_poll(struct file *file, struct poll_table_struct *wait)
++{
++    unsigned int mask = 0;
++
++    //添加等待队列到等待队列表中(poll_table)
++    poll_wait(file, &button_waitq, wait);
++
++    if(ev_press)
++    {
++        //标识数据可以获得
++        mask |= POLLIN | POLLRDNORM;
++    }
++
++    return mask;
++}
++*/
++//设备操作列表
++static struct file_operations buttons_fops =
++{
++    .owner        = THIS_MODULE,
++    .open         = buttons_open,
++    .release      = buttons_close,
++    .read         = buttons_read,
++    //  .poll         = buttons_poll,
++};
++
++static int __init button_init(void)
++{
++    int ret;
++
++    //注册字符设备
++    ret = register_chrdev(DEVICE_MAJOR, DEVICE_NAME, &buttons_fops);
++
++    if (ret < 0)
++    {
++        printk(DEVICE_NAME " register faild!\n");
++        return ret;
++    }
++    printk(DEVICE_NAME " HT-GPIO-INPUT-DRV Registered  HT-zhangchengrui\n");
++    return 0;
++}
++
++static void __exit button_exit(void)
++{
++    //注销字符设备
++    unregister_chrdev(DEVICE_MAJOR, DEVICE_NAME);
++    printk(DEVICE_NAME " HT-GPIO-INPUT-DRV unregistered  HT-zhangchengrui\n");
++}
++
++module_init(button_init);
++module_exit(button_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("zhangchengrui");
++MODULE_DESCRIPTION("HT-GPIO-INPUT-DRV");
+diff -ruNa 1/kernel-3.2/drivers/input/keyboard/matrix_keypad.c 2/kernel-3.2/drivers/input/keyboard/matrix_keypad.c
+--- 1/kernel-3.2/drivers/input/keyboard/matrix_keypad.c	2020-08-03 18:10:08.000000000 +0800
++++ 2/kernel-3.2/drivers/input/keyboard/matrix_keypad.c	2020-10-13 15:29:54.000000000 +0800
+@@ -109,6 +109,9 @@
+ 	}
+ }
+ 
++#define FILTERCOUNT 	3 	//zcr
++uint32_t new_state_temp[FILTERCOUNT][MATRIX_MAX_COLS]; 	//zcr
++int filter_index=0; 	//zcr
+ /*
+  * This gets the keys from keyboard and reports it to input subsystem
+  */
+@@ -119,7 +122,7 @@
+ 	struct input_dev *input_dev = keypad->input_dev;
+ 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
+ 	uint32_t new_state[MATRIX_MAX_COLS];
+-	int row, col, code;
++	int row, col, code, i; 	//zcr
+ 
+ 	/* de-activate all columns for scanning */
+ 	activate_all_cols(pdata, false);
+@@ -138,6 +141,19 @@
+ 		activate_col(pdata, col, false);
+ 	}
+ 
++	memcpy(&new_state_temp[filter_index][0], new_state, sizeof(new_state)); 	//zcr
++	for (col = 0; col < pdata->num_col_gpios; col++) 	//zcr
++	{
++		new_state[col] = new_state_temp[0][col]; 	//zcr
++	}
++	for (i = 1; i < FILTERCOUNT; i++) 	//zcr
++	{
++		for (col = 0; col < pdata->num_col_gpios; col++)
++		{
++			new_state[col] &= new_state_temp[i][col];
++		}
++	}
++
+ 	for (col = 0; col < pdata->num_col_gpios; col++) {
+ 		uint32_t bits_changed;
+ 
+@@ -162,6 +178,9 @@
+ 
+ 	activate_all_cols(pdata, true);
+ 
++	filter_index++; 	//zcr
++	filter_index%=FILTERCOUNT; 	//zcr
++
+ 	/* Enable IRQs again */
+ 	spin_lock_irq(&keypad->lock);
+ 	keypad->scan_pending = false;
+diff -ruNa 1/kernel-3.2/drivers/input/touchscreen/ti_tsc.c 2/kernel-3.2/drivers/input/touchscreen/ti_tsc.c
+--- 1/kernel-3.2/drivers/input/touchscreen/ti_tsc.c	2020-08-03 18:10:08.000000000 +0800
++++ 2/kernel-3.2/drivers/input/touchscreen/ti_tsc.c	2020-10-13 15:27:13.000000000 +0800
+@@ -145,6 +145,243 @@
+ 			(ts_dev, TSCADC_REG_SE) |
+ 			((1 << ((ts_dev->steps_to_config * 2)  + 3)) - 1));
+ }
++#if 1
++
++//paixu xiao--->da
++static void uint_sort(uint *buffer, int count)
++{
++	int i = 0, j = 0;
++	unsigned int temp = 0;
++	if (count < 2)
++		return ;
++	for (i = count - 1; i >= 1; i--)
++	{
++		for (j = 0; j < i; j++)
++			if (buffer[j] > buffer[j + 1])
++			{
++				temp = buffer[j];
++				buffer[j] = buffer[j + 1];
++				buffer[j + 1] = temp;
++			}
++	}
++}
++
++static irqreturn_t tscadc_interrupt(int irq, void *dev)
++{
++	struct tscadc		*ts_dev = (struct tscadc *)dev;
++	struct input_dev	*input_dev = ts_dev->input;
++	unsigned int		status, irqclr = 0;
++	int			i, j;
++	int			fsm = 0, fifo0count = 0;
++	unsigned int		readx1 = 0, ready1 = 0;
++	unsigned int        sum_readx = 0, sum_ready = 0, temp_x[7], temp_y[7]; //zhangcr
++	unsigned int		prev_val_x = ~0, prev_val_y = ~0;
++	unsigned int		prev_diff_x = ~0, prev_diff_y = ~0;
++	unsigned int		cur_diff_x = 0, cur_diff_y = 0;
++	unsigned int		val_x = 0, val_y = 0, diffx = 0, diffy = 0;
++	unsigned int		z1 = 0, z2 = 0, z = 0;
++	unsigned int		channel, config;
++//   static   int  		terrible_touch=0;//zhangcr
++
++
++	status = tscadc_readl(ts_dev, TSCADC_REG_IRQSTATUS);
++
++	/*
++	 * ADC and touchscreen share the IRQ line.
++	 * FIFO1 threshold, FIFO1 Overrun and FIFO1 underflow
++	 * interrupts are used by ADC,
++	 * hence return from touchscreen IRQ handler if FIFO1
++	 * related interrupts occurred.
++	 */
++	if ((status & TSCADC_IRQENB_FIFO1THRES) ||
++	        (status & TSCADC_IRQENB_FIFO1OVRRUN) ||
++	        (status & TSCADC_IRQENB_FIFO1UNDRFLW))
++		return IRQ_NONE;
++	else if ((status & TSCADC_IRQENB_FIFO0OVRRUN) ||
++	         (status & TSCADC_IRQENB_FIFO0UNDRFLW)) {
++		config = tscadc_readl(ts_dev, TSCADC_REG_CTRL);
++		config &= ~(TSCADC_CNTRLREG_TSCSSENB);
++		tscadc_writel(ts_dev, TSCADC_REG_CTRL, config);
++
++		if (status & TSCADC_IRQENB_FIFO0UNDRFLW)
++			tscadc_writel(ts_dev, TSCADC_REG_IRQSTATUS,
++			              (status | TSCADC_IRQENB_FIFO0UNDRFLW));
++		else
++			tscadc_writel(ts_dev, TSCADC_REG_IRQSTATUS,
++			              (status | TSCADC_IRQENB_FIFO0OVRRUN));
++
++		tscadc_writel(ts_dev, TSCADC_REG_CTRL,
++		              (config | TSCADC_CNTRLREG_TSCSSENB));
++		return IRQ_HANDLED;
++	} else if (status & TSCADC_IRQENB_FIFO0THRES) {
++		for (i = 0; i < ts_dev->steps_to_config; i++) {
++			readx1 = tscadc_readl(ts_dev, TSCADC_REG_FIFO0);
++			channel = readx1 & 0xf0000;
++			channel = channel >> 0x10;
++			if ((channel >= 0) &&
++			        (channel < ts_dev->steps_to_config)) {
++				readx1 = readx1 & 0xfff;
++				if (ts_dev->x.inverted)
++					readx1 = ts_dev->x.max - readx1 + ts_dev->x.min;
++				temp_x[i] = readx1;
++			}
++		}
++		if (ts_dev->steps_to_config <= 3 && ts_dev->steps_to_config > 0)
++		{
++			for (j = 0; j < ts_dev->steps_to_config; j++)
++			{
++				sum_readx += temp_x[j];
++			}
++			readx1 = sum_readx / ts_dev->steps_to_config;
++		} else if (ts_dev->steps_to_config > 3) {
++			uint_sort(temp_x, ts_dev->steps_to_config);
++			for (j = 1; j < ts_dev->steps_to_config - 1; j++)
++			{
++				sum_readx += temp_x[j];
++			}
++			readx1 = sum_readx / (ts_dev->steps_to_config - 2);
++		}
++		if (readx1 > prev_val_x)
++			cur_diff_x = readx1 - prev_val_x;
++		else
++			cur_diff_x = prev_val_x - readx1;
++
++		if (cur_diff_x < prev_diff_x) {
++			prev_diff_x = cur_diff_x;
++			val_x = readx1;
++		}
++		prev_val_x = readx1;
++
++		for (i = 0; i < ts_dev->steps_to_config; i++) {
++			ready1 = tscadc_readl(ts_dev, TSCADC_REG_FIFO0);
++			channel = ready1 & 0xf0000;
++			channel = channel >> 0x10;
++			if ((channel >= ts_dev->steps_to_config) &&
++			        (channel < (2 * ts_dev->steps_to_config - 1))) {
++				ready1 &= 0xfff;
++
++				if (ts_dev->y.inverted)
++					ready1 = ts_dev->y.max - ready1 + ts_dev->y.min;
++				temp_y[i] = ready1;
++			}
++		}
++		if (ts_dev->steps_to_config <= 3 && ts_dev->steps_to_config > 0)
++		{
++			for (j = 0; j < ts_dev->steps_to_config; j++)
++			{
++				sum_ready += temp_y[j];
++			}
++			ready1 = sum_ready / ts_dev->steps_to_config;
++		} else if (ts_dev->steps_to_config > 3) {
++			uint_sort(temp_y, ts_dev->steps_to_config);
++			for (j = 1; j < ts_dev->steps_to_config - 1; j++)
++			{
++				sum_ready += temp_y[j];
++			}
++			ready1 = sum_ready / (ts_dev->steps_to_config - 2);
++		}
++		if (ready1 > prev_val_y)
++			cur_diff_y = ready1 - prev_val_y;
++		else
++			cur_diff_y = prev_val_y - ready1;
++
++		if (cur_diff_y < prev_diff_y) {
++			prev_diff_y = cur_diff_y;
++			val_y = ready1;
++		}
++		prev_val_y = ready1;
++
++		if (val_x > bckup_x) {
++			diffx = val_x - bckup_x;
++			diffy = val_y - bckup_y;
++		} else {
++			diffx = bckup_x - val_x;
++			diffy = bckup_y - val_y;
++		}
++		bckup_x = val_x;
++		bckup_y = val_y;
++
++		z1 = ((tscadc_readl(ts_dev, TSCADC_REG_FIFO0)) & 0xfff);
++		z2 = ((tscadc_readl(ts_dev, TSCADC_REG_FIFO0)) & 0xfff);
++		fifo0count = tscadc_readl(ts_dev, TSCADC_REG_FIFO0CNT);
++		for (i = 0; i < fifo0count; i++)
++			tscadc_readl(ts_dev, TSCADC_REG_FIFO0);
++
++		if ((z1 != 0) && (z2 != 0)) {
++			/*
++			 * cal pressure using formula
++			 * Resistance(touch) = x plate resistance *
++			 * x postion/4096 * ((z2 / z1) - 1)
++			 */
++			z = z2 - z1;
++			z *= val_x;
++			z *= ts_dev->x_plate_resistance;
++			z /= z1;
++			z = (z + 2047) >> 12;
++
++			//printk("zhangcr2   Z ==%d\n\r",z);
++			//	udelay(2000);
++			//	 	if(z<190)
++			//	 	{
++			//		z=0;
++			//		 	}
++			/*
++			 * Sample found inconsistent by debouncing
++			 * or pressure is beyond the maximum.
++			 * Don't report it to user space.
++			 */
++//			val_x=(long)((13583+(val_x*544072)+(19*val_y)))/65536;
++			//  			val_y=(long)((115+(34418612*val_x)+(val_y*(-8959))))/65536;
++			if (pen == 0) {
++				if ((diffx < 15) && (diffy < 15)
++				        && (z <= MAX_12BIT)) {
++					input_report_abs(input_dev, ABS_X,
++					                 val_x);
++					input_report_abs(input_dev, ABS_Y,
++					                 val_y);
++					input_report_abs(input_dev, ABS_PRESSURE,
++					                 z);
++					input_report_key(input_dev, BTN_TOUCH,
++					                 1);
++					input_sync(input_dev);
++					//printk("KeyDown   ABS_X==%d  ABS_Y==%d   ABS_YALI==%d\n\r",ABS_X,ABS_Y,ABS_PRESSURE);
++				}
++			}
++		}
++		irqclr |= TSCADC_IRQENB_FIFO0THRES;
++	}
++
++	udelay(315);
++	//udelay(1000);//zhangcr
++
++	status = tscadc_readl(ts_dev, TSCADC_REG_RAWIRQSTATUS);
++	if (status & TSCADC_IRQENB_PENUP) {
++		/* Pen up event */
++		fsm = tscadc_readl(ts_dev, TSCADC_REG_ADCFSM);
++		if (fsm == 0x10) {
++			pen = 1;
++			bckup_x = 0;
++			bckup_y = 0;
++			input_report_key(input_dev, BTN_TOUCH, 0);
++			input_report_abs(input_dev, ABS_PRESSURE, 0);
++			input_sync(input_dev);
++			//printk("KeyUP   ABS_YALI==%d \n\r",ABS_X,ABS_Y,ABS_PRESSURE);
++		} else {
++			pen = 0;
++		}
++		irqclr |= TSCADC_IRQENB_PENUP;
++	}
++	irqclr |= TSCADC_IRQENB_HW_PEN;
++
++	tscadc_writel(ts_dev, TSCADC_REG_IRQSTATUS, (status | irqclr));
++
++	tscadc_writel(ts_dev, TSCADC_REG_SE,
++	              tscadc_readl(ts_dev, TSCADC_REG_SE) |
++	              ((1 << ((ts_dev->steps_to_config * 2)  + 3)) - 1));
++	return IRQ_HANDLED;
++}
++
++#else
+ 
+ static irqreturn_t tscadc_interrupt(int irq, void *dev)
+ {
+@@ -318,6 +555,8 @@
+ 	return IRQ_HANDLED;
+ }
+ 
++#endif
++
+ /*
+ * The functions for inserting/removing driver as a module.
+ */
+diff -ruNa 1/kernel-3.2/drivers/video/da8xx-fb.c 2/kernel-3.2/drivers/video/da8xx-fb.c
+--- 1/kernel-3.2/drivers/video/da8xx-fb.c	2020-08-03 18:10:14.000000000 +0800
++++ 2/kernel-3.2/drivers/video/da8xx-fb.c	2020-10-13 15:16:32.000000000 +0800
+@@ -291,17 +291,17 @@
+ 	},
+ 	/* Newhaven Display */
+ 	[4] = {
+-                .name = "NHD-7.0-ATXI#-T-1",
+-		.width = 800,
+-		.height = 480,
+-		.hfp = 112,
+-		.hbp = 88,
+-		.hsw = 48,
+-		.vfp = 21,
+-		.vbp = 39,
+-		.vsw = 3,
+-		.pxl_clk = 40000000,
+-                .invert_pxl_clk = 0,
++        .name = "NHD-7.0-ATXI#-T-1",
++        .width = 800,
++        .height = 480,
++        .hfp = 40,
++        .hbp = 40,
++        .hsw = 48,
++        .vfp = 40,
++        .vbp = 40,
++        .vsw = 10,
++        .pxl_clk = 30000000,
++        .invert_pxl_clk = 0,
+ 	},
+ 	[5] = {
+ 		.name = "NHD-8.0-ATXI#-T-1",
+diff -ruNa 1/kernel-3.2/include/linux/mfd/ti_tscadc.h 2/kernel-3.2/include/linux/mfd/ti_tscadc.h
+--- 1/kernel-3.2/include/linux/mfd/ti_tscadc.h	2020-08-03 18:10:27.000000000 +0800
++++ 2/kernel-3.2/include/linux/mfd/ti_tscadc.h	2020-10-13 15:11:42.000000000 +0800
+@@ -85,10 +85,10 @@
+ /* Delay register */
+ #define TSCADC_STEPDELAY_OPEN_MASK	(0x3FFFF << 0)
+ #define TSCADC_STEPDELAY_OPEN(val)	((val) << 0)
+-#define TSCADC_STEPCONFIG_OPENDLY	TSCADC_STEPDELAY_OPEN(0x098)
++#define TSCADC_STEPCONFIG_OPENDLY	TSCADC_STEPDELAY_OPEN(0x260)
+ #define TSCADC_STEPDELAY_SAMPLE_MASK	(0xFF << 24)
+ #define TSCADC_STEPDELAY_SAMPLE(val)	((val) << 24)
+-#define TSCADC_STEPCONFIG_SAMPLEDLY	TSCADC_STEPDELAY_SAMPLE(0)
++#define TSCADC_STEPCONFIG_SAMPLEDLY	TSCADC_STEPDELAY_SAMPLE(20)
+ 
+ /* Charge Config */
+ #define TSCADC_STEPCHARGE_RFP_MASK	(7 << 12)
+@@ -107,7 +107,7 @@
+ /* Charge delay */
+ #define TSCADC_CHARGEDLY_OPEN_MASK	(0x3FFFF << 0)
+ #define TSCADC_CHARGEDLY_OPEN(val)	((val) << 0)
+-#define TSCADC_CHARGEDLY_OPENDLY	TSCADC_CHARGEDLY_OPEN(1)
++#define TSCADC_CHARGEDLY_OPENDLY	TSCADC_CHARGEDLY_OPEN(50)
+ 
+ /* Control register */
+ #define TSCADC_CNTRLREG_TSCSSENB	BIT(0)
