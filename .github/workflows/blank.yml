@@ -16,16 +16,16 @@ jobs:
           wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
           tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
     
-      - name: STEP 1
+      - name: GIT RTL8723D
         run: |
           git clone https://github.com/cookie-dragon/realtek-rtl8723d.git -b v5.2.15.1_26226.20180129_COEX20171212-2222
 
-      - name: STEP 2
+      - name: Untar WirelessTools
         run: |
           tar zxf wireless_tools.30.rtl.tar.gz
         working-directory: ./realtek-rtl8723d/wireless_tools
 
-      - name: STEP 3
+      - name: Fix WirelessTools
         run: |
           sed -i '8c PREFIX = ./usr/local' Makefile
           sed -i '12c CC = arm-linux-gnueabihf-gcc' Makefile
@@ -33,12 +33,7 @@ jobs:
           sed -i '15c RANLIB = arm-linux-gnueabihf-ranlib' Makefile
         working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
 
-      - name: STEP 4
-        run: |
-          tar zxf wpa_supplicant_hostapd-0.8_rtw_r24647.20171025.tar.gz
-        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd
-
-      - name: STEP Build wireless_tools
+      - name: Build WirelessTools
         env:
           TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
           CROSS_COMPILE: arm-linux-gnueabihf-
@@ -48,7 +43,22 @@ jobs:
           sudo make install
         working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
 
-      - name: STEP Build hostapd
+      - name: Tar WirelessTools
+        run: tar zcf wireless_tools.tar.gz usr/
+        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+
+      - name: Upload WirelessTools
+        uses: actions/upload-artifact@v2
+        with:
+          name: wireless_tools.tar.gz
+          path: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtlwireless_tools.tar.gz
+
+      - name: Untar WpaSupplicant And Hostapd
+        run: |
+          tar zxf wpa_supplicant_hostapd-0.8_rtw_r24647.20171025.tar.gz
+        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd
+
+      - name: Build Hostapd
         env:
           TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
           CROSS_COMPILE: arm-linux-gnueabihf-
@@ -58,7 +68,17 @@ jobs:
           sudo make install
         working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/hostapd
 
-      - name: STEP Build wpa_supplicant
+      - name: Tar Hostapd
+        run: tar zcf hostapd.tar.gz /usr/local/bin/hostapd /usr/local/bin/hostapd_cli
+        working-directory: /
+
+      - name: Upload Hostapd
+        uses: actions/upload-artifact@v2
+        with:
+          name: hostapd.tar.gz
+          path: /hostapd.tar.gz
+
+      - name: Build WpaSupplicant
         env:
           TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
           CROSS_COMPILE: arm-linux-gnueabihf-
@@ -68,6 +88,20 @@ jobs:
           sudo make install
         working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
 
-      - name: STEP Show
-        run: |
-          echo $PATH
+      - name: Tar WpaSupplicant
+        run: tar zcf wpa_supplicant.tar.gz /usr/local/sbin/wpa_cli /usr/local/sbin/wpa_passphrase /usr/local/sbin/wpa_supplicant
+        working-directory: /
+
+      - name: Upload WpaSupplicant
+        uses: actions/upload-artifact@v2
+        with:
+          name: wpa_supplicant.tar.gz
+          path: /wpa_supplicant.tar.gz
+
+
+
+
+
+
+
+
