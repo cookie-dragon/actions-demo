@@ -11,37 +11,61 @@ on:
 
 jobs:
 
-  job_build:
-    name: Job Build
+  job_toolchain:
+    name: Toolchain
     runs-on: ubuntu-18.04
     steps:
+      - name: Install Basic APT Packages
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get -y install git build-essential python diffstat texinfo gawk chrpath dos2unix wget unzip socat doxygen libc6:i386 libncurses5:i386 libstdc++6:i386 libz1:i386
+          sudo apt-get -y install gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm python3-subunit mesa-common-dev
 
+      - name: Install APT Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y u-boot-tools mtd-utils
+
+      - name: Wget Toolchain
+        run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: Upload Artifact Toolchain
+        uses: actions/upload-artifact@v2
+        with:
+          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          path: ./gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+  job_base_rootfs:
+    name: Base Root File System
+    needs: [job_toolchain]
+    runs-on: ubuntu-18.04
+    steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - name: APT
-      #   run: |
-      #     sudo apt-get update
-      #     sudo dpkg --add-architecture i386
-      #     sudo apt-get update
-      #     sudo apt-get install -y git build-essential python diffstat texinfo gawk chrpath dos2unix wget unzip socat doxygen libc6:i386 libncurses5:i386 libstdc++6:i386 libz1:i386
-      #     sudo apt-get install -y gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm python3-subunit mesa-common-dev
-    
-      - name: Get Toolchain
-        run: |
-          wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-          tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      - name: Download Artifact Toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          path: ./
 
-      - name: Download and Unzip Buildroot
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: Wget Buildroot
         run: |
           wget https://buildroot.org/downloads/buildroot-2019.02.11.tar.gz
-          tar zxf buildroot-2019.02.11.tar.gz
           wget https://buildroot.org/downloads/buildroot-2017.02.11.tar.gz
-          tar zxf buildroot-2017.02.11.tar.gz
           wget https://buildroot.org/downloads/buildroot-2016.02.tar.gz
+
+      - name: Untar Buildroot
+        run: |
+          tar zxf buildroot-2019.02.11.tar.gz
+          tar zxf buildroot-2017.02.11.tar.gz
           tar zxf buildroot-2016.02.tar.gz
 
-      - name: Fix Buildroot
+      - name: Replace Buildroot Package Version
         run: |
           rm -rf buildroot-2019.02.11/package/openssh
           cp -rf buildroot-2016.02/package/openssh buildroot-2019.02.11/package/
@@ -56,7 +80,7 @@ jobs:
           rm -rf buildroot-2019.02.11/package/paho-mqtt-c
           cp -rf buildroot-2017.02.11/package/paho-mqtt-c buildroot-2019.02.11/package/
 
-      - name: Patch Buildroot
+      - name: Patch Buildroot Package
         run: |
           patch -p1 < ../buildroot-patch/ncurses.mk.patch
         working-directory: ./buildroot-2019.02.11
@@ -64,66 +88,130 @@ jobs:
       - name: Config Buildroot
         run: cp -f buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
 
-      - name: Build Root File System
+      - name: Build Buildroot
         run: make -j$(nproc)
         working-directory: ./buildroot-2019.02.11
 
       - name: Config BusyBox
         run: cp -f buildroot-config/config.1.29.3 buildroot-2019.02.11/output/build/busybox-1.29.3/.config
 
-      - name: Build Root File System Again
+      - name: Build Buildroot Again
         run: make -j$(nproc)
         working-directory: ./buildroot-2019.02.11
 
-      - name: Upload Base Root File System
+      - name: Upload Artifact Base Root File System
         uses: actions/upload-artifact@v2
         with:
           name: rootfs.tar
-          path: buildroot-2019.02.11/output/images/rootfs.tar
+          path: ./buildroot-2019.02.11/output/images/rootfs.tar
 
-      - name: Fix Root File System
-        run: |
-          mkdir -p rootfs
-          tar xf buildroot-2019.02.11/output/images/rootfs.tar -C ./rootfs/
+  job_kernel:
+    name: Kernel
+    needs: [job_toolchain, job_base_rootfs]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - name: Pull Kernel
+      - name: Download Artifact Toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          path: ./
+
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: Git Kernel
         run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
-        
-      - name: Change Kernel
-        run: cp -rf htbox-kernel-add/* kernel/
 
       - name: Patch Kernel
         run : patch -p1 < ../timeconst.pl.x64.patch
         working-directory: ./kernel
+
+      - name: Add Kernel File
+        run: cp -rf htbox-kernel-add/* kernel/
 
       - name: Build Kernel
         env:
           TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
           CROSS_COMPILE: arm-linux-gnueabihf-
         run: |
-          sudo apt-get update
-          sudo apt-get install -y u-boot-tools
           export PATH=$TOOLCHAIN:$PATH
           make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
           make ok335xhtbox_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
           make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
           make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
+          make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules
         working-directory: ./kernel
-          
-      - name: Upload Kernel
+
+      - name: Upload Artifact Kernel
         uses: actions/upload-artifact@v2
         with:
           name: uImage
-          path: kernel/arch/arm/boot/uImage
+          path: ./kernel/arch/arm/boot/uImage
+
+      - name: Download Artifact Base Root File System
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs.tar
+          path: ./
+
+      - name: Untar Base Root File System
+        run: |
+          mkdir -p rootfs
+          tar xf rootfs.tar -C ./rootfs/
+          
+      - name: Kernel Modules Install
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
+        working-directory: ./kernel
+
+      - name: Tar Root File System
+        run: |
+          mkdir -p rootfs
+          tar zxf rootfs.tar.gz rootfs/
+
+      - name: Upload Root File System
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs.tar.gz
+          path: ./rootfs.tar.gz
+
+
+  job_final_rootfs:
+    name: Final Root File System
+    needs: [job_kernel]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download Artifact Root File System
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs.tar.gz
+          path: ./
+
+      - name: Untar Base Root File System
+        run: tar zxf rootfs.tar.gz
+
+      - name: ROOTFS - Fix Root File System
+        run: |
+          rm -rf rootfs/lib/modules/3.2.0/source
+          rm -rf rootfs/etc/init.d/S60openvpn
+          cp -rf htbox-rootfs-add/* rootfs/
+          chmod +x rootfs/etc/init.d/*
+          chmod +x rootfs/usr/local/bin/*
 
       - name: Build UBI File System
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mtd-utils
           mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
           ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 ubinize-256M.cfg
 
-      - name: Upload UBI File System
+      - name: Upload Artifact UBI File System
         uses: actions/upload-artifact@v2
         with:
           name: ubi.img
