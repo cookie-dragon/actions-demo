@@ -39,7 +39,7 @@ jobs:
         run: |
           export PATH=$TOOLCHAIN:$PATH
           make -f arm_v7_linux.mk
-          cp -f ../bin/arm_v7-linux/libsnap7.so /usr/lib
+          sudo cp -f ../bin/arm_v7-linux/libsnap7.so /usr/lib
         working-directory: ./snap7-iot-arm-1.4.2/build/unix
 
       - name: Tar Snap7
