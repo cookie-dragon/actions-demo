@@ -1,18 +1,23 @@
 name: C/C++ CI
 
 on:
-#   push:
-#     branches: [ dev ]
-#   pull_request:
-#     branches: [ dev ]
+  push:
+    paths: 
+      - 'htbox-kernel-add/**'
+      - 'htbox-rootfs-add/**'
+      - 'buildroot-config/**'
+      - 'buildroot-patch/**'
   workflow_dispatch:
 
 jobs:
 
-  job_prepare:
-    name: Job Prepare
+  job_build:
+    name: Job Build
     runs-on: ubuntu-18.04
     steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
 
       # - name: APT
       #   run: |
@@ -22,104 +27,12 @@ jobs:
       #     sudo apt-get install -y git build-essential python diffstat texinfo gawk chrpath dos2unix wget unzip socat doxygen libc6:i386 libncurses5:i386 libstdc++6:i386 libz1:i386
       #     sudo apt-get install -y gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm python3-subunit mesa-common-dev
     
-      - name: ECHO
-        run: echo "Job Prepare"
-
-  job_toolchain:
-    name: Job Toolchain
-    needs: [job_prepare]
-    runs-on: ubuntu-18.04
-    steps:
-
-      # - name: SETP0 - Checkout
-      #   uses: actions/checkout@v2
-
-      # - name: Get Buildroot
-      #   run: |
-      #     wget https://buildroot.org/downloads/buildroot-2016.02.tar.gz
-      #     tar zxf buildroot-2016.02.tar.gz
-      #     cp -f buildroot-config/config.2016.02 buildroot-2016.02/.config
-          
-      # - name: Build Toolchain
-      #   run: make -j$(nproc)
-      #   working-directory: ./buildroot-2016.02
-
-      - name: SETP1 - Get Toolchain
-        run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-
-      - name: SETP2 - Upload Toolchain
-        uses: actions/upload-artifact@v2
-        with:
-          name: toolchain
-          path: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-
-  job_kernel:
-    name: Job Kernel
-    needs: [job_toolchain]
-    runs-on: ubuntu-18.04
-    steps:
-    
-      - name: SETP0 - Checkout
-        uses: actions/checkout@v2
-
-      - name: SETP1 - Download Toolchain
-        uses: actions/download-artifact@v2
-        with:
-          name: toolchain
-          path: ./
-
-      - name: SETP2 - Unzip Toolchain
-        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-
-      - name: SETP3 - Pull Kernel
-        run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
-        
-      - name: SETP4 - Change Kernel
-        run: cp -rf htbox-kernel-add/* kernel/
-
-      - name: SETP5 - Patch Kernel
-        run : patch -p1 < ../timeconst.pl.x64.patch
-        working-directory: ./kernel
-
-      - name: SETP6 - Build Kernel
-        env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-          CROSS_COMPILE: arm-linux-gnueabihf-
+      - name: Get Toolchain
         run: |
-          sudo apt-get update
-          sudo apt-get install -y u-boot-tools
-          export PATH=$TOOLCHAIN:$PATH
-          make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-          make ok335xhtbox_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-          make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-          make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
-        working-directory: ./kernel
-          
-      - name: SETP7 - Upload Kernel
-        uses: actions/upload-artifact@v2
-        with:
-          name: uImage
-          path: kernel/arch/arm/boot/uImage
+          wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-  job_rootfs:
-    name: Job Root File System
-    needs: [job_toolchain]
-    runs-on: ubuntu-18.04
-    steps:
-    
-      - name: SETP0 - Checkout
-        uses: actions/checkout@v2
-
-      - name: SETP1 - Download Toolchain
-        uses: actions/download-artifact@v2
-        with:
-          name: toolchain
-          path: ./
-
-      - name: SETP2 - Unzip Toolchain
-        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-
-      - name: SETP3 - Download and Unzip Buildroot
+      - name: Download and Unzip Buildroot
         run: |
           wget https://buildroot.org/downloads/buildroot-2019.02.11.tar.gz
           tar zxf buildroot-2019.02.11.tar.gz
@@ -128,7 +41,7 @@ jobs:
           wget https://buildroot.org/downloads/buildroot-2016.02.tar.gz
           tar zxf buildroot-2016.02.tar.gz
 
-      - name: SETP4 - Fix Buildroot
+      - name: Fix Buildroot
         run: |
           rm -rf buildroot-2019.02.11/package/openssh
           cp -rf buildroot-2016.02/package/openssh buildroot-2019.02.11/package/
@@ -142,41 +55,75 @@ jobs:
           cp -rf buildroot-2017.02.11/package/iproute2 buildroot-2019.02.11/package/
           rm -rf buildroot-2019.02.11/package/paho-mqtt-c
           cp -rf buildroot-2017.02.11/package/paho-mqtt-c buildroot-2019.02.11/package/
-          cp -f buildroot-fix/ncurses.mk buildroot-2019.02.11/package/ncurses/
 
-      - name: SETP5 - Config Buildroot
+      - name: Patch Buildroot
+        run: |
+          patch -p1 < ../buildroot-patch/ncurses.mk.patch
+        working-directory: ./buildroot-2019.02.11
+
+      - name: Config Buildroot
         run: cp -f buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
 
-      - name: SETP6 - Build Root File System
+      - name: Build Root File System
         run: make -j$(nproc)
         working-directory: ./buildroot-2019.02.11
 
-      - name: SETP5 - Config BusyBox
+      - name: Config BusyBox
         run: cp -f buildroot-config/config.1.29.3 buildroot-2019.02.11/output/build/busybox-1.29.3/.config
 
-      - name: SETP6 - Build Root File System Again
+      - name: Build Root File System Again
         run: make -j$(nproc)
         working-directory: ./buildroot-2019.02.11
 
-      - name: STEP7 - Upload Base Root File System
+      - name: Upload Base Root File System
         uses: actions/upload-artifact@v2
         with:
           name: rootfs.tar
           path: buildroot-2019.02.11/output/images/rootfs.tar
 
-      - name: STEP8 - Fix Root File System
+      - name: Fix Root File System
         run: |
           mkdir -p rootfs
           tar xf buildroot-2019.02.11/output/images/rootfs.tar -C ./rootfs/
 
-      - name: STEP9 - Build UBI File System
+      - name: Pull Kernel
+        run: git clone https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
+        
+      - name: Change Kernel
+        run: cp -rf htbox-kernel-add/* kernel/
+
+      - name: Patch Kernel
+        run : patch -p1 < ../timeconst.pl.x64.patch
+        working-directory: ./kernel
+
+      - name: Build Kernel
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y u-boot-tools
+          export PATH=$TOOLCHAIN:$PATH
+          make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+          make ok335xhtbox_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+          make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+          make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
+        working-directory: ./kernel
+          
+      - name: Upload Kernel
+        uses: actions/upload-artifact@v2
+        with:
+          name: uImage
+          path: kernel/arch/arm/boot/uImage
+
+      - name: Build UBI File System
         run: |
           sudo apt-get update
           sudo apt-get install -y mtd-utils
           mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
           ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 ubinize-256M.cfg
 
-      - name: STEP10 - Upload UBI File System
+      - name: Upload UBI File System
         uses: actions/upload-artifact@v2
         with:
           name: ubi.img
