@@ -24,7 +24,12 @@ jobs:
         run: tar zxvf snap7-iot-arm-1.4.2.tar.gz
 
       - name: Fix Snap7
-        run: echo .
+        run: |
+          sed -i '8c LinkerName := ${CROSS_COMPILE}g++' common.mk
+          sed -i '9c SharedObjectLinkerName := ${CROSS_COMPILE}g++ -shared -fPIC' common.mk
+          sed -i '30c AR := ${CROSS_COMPILE}ar rcus' common.mk
+          sed -i '31c CXX := ${CROSS_COMPILE}g++' common.mk
+          sed -i '32c CC := ${CROSS_COMPILE}gcc' common.mk
         working-directory: ./snap7-iot-arm-1.4.2/build/unix
 
       - name: Build Snap7
@@ -33,12 +38,12 @@ jobs:
           CROSS_COMPILE: arm-linux-gnueabihf-
         run: |
           export PATH=$TOOLCHAIN:$PATH
-          make -f arm_v7_linux.mk install
-          cp -f ../bin/arm_v7-linux/libsnap7.so /usr/local/lib
+          make -f arm_v7_linux.mk
+          cp -f ../bin/arm_v7-linux/libsnap7.so /usr/lib
         working-directory: ./snap7-iot-arm-1.4.2/build/unix
 
       - name: Tar Snap7
-        run: sudo tar zcf snap7.tar.gz /usr/local/lib/libsnap7.so
+        run: sudo tar zcf snap7.tar.gz /usr/lib/libsnap7.so
         working-directory: /
 
       - name: Upload Snap7
