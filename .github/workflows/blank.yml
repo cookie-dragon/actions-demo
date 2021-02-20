@@ -14,3 +14,4 @@ jobs:
       - name: STEP
         run: |
           cat /etc/resolv.conf
+          ping 8.8.8.8 -c 3
