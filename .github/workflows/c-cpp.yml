@@ -67,9 +67,9 @@ jobs:
 
       - name: SETP1 - Download Toolchain
         uses: actions/download-artifact@v2
-          with:
-            name: toolchain
-            path: ./
+        with:
+          name: toolchain
+          path: ./
 
       - name: SETP2 - Unzip Toolchain
         run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
