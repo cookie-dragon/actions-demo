@@ -2,10 +2,6 @@
 name: CI
 
 on:
-#   push:
-#     branches: [ dev ]
-#   pull_request:
-#     branches: [ dev ]
   workflow_dispatch:
 
 jobs:
@@ -17,4 +13,4 @@ jobs:
     
       - name: STEP
         run: |
-          mkfs.ubifs
+          cat /etc/resolv.conf
