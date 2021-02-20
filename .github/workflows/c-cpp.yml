@@ -15,7 +15,7 @@ jobs:
     name: Toolchain
     runs-on: ubuntu-18.04
     steps:
-      
+
       # - name: Install Basic APT Packages
       #   run: |
       #     sudo dpkg --add-architecture i386
@@ -178,13 +178,109 @@ jobs:
       - name: Tar Root File System
         run: |
           mkdir -p rootfs
-          tar zxf rootfs.tar.gz rootfs/
+          tar zcf rootfs.tar.gz rootfs/
 
       - name: Upload Root File System
         uses: actions/upload-artifact@v2
         with:
           name: rootfs.tar.gz
           path: ./rootfs.tar.gz
+
+  job_wireless:
+    name: WirelessTools, WpaSupplicant and Hostapd
+    needs: [job_toolchain]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Download Artifact Toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          path: ./
+
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: Git RTL8723D
+        run: git clone https://github.com/cookie-dragon/realtek-rtl8723d.git -b v5.2.15.1_26226.20180129_COEX20171212-2222
+
+      - name: Untar WirelessTools
+        run: |
+          tar zxf wireless_tools.30.rtl.tar.gz
+        working-directory: ./realtek-rtl8723d/wireless_tools
+
+      - name: Fix WirelessTools
+        run: |
+          sed -i '8c PREFIX = ./usr/local' Makefile
+          sed -i '12c CC = arm-linux-gnueabihf-gcc' Makefile
+          sed -i '14c AR = arm-linux-gnueabihf-ar' Makefile
+          sed -i '15c RANLIB = arm-linux-gnueabihf-ranlib' Makefile
+        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+
+      - name: Build WirelessTools
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: |
+          export PATH=$TOOLCHAIN:$PATH
+          make
+          sudo make install
+        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+
+      - name: Tar WirelessTools
+        run: tar zcf wireless_tools.tar.gz usr/
+        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+
+      - name: Upload Artifact WirelessTools
+        uses: actions/upload-artifact@v2
+        with:
+          name: wireless_tools.tar.gz
+          path: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl/wireless_tools.tar.gz
+
+      - name: Untar WpaSupplicant And Hostapd
+        run: |
+          tar zxf wpa_supplicant_hostapd-0.8_rtw_r24647.20171025.tar.gz
+        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd
+
+      - name: Build Hostapd
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: |
+          export PATH=$TOOLCHAIN:$PATH
+          make CC=arm-linux-gnueabihf-gcc
+          sudo make install
+        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/hostapd
+
+      - name: Tar Hostapd
+        run: sudo tar zcf hostapd.tar.gz /usr/local/bin/hostapd /usr/local/bin/hostapd_cli
+        working-directory: /
+
+      - name: Upload Artifact Hostapd
+        uses: actions/upload-artifact@v2
+        with:
+          name: hostapd.tar.gz
+          path: /hostapd.tar.gz
+
+      - name: Build WpaSupplicant
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: |
+          export PATH=$TOOLCHAIN:$PATH
+          make CC=arm-linux-gnueabihf-gcc
+          sudo make install
+        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
+
+      - name: Tar WpaSupplicant
+        run: sudo tar zcf wpa_supplicant.tar.gz /usr/local/sbin/wpa_cli /usr/local/sbin/wpa_passphrase /usr/local/sbin/wpa_supplicant
+        working-directory: /
+
+      - name: Upload Artifact WpaSupplicant
+        uses: actions/upload-artifact@v2
+        with:
+          name: wpa_supplicant.tar.gz
+          path: /wpa_supplicant.tar.gz
 
   job_final_rootfs:
     name: Final Root File System
@@ -208,7 +304,7 @@ jobs:
       - name: Untar Base Root File System
         run: tar zxf rootfs.tar.gz
 
-      - name: ROOTFS - Fix Root File System
+      - name: Fix Root File System
         run: |
           rm -rf rootfs/lib/modules/3.2.0/source
           rm -rf rootfs/etc/init.d/S60openvpn
