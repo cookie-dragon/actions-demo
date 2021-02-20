@@ -87,7 +87,7 @@ jobs:
         working-directory: ./buildroot-2019.02.11
 
       - name: Config Buildroot
-        run: cp -f buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
+        run: cp -f buildroot-config/config.2019.02.11 buildroot-2019.02.11/.config
 
       - name: Build Buildroot
         run: make -j$(nproc)
@@ -338,7 +338,7 @@ jobs:
 
   job_final_rootfs:
     name: Final Root File System
-    needs: [job_kernel]
+    needs: [job_kernel, job_wireless, job_snap7]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
