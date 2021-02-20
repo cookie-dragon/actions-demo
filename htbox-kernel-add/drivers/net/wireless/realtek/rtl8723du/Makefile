@@ -1293,7 +1293,7 @@ EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
 ARCH := arm
 CROSS_COMPILE := arm-linux-gnueabihf-
 KVER := 3.2.0
-KSRC := /root/work/forlinx/board-support/kernel-3.2
+KSRC := /home/runner/work/actions-demo/actions-demo/kernel
 endif
 
 ifeq ($(CONFIG_PLATFORM_MOZART), y)
