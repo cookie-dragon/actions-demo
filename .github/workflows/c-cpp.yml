@@ -41,13 +41,11 @@ jobs:
       #     cp -f buildroot-config/config.2016.02 buildroot-2016.02/.config
           
       # - name: Build Toolchain
-      #   run: |
-      #     cd buildroot-2016.02
-      #     make -j$(nproc)
+      #   run: make -j$(nproc)
+      #   working-directory: ./buildroot-2016.02
 
       - name: SETP1 - Get Toolchain
-        run: |
-          wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+        run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
       - name: SETP2 - Upload Toolchain
         uses: actions/upload-artifact@v2
@@ -80,9 +78,8 @@ jobs:
         run: cp -rf htbox-kernel-add/* kernel/
 
       - name: SETP5 - Patch Kernel
-        run : |
-          cd kernel
-          patch -p1 < ../timeconst.pl.x64.patch
+        run : patch -p1 < ../timeconst.pl.x64.patch
+        working-directory: ./kernel
 
       - name: SETP6 - Build Kernel
         env:
@@ -92,11 +89,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y u-boot-tools
           export PATH=$TOOLCHAIN:$PATH
-          cd kernel
           make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
           make ok335xhtbox_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
           make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
           make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
+        working-directory: ./kernel
           
       - name: SETP7 - Upload Kernel
         uses: actions/upload-artifact@v2
@@ -150,15 +147,15 @@ jobs:
         run: cp -f buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
 
       - name: SETP6 - Build Root File System
-        run: |
-          make -j$(nproc)
+        run: make -j$(nproc)
+        working-directory: ./buildroot-2019.02.11
 
       - name: SETP5 - Config BusyBox
         run: cp -f buildroot-config/config.1.29.3 buildroot-2019.02.11/output/build/busybox-1.29.3/.config
 
       - name: SETP6 - Build Root File System Again
-        run: |
-          make -j$(nproc)
+        run: make -j$(nproc)
+        working-directory: ./buildroot-2019.02.11
 
       - name: STEP7 - Upload Base Root File System
         uses: actions/upload-artifact@v2
