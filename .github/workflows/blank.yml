@@ -6,55 +6,19 @@ on:
 #     branches: [ dev ]
 #   pull_request:
 #     branches: [ dev ]
-
   workflow_dispatch:
-    inputs:
-      toolchain:
-        description: 'Prebuild or build by buildroot'
-        required: true
-        default: 'Prebuild'
 
 jobs:
-
-  prepare:
-    name: Prepare
-    runs-on: ubuntu-18.04
-    
-    steps:
-      - name: Print input
-        run: |
-          echo "Prebuild or build by buildroot: ${{ github.event.inputs.toolchain }}"
-    
-      - name: Touch File
-        run: |
-          pwd
-          echo "This is a FILE!" > a_file.txt
-
-      - name: Upload
-        uses: actions/upload-artifact@v2
-        with:
-          name: a_file.txt.artifact
-          path: a_file.txt
-          
   build:
     name: Build
-    needs: [prepare]
     runs-on: ubuntu-18.04
     
     steps:
     
-      - name: Touch Dir
+      - name: STEP
         run: |
-          pwd
-          mkdir -p out
-    
-      - name: Download
-        uses: actions/download-artifact@v2
-        with:
-          name: a_file.txt.artifact
-          path: out/
-          
-      - name: Show
-        run: |
-          cat a_file.txt
-        working-directory: ./out
+          wget https://buildroot.org/downloads/buildroot-2019.02.11.tar.gz
+          tar zxf buildroot-2019.02.11.tar.gz
+          cd buildroot-2019.02.11
+          make busybox-menuconfig
+          ls ./output/build/busybox-1.29.3
