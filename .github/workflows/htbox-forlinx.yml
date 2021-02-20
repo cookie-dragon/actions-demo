@@ -402,6 +402,17 @@ jobs:
           chmod +x rootfs/etc/init.d/*
           chmod +x rootfs/usr/local/bin/*
 
+      - name: Tar Final Root File System
+        run: |
+          mkdir -p rootfs
+          tar zcf rootfs-final.tar.gz rootfs/
+
+      - name: Upload Final Root File System
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs-final.tar.gz
+          path: ./rootfs-final.tar.gz
+
       - name: Build UBI File System
         run: |
           mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
