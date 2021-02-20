@@ -1,0 +1,21 @@
+name: common CI
+
+on:
+  push:
+    paths: 
+      - 'common/**'
+      - '.github/workflows/common.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-18.04
+    
+    steps:
+
+      - name: Wget Toolchain
+        run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
