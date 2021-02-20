@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: wireless_tools.tar.gz
-          path: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtlwireless_tools.tar.gz
+          path: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl/wireless_tools.tar.gz
 
       - name: Untar WpaSupplicant And Hostapd
         run: |
@@ -69,7 +69,7 @@ jobs:
         working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/hostapd
 
       - name: Tar Hostapd
-        run: tar zcf hostapd.tar.gz /usr/local/bin/hostapd /usr/local/bin/hostapd_cli
+        run: sudo tar zcf hostapd.tar.gz /usr/local/bin/hostapd /usr/local/bin/hostapd_cli
         working-directory: /
 
       - name: Upload Hostapd
@@ -89,7 +89,7 @@ jobs:
         working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
 
       - name: Tar WpaSupplicant
-        run: tar zcf wpa_supplicant.tar.gz /usr/local/sbin/wpa_cli /usr/local/sbin/wpa_passphrase /usr/local/sbin/wpa_supplicant
+        run: sudo tar zcf wpa_supplicant.tar.gz /usr/local/sbin/wpa_cli /usr/local/sbin/wpa_passphrase /usr/local/sbin/wpa_supplicant
         working-directory: /
 
       - name: Upload WpaSupplicant
