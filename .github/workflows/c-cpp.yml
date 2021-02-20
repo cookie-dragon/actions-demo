@@ -38,7 +38,7 @@ jobs:
       #   run: |
       #     wget https://buildroot.org/downloads/buildroot-2016.02.tar.gz
       #     tar zxf buildroot-2016.02.tar.gz
-      #     cp buildroot-config/config.2016.02 buildroot-2016.02/.config
+      #     cp -f buildroot-config/config.2016.02 buildroot-2016.02/.config
           
       # - name: Build Toolchain
       #   run: |
@@ -55,9 +55,8 @@ jobs:
           name: toolchain
           path: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-
-  job_build:
-    name: Job Build Kernel
+  job_kernel:
+    name: Job Kernel
     needs: [job_toolchain]
     runs-on: ubuntu-18.04
     steps:
@@ -104,3 +103,83 @@ jobs:
         with:
           name: uImage
           path: kernel/arch/arm/boot/uImage
+
+  job_rootfs:
+    name: Job Root File System
+    needs: [job_toolchain]
+    runs-on: ubuntu-18.04
+    steps:
+    
+      - name: SETP0 - Checkout
+        uses: actions/checkout@v2
+
+      - name: SETP1 - Download Toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+
+      - name: SETP2 - Unzip Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: SETP3 - Download and Unzip Buildroot
+        run: |
+          wget https://buildroot.org/downloads/buildroot-2019.02.11.tar.gz
+          tar zxf buildroot-2019.02.11.tar.gz
+          wget https://buildroot.org/downloads/buildroot-2017.02.11.tar.gz
+          tar zxf buildroot-2017.02.11.tar.gz
+          wget https://buildroot.org/downloads/buildroot-2016.02.tar.gz
+          tar zxf buildroot-2016.02.tar.gz
+
+      - name: SETP4 - Fix Buildroot
+        run: |
+          rm -rf buildroot-2019.02.11/package/openssh
+          cp -rf buildroot-2016.02/package/openssh buildroot-2019.02.11/package/
+          rm -rf buildroot-2019.02.11/package/openssl
+          cp -rf buildroot-2016.02/package/openssl buildroot-2019.02.11/package/
+          rm -rf buildroot-2019.02.11/package/zlib
+          cp -rf buildroot-2016.02/package/zlib buildroot-2019.02.11/package/
+          rm -rf buildroot-2019.02.11/package/mosquitto
+          cp -rf buildroot-2016.02/package/mosquitto buildroot-2019.02.11/package/
+          rm -rf buildroot-2019.02.11/package/iproute2
+          cp -rf buildroot-2017.02.11/package/iproute2 buildroot-2019.02.11/package/
+          rm -rf buildroot-2019.02.11/package/paho-mqtt-c
+          cp -rf buildroot-2017.02.11/package/paho-mqtt-c buildroot-2019.02.11/package/
+
+      - name: SETP5 - Config Buildroot
+        run: cp -f buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
+
+      - name: SETP6 - Build Root File System
+        run: |
+          make -j$(nproc)
+
+      - name: SETP5 - Config BusyBox
+        run: cp -f buildroot-config/config.1.29.3 buildroot-2019.02.11/output/build/busybox-1.29.3/.config
+
+      - name: SETP6 - Build Root File System Again
+        run: |
+          make -j$(nproc)
+
+      - name: STEP7 - Upload Base Root File System
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs.tar
+          path: buildroot-2019.02.11/output/images/rootfs.tar
+
+      - name: STEP8 - Fix Root File System
+        run: |
+          mkdir -p rootfs
+          tar xf buildroot-2019.02.11/output/images/rootfs.tar ./rootfs/
+
+      - name: STEP9 - Build UBI File System
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mtd-utils
+          mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+          ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 ubinize-256M.cfg
+
+      - name: STEP10 - Upload UBI File System
+        uses: actions/upload-artifact@v2
+        with:
+          name: ubi.img
+          path: ./ubi.img
