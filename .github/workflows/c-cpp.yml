@@ -167,7 +167,7 @@ jobs:
       - name: STEP8 - Fix Root File System
         run: |
           mkdir -p rootfs
-          tar xf buildroot-2019.02.11/output/images/rootfs.tar ./rootfs/
+          tar xf buildroot-2019.02.11/output/images/rootfs.tar -C ./rootfs/
 
       - name: STEP9 - Build UBI File System
         run: |
