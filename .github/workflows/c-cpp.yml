@@ -94,7 +94,11 @@ jobs:
         working-directory: ./buildroot-2019.02.11
 
       - name: Config BusyBox
-        run: cp -f buildroot-config/config.1.29.3 buildroot-2019.02.11/output/build/busybox-1.29.3/.config
+        run: |
+          cp -f buildroot-config/config.1.29.3 buildroot-2019.02.11/output/build/busybox-1.29.3/.config
+          rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_configured
+          rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_built
+          rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_target_installed
 
       - name: Build Buildroot Again
         run: make -j$(nproc)
@@ -187,7 +191,7 @@ jobs:
           path: ./rootfs.tar.gz
 
   job_wireless:
-    name: WirelessTools, WpaSupplicant and Hostapd
+    name: Wireless
     needs: [job_toolchain]
     runs-on: ubuntu-18.04
     steps:
@@ -281,6 +285,56 @@ jobs:
         with:
           name: wpa_supplicant.tar.gz
           path: /wpa_supplicant.tar.gz
+
+  job_snap7:
+    name: Snap7
+    needs: [job_toolchain]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Download Artifact Toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          path: ./
+
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: Wget Snap7
+        run: wget https://netix.dl.sourceforge.net/project/snap7/Snap7-IoT/snap7-iot-arm/snap7-iot-arm-1.4.2.tar.gz
+
+      - name: Untar Snap7
+        run: tar zxvf snap7-iot-arm-1.4.2.tar.gz
+
+      - name: Fix Snap7
+        run: |
+          sed -i '8c LinkerName := ${CROSS_COMPILE}g++' common.mk
+          sed -i '9c SharedObjectLinkerName := ${CROSS_COMPILE}g++ -shared -fPIC' common.mk
+          sed -i '30c AR := ${CROSS_COMPILE}ar rcus' common.mk
+          sed -i '31c CXX := ${CROSS_COMPILE}g++' common.mk
+          sed -i '32c CC := ${CROSS_COMPILE}gcc' common.mk
+        working-directory: ./snap7-iot-arm-1.4.2/build/unix
+
+      - name: Build Snap7
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: |
+          export PATH=$TOOLCHAIN:$PATH
+          make -f arm_v7_linux.mk
+          sudo cp -f ../bin/arm_v7-linux/libsnap7.so /usr/lib
+        working-directory: ./snap7-iot-arm-1.4.2/build/unix
+
+      - name: Tar Snap7
+        run: sudo tar zcf snap7.tar.gz /usr/lib/libsnap7.so
+        working-directory: /
+
+      - name: Upload Snap7
+        uses: actions/upload-artifact@v2
+        with:
+          name: snap7.tar.gz
+          path: /snap7.tar.gz
 
   job_final_rootfs:
     name: Final Root File System
