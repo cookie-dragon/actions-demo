@@ -11,97 +11,38 @@ jobs:
     
     steps:
 
-      - name: PRE - Get Toolchain
-        run: |
-          wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-          tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-    
-      - name: GIT RTL8723D
-        run: |
-          git clone https://github.com/cookie-dragon/realtek-rtl8723d.git -b v5.2.15.1_26226.20180129_COEX20171212-2222
+      - name: Wget Toolchain
+        run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-      - name: Untar WirelessTools
-        run: |
-          tar zxf wireless_tools.30.rtl.tar.gz
-        working-directory: ./realtek-rtl8723d/wireless_tools
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-      - name: Fix WirelessTools
-        run: |
-          sed -i '8c PREFIX = ./usr/local' Makefile
-          sed -i '12c CC = arm-linux-gnueabihf-gcc' Makefile
-          sed -i '14c AR = arm-linux-gnueabihf-ar' Makefile
-          sed -i '15c RANLIB = arm-linux-gnueabihf-ranlib' Makefile
-        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+      - name: Wget Snap7
+        run: wget https://netix.dl.sourceforge.net/project/snap7/Snap7-IoT/snap7-iot-arm/snap7-iot-arm-1.4.2.tar.gz
 
-      - name: Build WirelessTools
+      - name: Untar Snap7
+        run: tar zxvf snap7-iot-arm-1.4.2.tar.gz
+
+      - name: Fix Snap7
+        run: echo .
+        working-directory: ./snap7-iot-arm-1.4.2/build/unix
+
+      - name: Build Snap7
         env:
           TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
           CROSS_COMPILE: arm-linux-gnueabihf-
         run: |
           export PATH=$TOOLCHAIN:$PATH
-          make
-          sudo make install
-        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+          make -f arm_v7_linux.mk install
+          cp -f ../bin/arm_v7-linux/libsnap7.so /usr/local/lib
+        working-directory: ./snap7-iot-arm-1.4.2/build/unix
 
-      - name: Tar WirelessTools
-        run: tar zcf wireless_tools.tar.gz usr/
-        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
-
-      - name: Upload WirelessTools
-        uses: actions/upload-artifact@v2
-        with:
-          name: wireless_tools.tar.gz
-          path: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl/wireless_tools.tar.gz
-
-      - name: Untar WpaSupplicant And Hostapd
-        run: |
-          tar zxf wpa_supplicant_hostapd-0.8_rtw_r24647.20171025.tar.gz
-        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd
-
-      - name: Build Hostapd
-        env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-          CROSS_COMPILE: arm-linux-gnueabihf-
-        run: |
-          export PATH=$TOOLCHAIN:$PATH
-          make CC=arm-linux-gnueabihf-gcc
-          sudo make install
-        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/hostapd
-
-      - name: Tar Hostapd
-        run: sudo tar zcf hostapd.tar.gz /usr/local/bin/hostapd /usr/local/bin/hostapd_cli
+      - name: Tar Snap7
+        run: sudo tar zcf snap7.tar.gz /usr/local/lib/libsnap7.so
         working-directory: /
 
-      - name: Upload Hostapd
+      - name: Upload Snap7
         uses: actions/upload-artifact@v2
         with:
-          name: hostapd.tar.gz
-          path: /hostapd.tar.gz
-
-      - name: Build WpaSupplicant
-        env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-          CROSS_COMPILE: arm-linux-gnueabihf-
-        run: |
-          export PATH=$TOOLCHAIN:$PATH
-          make CC=arm-linux-gnueabihf-gcc
-          sudo make install
-        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
-
-      - name: Tar WpaSupplicant
-        run: sudo tar zcf wpa_supplicant.tar.gz /usr/local/sbin/wpa_cli /usr/local/sbin/wpa_passphrase /usr/local/sbin/wpa_supplicant
-        working-directory: /
-
-      - name: Upload WpaSupplicant
-        uses: actions/upload-artifact@v2
-        with:
-          name: wpa_supplicant.tar.gz
-          path: /wpa_supplicant.tar.gz
-
-
-
-
-
-
-
-
+          name: snap7.tar.gz
+          path: /snap7.tar.gz
