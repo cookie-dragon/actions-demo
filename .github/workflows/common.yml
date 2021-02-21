@@ -87,4 +87,4 @@ jobs:
           md5sum output/MLO
 
       - name: STEP - TEST
-        run: echo ${{needs.job_test.outputs.S_FILENAME}} ${{needs.job_test.outputs.U_FILENAME}} ${{needs.job_test.outputs.K_FILENAME}}
+        run: echo ${{needs.job_env.outputs.S_FILENAME}} ${{needs.job_env.outputs.U_FILENAME}} ${{needs.job_env.outputs.K_FILENAME}}
