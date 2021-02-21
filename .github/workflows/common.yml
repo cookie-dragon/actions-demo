@@ -91,12 +91,31 @@ jobs:
           sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/u-boot.img /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
           sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/uImage /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
 
+      - name: Zip S
+        run: zip -q -r ${{needs.job_env.outputs.S_FILENAME}}.zip ${{needs.job_env.outputs.S_FILENAME}}
+
+      - name: Upload S
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{needs.job_env.outputs.S_FILENAME}}.zip
+          path: ./${{needs.job_env.outputs.S_FILENAME}}.zip
+
       - name: Check MD5
         run: |
           DIR=/home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
           sudo md5sum ${DIR}/MLO > ${DIR}/uplicence.txt
           sudo md5sum ${DIR}/u-boot.img >> ${DIR}/uplicence.txt
           sudo md5sum ${DIR}/uImage >> ${DIR}/uplicence.txt
+
+      - name: Zip U
+        run: zip -q -r $${{needs.job_env.outputs.U_FILENAME}}.zip ${{needs.job_env.outputs.K_FILENAME}}
+        working-directory: /home/haitian/onekey_update
+
+      - name: Upload U
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{needs.job_env.outputs.U_FILENAME}}.zip
+          path: /home/haitian/onekey_update/${{needs.job_env.outputs.U_FILENAME}}.zip
 
       - name: STEP - TEST
         run: |
