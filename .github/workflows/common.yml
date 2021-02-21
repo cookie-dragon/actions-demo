@@ -59,6 +59,7 @@ jobs:
           KERNEL_VERSION=`cat hilectroElec/version.json | jq -r '.kernel_version'`
           FILE_SYS_VERSION=`cat hilectroElec/version.json | jq -r '.FILE_SYS_VERSION'`
           DATE_VERSION=`cat hilectroElec/version.json | jq -r '.date_version'`
+          echo ${KERNEL_VERSION} ${FILE_SYS_VERSION} ${DATE_VERSION} 
           echo "::set-output name=KERNEL_VERSION::${KERNEL_VERSION}"
           echo "::set-output name=FILE_SYS_VERSION::${FILE_SYS_VERSION}"
           echo "::set-output name=DATE_VERSION::${DATE_VERSION}"
@@ -68,6 +69,7 @@ jobs:
         run: |
           S_FILENAME=T2-Kernel-V${{steps.step1.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step1.outputs.FILE_SYS_VERSION}}-S-${{steps.step1.outputs.DATE_VERSION}}
           U_FILENAME=T2-Kernel-V${{steps.step1.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step1.outputs.FILE_SYS_VERSION}}-U-${{steps.step1.outputs.DATE_VERSION}}
+          echo ${S_FILENAME} ${U_FILENAME}
           echo "::set-output name=S_FILENAME::${S_FILENAME}"
           echo "::set-output name=U_FILENAME::${U_FILENAME}"
 
@@ -77,5 +79,4 @@ jobs:
     needs: [job_test]
     steps:
       - name: STEP - TEST
-        run: |
-          echo ${{needs.job_test.outputs.S_FILENAME}} ${{needs.job_test.outputs.U_FILENAME}}
+        run: echo ${{needs.job_test.outputs.S_FILENAME}} ${{needs.job_test.outputs.U_FILENAME}}
