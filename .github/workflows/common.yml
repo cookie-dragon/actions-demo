@@ -93,9 +93,13 @@ jobs:
 
       - name: Check MD5
         run: |
-          sudo md5sum /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/MLO
-          sudo md5sum /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/u-boot.img
-          sudo md5sum /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/uImage
+          DIR=/home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
+          sudo md5sum ${DIR}/MLO > ${DIR}/uplicence.txt
+          sudo md5sum ${DIR}/u-boot.img >> ${DIR}/uplicence.txt
+          sudo md5sum ${DIR}/uImage >> ${DIR}/uplicence.txt
 
       - name: STEP - TEST
-        run: echo ${{needs.job_env.outputs.S_FILENAME}} ${{needs.job_env.outputs.U_FILENAME}} ${{needs.job_env.outputs.K_FILENAME}}
+        run: |
+          DIR=/home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
+          cat ${DIR}/uplicence.txt
+          ls -l ${DIR}
