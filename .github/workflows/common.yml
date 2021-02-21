@@ -108,7 +108,7 @@ jobs:
           sudo md5sum ${DIR}/uImage >> ${DIR}/uplicence.txt
 
       - name: Zip U
-        run: zip -q -r $${{needs.job_env.outputs.U_FILENAME}}.zip ${{needs.job_env.outputs.K_FILENAME}}
+        run: sudo zip -q -r ${{needs.job_env.outputs.U_FILENAME}}.zip ${{needs.job_env.outputs.K_FILENAME}}
         working-directory: /home/haitian/onekey_update
 
       - name: Upload U
