@@ -144,5 +144,55 @@ jobs:
           name: rootfs.tar.gz
           path: ./rootfs.tar.gz
 
+  job_final_rootfs:
+    name: Final Root File System
+    needs: [job_kernel]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
+      - name: Install APT Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mtd-utils
+
+      - name: Download Artifact Root File System
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs.tar.gz
+          path: ./
+
+      - name: Untar Root File System
+        run: tar zxf rootfs.tar.gz
+
+      - name: Fix Root File System
+        run: |
+          rm -rf rootfs/lib/modules/*/source
+          cp -rf hilectroElec/rootfs-add/* rootfs/
+          chmod +x rootfs/etc/init.d/*
+          chmod +x rootfs/usr/local/bin/*
+
+      - name: Fix version
+        run: echo "Fix version"
+
+      - name: Tar Final Root File System
+        run: tar zcf rootfs-final.tar.gz rootfs/
+
+      - name: Upload Final Root File System
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs-final.tar.gz
+          path: ./rootfs-final.tar.gz
+
+      - name: Build UBI File System
+        run: |
+          mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+          ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 hilectroElec/rootfs-config/ubinize-256M.cfg
+
+      - name: Upload Artifact UBI File System
+        uses: actions/upload-artifact@v2
+        with:
+          name: ubi.img
+          path: ./ubi.img
 

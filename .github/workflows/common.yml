@@ -9,13 +9,43 @@ on:
 
 jobs:
   
-  build:
-    name: Build
+  # job_toolchain:
+  #   name: Toolchain
+  #   runs-on: ubuntu-18.04
+  #   steps:
+
+  #     # - name: Install Basic APT Packages
+  #     #   run: |
+  #     #     sudo dpkg --add-architecture i386
+  #     #     sudo apt-get update
+  #     #     sudo apt-get -y install git build-essential python diffstat texinfo gawk chrpath dos2unix wget unzip socat doxygen libc6:i386 libncurses5:i386 libstdc++6:i386 libz1:i386
+  #     #     sudo apt-get -y install gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm python3-subunit mesa-common-dev
+
+  #     # - name: Install APT Packages
+  #     #   run: |
+  #     #     sudo apt-get update
+  #     #     sudo apt-get install -y u-boot-tools mtd-utils
+
+  #     - name: Wget Toolchain
+  #       run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+  #     - name: Upload Artifact Toolchain
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+  #         path: ./gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+  job_test:
+    name: Toolchain
     runs-on: ubuntu-18.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - name: Wget Toolchain
-        run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      - name: Install APT Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
 
-      - name: Untar Toolchain
-        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      - name: STEP - TEST
+        run: cat hilectroElec/version.json | jq '.'
