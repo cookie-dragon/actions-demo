@@ -35,15 +35,44 @@ jobs:
   #         name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
   #         path: ./gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-  job_test:
-    name: JOB TEST
+  job_env:
+    name: JOB Env
     runs-on: ubuntu-18.04
     outputs:
       S_FILENAME: ${{steps.step2.outputs.S_FILENAME}}
       U_FILENAME: ${{steps.step2.outputs.U_FILENAME}}
+      K_FILENAME: ${{steps.step2.outputs.K_FILENAME}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - id: step1
+        name: Check Versions
+        run: |
+          KERNEL_VERSION=`cat hilectroElec/version.json | jq -r '.kernel_version'`
+          FILE_SYS_VERSION=`cat hilectroElec/version.json | jq -r '.FILE_SYS_VERSION'`
+          DATE_VERSION=`cat hilectroElec/version.json | jq -r '.date_version'`
+          SCREEN_RESOLUTION=`cat hilectroElec/version.json | jq -r '.screen_resolution'`
+          echo "::set-output name=KERNEL_VERSION::${KERNEL_VERSION}"
+          echo "::set-output name=FILE_SYS_VERSION::${FILE_SYS_VERSION}"
+          echo "::set-output name=DATE_VERSION::${DATE_VERSION}"
+          echo "::set-output name=SCREEN_RESOLUTION::${SCREEN_RESOLUTION}"
+
+      - id: step2
+        name: Check Output File Name
+        run: |
+          S_FILENAME=T2-Kernel-V${{steps.step1.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step1.outputs.FILE_SYS_VERSION}}-S-${{steps.step1.outputs.DATE_VERSION}}
+          U_FILENAME=T2-Kernel-V${{steps.step1.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step1.outputs.FILE_SYS_VERSION}}-U-${{steps.step1.outputs.DATE_VERSION}}
+          K_FILENAME=kernel_${{steps.step1.outputs.SCREEN_RESOLUTION}}_${{steps.step1.outputs.DATE_VERSION}}
+          echo "::set-output name=S_FILENAME::${S_FILENAME}"
+          echo "::set-output name=U_FILENAME::${U_FILENAME}"
+          echo "::set-output name=U_FILENAME::${K_FILENAME}"
+
+  job_file:
+    name: JOB File
+    runs-on: ubuntu-18.04
+    needs: [job_test]
+    steps:
 
       - name: Prepare
         run: |
@@ -53,30 +82,9 @@ jobs:
           touch output/uImage
           touch output/ubi.img
 
-      - id: step1
-        name: Check Versions
+      - name: Check MD5
         run: |
-          KERNEL_VERSION=`cat hilectroElec/version.json | jq -r '.kernel_version'`
-          FILE_SYS_VERSION=`cat hilectroElec/version.json | jq -r '.FILE_SYS_VERSION'`
-          DATE_VERSION=`cat hilectroElec/version.json | jq -r '.date_version'`
-          echo ${KERNEL_VERSION} ${FILE_SYS_VERSION} ${DATE_VERSION} 
-          echo "::set-output name=KERNEL_VERSION::${KERNEL_VERSION}"
-          echo "::set-output name=FILE_SYS_VERSION::${FILE_SYS_VERSION}"
-          echo "::set-output name=DATE_VERSION::${DATE_VERSION}"
+          md5sum output/MLO
 
-      - id: step2
-        name: Check Output File Name
-        run: |
-          S_FILENAME=T2-Kernel-V${{steps.step1.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step1.outputs.FILE_SYS_VERSION}}-S-${{steps.step1.outputs.DATE_VERSION}}
-          U_FILENAME=T2-Kernel-V${{steps.step1.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step1.outputs.FILE_SYS_VERSION}}-U-${{steps.step1.outputs.DATE_VERSION}}
-          echo ${S_FILENAME} ${U_FILENAME}
-          echo "::set-output name=S_FILENAME::${S_FILENAME}"
-          echo "::set-output name=U_FILENAME::${U_FILENAME}"
-
-  job_test2:
-    name: JOB TEST 2
-    runs-on: ubuntu-18.04
-    needs: [job_test]
-    steps:
       - name: STEP - TEST
-        run: echo ${{needs.job_test.outputs.S_FILENAME}} ${{needs.job_test.outputs.U_FILENAME}}
+        run: echo ${{needs.job_test.outputs.S_FILENAME}} ${{needs.job_test.outputs.U_FILENAME}} ${{needs.job_test.outputs.K_FILENAME}}
