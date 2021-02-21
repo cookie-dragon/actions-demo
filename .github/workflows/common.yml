@@ -42,10 +42,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install APT Packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
+      # - name: Install APT Packages
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y jq
 
       - name: STEP - TEST
         run: cat hilectroElec/version.json | jq '.'
