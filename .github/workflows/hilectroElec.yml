@@ -11,34 +11,25 @@ on:
 
 jobs:
 
-  # job_toolchain:
-  #   name: Toolchain
-  #   runs-on: ubuntu-18.04
-  #   steps:
+  job_toolchain:
+    name: Toolchain
+    runs-on: ubuntu-18.04
+    steps:
 
-  #     - name: Wget Toolchain
-  #       run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      - name: Wget Toolchain
+        run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-  #     - name: Upload Artifact Toolchain
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-  #         path: ./gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      - name: Upload Artifact Toolchain
+        uses: actions/upload-artifact@v2
+        with:
+          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          path: ./gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
   job_base_rootfs:
     name: Base Root File System
     runs-on: ubuntu-18.04
     steps:
-
-      # - name: Download Artifact Toolchain
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-      #     path: ./
-
-      # - name: Untar Toolchain
-      #   run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-
+      
       - name: Git Official Root File System
         run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-rootfs.git
 
@@ -64,3 +55,86 @@ jobs:
         with:
           name: rootfs.tar
           path: ./rootfs/rootfs.tar
+
+  job_kernel:
+    name: Kernel
+    needs: [job_toolchain, job_base_rootfs]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install APT Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y u-boot-tools
+
+      - name: Download Artifact Toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          path: ./
+
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: Git Kernel
+        run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
+
+      - name: Patch Kernel
+        run : ｜
+          patch -p1 < ../common/kernel-patch/timeconst.pl.x64.patch
+          patch -p2 < ../hilectroElec/kernel-patch/diff.patch
+        working-directory: ./kernel
+
+      - name: Add Kernel File
+        run: cp -rf ../hilectroElec//kernel-add/* kernel/
+
+      - name: Build Kernel
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: |
+          export PATH=$TOOLCHAIN:$PATH
+          make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+          make ok335xs2_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+          make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+          make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
+          make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules
+        working-directory: ./kernel
+
+      - name: Upload Artifact Kernel
+        uses: actions/upload-artifact@v2
+        with:
+          name: uImage
+          path: ./kernel/arch/arm/boot/uImage
+
+      - name: Download Artifact Base Root File System
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs.tar
+          path: ./
+
+      - name: Untar Base Root File System
+        run: |
+          mkdir -p rootfs
+          tar xf rootfs.tar -C ./rootfs/
+          
+      - name: Kernel Modules Install
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
+        working-directory: ./kernel
+
+      - name: Tar Root File System
+        run: tar zcf rootfs.tar.gz rootfs/
+
+      - name: Upload Root File System
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs.tar.gz
+          path: ./rootfs.tar.gz
+
+
+
