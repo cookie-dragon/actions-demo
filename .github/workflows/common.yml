@@ -78,4 +78,4 @@ jobs:
     steps:
       - name: STEP - TEST
         run: |
-          echo ${{job_test.job1.outputs.S_FILENAME}} ${{job_test.job1.outputs.U_FILENAME}}
+          echo ${{needs.job_test.outputs.S_FILENAME}} ${{needs.job_test.outputs.U_FILENAME}}
