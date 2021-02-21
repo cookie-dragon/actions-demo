@@ -98,7 +98,7 @@ jobs:
         working-directory: ./kernel
 
       - name: Add Kernel File
-        run: cp -rf ../hilectroElec//kernel-add/* kernel/
+        run: cp -rf ../hilectroElec/kernel-add/* kernel/
 
       - name: Build Kernel
         env:
