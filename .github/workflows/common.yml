@@ -4,7 +4,7 @@ on:
   push:
     paths: 
       - 'common/**'
-      - '.github/workflows/common.yml'
+      # - '.github/workflows/common.yml'
   workflow_dispatch:
 
 jobs:

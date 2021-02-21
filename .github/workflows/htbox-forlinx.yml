@@ -6,7 +6,7 @@ on:
       - 'common/**'
       - 'htbox-forlinx/version.json'
       - 'htbox-forlinx/**'
-      - '.github/workflows/htbox-forlinx.yml'
+      # - '.github/workflows/htbox-forlinx.yml'
   workflow_dispatch:
 
 jobs:
@@ -180,9 +180,7 @@ jobs:
         working-directory: ./kernel
 
       - name: Tar Root File System
-        run: |
-          mkdir -p rootfs
-          tar zcf rootfs.tar.gz rootfs/
+        run: tar zcf rootfs.tar.gz rootfs/
 
       - name: Upload Root File System
         uses: actions/upload-artifact@v2
@@ -355,7 +353,7 @@ jobs:
           name: rootfs.tar.gz
           path: ./
 
-      - name: Untar Base Root File System
+      - name: Untar Root File System
         run: tar zxf rootfs.tar.gz
 
       - name: Download Artifact WirelessTools
@@ -403,9 +401,7 @@ jobs:
           chmod +x rootfs/usr/local/bin/*
 
       - name: Tar Final Root File System
-        run: |
-          mkdir -p rootfs
-          tar zcf rootfs-final.tar.gz rootfs/
+        run: tar zcf rootfs-final.tar.gz rootfs/
 
       - name: Upload Final Root File System
         uses: actions/upload-artifact@v2

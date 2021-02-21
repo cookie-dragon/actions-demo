@@ -6,7 +6,7 @@ on:
       - 'common/**'
       - 'hilectroElec/version.json'
       - 'hilectroElec/**'
-      - '.github/workflows/hilectroElec.yml'
+      # - '.github/workflows/hilectroElec.yml'
   workflow_dispatch:
 
 jobs:
@@ -47,5 +47,20 @@ jobs:
           mkdir -p rootfs
           tar xf forlinx-335xS-II-rootfs/qt/rootfs.tar.bz2 -C ./rootfs/
 
-      - name: Show
-        run: ls -l ./rootfs/
+      - name: Fix Root File System
+        run: |
+          rm -rf rootfs/forlinx/audio/
+          rm -rf rootfs/forlinx/bin/
+          rm -rf rootfs/forlinx/video/
+          rm -rf rootfs/forlinx/web/
+          rm -rf rootfs/forlinx/qt/bin/*
+
+      - name: Tar Base Root File System
+        run: tar cf rootfs.tar *
+        working-directory: ./rootfs
+
+      - name: Upload Base Root File System
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs.tar
+          path: ./rootfs/rootfs.tar
