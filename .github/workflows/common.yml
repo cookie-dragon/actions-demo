@@ -71,7 +71,7 @@ jobs:
   job_file:
     name: JOB File
     runs-on: ubuntu-18.04
-    needs: [job_test]
+    needs: [job_env]
     steps:
 
       - name: Prepare
