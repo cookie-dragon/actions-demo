@@ -82,7 +82,7 @@ jobs:
         run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
 
       - name: Patch Kernel
-        run : ｜
+        run : |
           patch -p1 < ../common/kernel-patch/timeconst.pl.x64.patch
           patch -p2 < ../hilectroElec/kernel-patch/diff.patch
         working-directory: ./kernel
