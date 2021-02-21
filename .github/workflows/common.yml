@@ -101,5 +101,5 @@ jobs:
       - name: STEP - TEST
         run: |
           DIR=/home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
-          cat ${DIR}/uplicence.txt
-          ls -l ${DIR}
+          sudo cat ${DIR}/uplicence.txt
+          sudo ls -l ${DIR}
