@@ -66,8 +66,8 @@ jobs:
       - id: step2
         name: Check Output File Name
         run: |
-          S_FILENAME=T2-Kernel-V${{steps.step2.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step2.outputs.FILE_SYS_VERSION}}-S-${{steps.step2.outputs.DATE_VERSION}}
-          U_FILENAME=T2-Kernel-V${{steps.step2.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step2.outputs.FILE_SYS_VERSION}}-U-${{steps.step2.outputs.DATE_VERSION}}
+          S_FILENAME=T2-Kernel-V${{steps.step1.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step1.outputs.FILE_SYS_VERSION}}-S-${{steps.step1.outputs.DATE_VERSION}}
+          U_FILENAME=T2-Kernel-V${{steps.step1.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step1.outputs.FILE_SYS_VERSION}}-U-${{steps.step1.outputs.DATE_VERSION}}
           echo "::set-output name=S_FILENAME::${S_FILENAME}"
           echo "::set-output name=U_FILENAME::${U_FILENAME}"
 
