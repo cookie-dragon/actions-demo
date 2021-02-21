@@ -1,0 +1,51 @@
+name: hilectroElec CI
+
+on:
+  push:
+    paths: 
+      - 'common/**'
+      - 'hilectroElec/version.json'
+      - 'hilectroElec/**'
+      - '.github/workflows/hilectroElec.yml'
+  workflow_dispatch:
+
+jobs:
+
+  # job_toolchain:
+  #   name: Toolchain
+  #   runs-on: ubuntu-18.04
+  #   steps:
+
+  #     - name: Wget Toolchain
+  #       run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+  #     - name: Upload Artifact Toolchain
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+  #         path: ./gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+  job_base_rootfs:
+    name: Base Root File System
+    runs-on: ubuntu-18.04
+    steps:
+
+      # - name: Download Artifact Toolchain
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      #     path: ./
+
+      # - name: Untar Toolchain
+      #   run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: Git Official Root File System
+        run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-rootfs.git
+
+      - name: Untar Official Root File System
+        run: |
+          mkdir -p rootfs
+          tar xf forlinx-335xS-II-rootfs/qt/rootfs.tar.bz2 -C ./rootfs/
+
+      - name: Show
+        run: ls -l ./rootfs/
