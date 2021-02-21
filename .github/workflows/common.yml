@@ -44,10 +44,9 @@ jobs:
 
       - name: STEP - TEST
         run: |
-          kernel_version=`cat hilectroElec/version.json | jq '.kernel_version'`
-          FILE_SYS_VERSION=`cat hilectroElec/version.json | jq '.FILE_SYS_VERSION'`
-          date_version=`cat hilectroElec/version.json | jq '.date_version'`
+          kernel_version=`cat hilectroElec/version.json | jq -r '.kernel_version'`
+          FILE_SYS_VERSION=`cat hilectroElec/version.json | jq -r '.FILE_SYS_VERSION'`
+          date_version=`cat hilectroElec/version.json | jq -r '.date_version'`
           S_FILENAME=T2-Kernel-V${kernel_version}-Filesys-V${FILE_SYS_VERSION}-S-${date_version}
           U_FILENAME=T2-Kernel-V${kernel_version}-Filesys-V${FILE_SYS_VERSION}-U-${date_version}
           echo ${S_FILENAME} ${U_FILENAME}
-          
