@@ -36,16 +36,13 @@ jobs:
   #         path: ./gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
   job_test:
-    name: Toolchain
+    name: JOB TEST
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - name: Install APT Packages
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y jq
-
       - name: STEP - TEST
-        run: cat hilectroElec/version.json | jq '.'
+        run: |
+          FILE_SYS_VERSION=`cat hilectroElec/version.json | jq '.FILE_SYS_VERSION'`
+          echo OUT$FILE_SYS_VERSION
