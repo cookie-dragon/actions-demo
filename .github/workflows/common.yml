@@ -74,17 +74,26 @@ jobs:
     needs: [job_env]
     steps:
 
-      - name: Prepare
+      - name: Prepare Dir
         run: |
-          mkdir -p output
-          touch output/MLO
-          touch output/u-boot.img
-          touch output/uImage
-          touch output/ubi.img
+          mkdir -p ${{needs.job_env.outputs.S_FILENAME}}
+          sudo mkdir -p /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
+
+      - name: Prepare File
+        run: |
+          touch ${{needs.job_env.outputs.S_FILENAME}}/MLO
+          touch ${{needs.job_env.outputs.S_FILENAME}}/u-boot.img
+          touch ${{needs.job_env.outputs.S_FILENAME}}/uImage
+          touch ${{needs.job_env.outputs.S_FILENAME}}/ubi.img
+          sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/MLO /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
+          sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/u-boot.img /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
+          sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/uImage /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
 
       - name: Check MD5
         run: |
-          md5sum output/MLO
+          sudo md5sum /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/MLO
+          sudo md5sum /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/u-boot.img
+          sudo md5sum /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/uImage
 
       - name: STEP - TEST
         run: echo ${{needs.job_env.outputs.S_FILENAME}} ${{needs.job_env.outputs.U_FILENAME}} ${{needs.job_env.outputs.K_FILENAME}}
