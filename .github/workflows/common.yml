@@ -13,14 +13,11 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
 
-      - run: |
+      - name: Install Basic APT Packages
+        run: |
         cat /etc/passwd
-        who
-        users
         whoami
         sudo -i
-        who
-        users
         whoami
   
   # job_toolchain:
