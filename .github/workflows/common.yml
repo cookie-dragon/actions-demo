@@ -16,9 +16,9 @@ jobs:
       - name: Step - Test
         run: |
           whoami
-          cat /etc/shadow
-          cat /etc/passwd
-          cat /etc/group
+          sudo cat /etc/shadow
+          sudo cat /etc/passwd
+          sudo cat /etc/group
 
   
   # job_toolchain:
