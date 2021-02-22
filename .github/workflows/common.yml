@@ -15,10 +15,10 @@ jobs:
 
       - name: Install Basic APT Packages
         run: |
-        cat /etc/passwd
-        whoami
-        sudo -i
-        whoami
+          cat /etc/passwd
+          whoami
+          sudo -i
+          whoami
   
   # job_toolchain:
   #   name: Toolchain
