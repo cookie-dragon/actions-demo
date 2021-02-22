@@ -16,8 +16,10 @@ jobs:
       - name: Step - Test
         run: |
           whoami
-          su root
-          whoami
+          cat /etc/shadow
+          cat /etc/passwd
+          cat /etc/group
+
   
   # job_toolchain:
   #   name: Toolchain
