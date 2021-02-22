@@ -9,11 +9,11 @@ on:
 
 jobs:
   job_test:
-    name: Test
+    name: Job - Test
     runs-on: ubuntu-18.04
     steps:
 
-      - name: Install Basic APT Packages
+      - name: Step - Test
         run: |
           whoami
           su root
