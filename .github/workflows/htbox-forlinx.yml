@@ -74,11 +74,11 @@ jobs:
           patch -p1 < ../htbox-forlinx/buildroot-patch/ncurses.mk.patch
         working-directory: ./buildroot-2019.02.11
 
-      - name: Config Buildroot Base
-        run: cp -f htbox-forlinx/buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
+      # - name: Config Buildroot Base
+      #   run: cp -f htbox-forlinx/buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
 
-      # - name: Config Buildroot Full
-      #   run: cp -f htbox-forlinx/buildroot-config/config.2019.02.11 buildroot-2019.02.11/.config
+      - name: Config Buildroot Full
+        run: cp -f htbox-forlinx/buildroot-config/config.2019.02.11 buildroot-2019.02.11/.config
 
       - name: Build Buildroot
         run: make -j$(nproc)
@@ -173,7 +173,7 @@ jobs:
       - name: Tar Root File System
         run: sudo tar zcf rootfs.tar.gz rootfs/
 
-      - name: Upload Root File System
+      - name: Upload Artifact Root File System
         uses: actions/upload-artifact@v2
         with:
           name: rootfs.tar.gz
@@ -319,7 +319,7 @@ jobs:
         run: sudo tar zcf snap7.tar.gz /usr/lib/libsnap7.so
         working-directory: /
 
-      - name: Upload Snap7
+      - name: Upload Artifact Snap7
         uses: actions/upload-artifact@v2
         with:
           name: snap7.tar.gz
@@ -388,14 +388,17 @@ jobs:
           sudo rm -rf rootfs/lib/modules/*/build
           sudo rm -rf rootfs/lib/modules/*/source
           sudo rm -rf rootfs/etc/init.d/S60openvpn
+          sudo chown -R root:root htbox-forlinx/rootfs-add/*
+          sudo chmod -R -x htbox-forlinx/rootfs-add/*
+          sudo chmod -R +x htbox-forlinx/rootfs-add/etc/init.d/*
+          sudo chmod -R +x htbox-forlinx/rootfs-add/etc/mdev/*
+          sudo chmod -R +x htbox-forlinx/rootfs-add/usr/local/bin/*
           sudo cp -rf htbox-forlinx/rootfs-add/* rootfs/
-          sudo chmod +x rootfs/etc/init.d/*
-          sudo chmod +x rootfs/usr/local/bin/*
 
       - name: Tar Final Root File System
         run: sudo tar zcf rootfs-final.tar.gz rootfs/
 
-      - name: Upload Final Root File System
+      - name: Upload Artifact Final Root File System
         uses: actions/upload-artifact@v2
         with:
           name: rootfs-final.tar.gz
@@ -411,10 +414,3 @@ jobs:
         with:
           name: ubi.img
           path: ./ubi.img
-
-      - name: Final Show
-        run: |
-          sudo ls -l ./rootfs
-          sudo ls -l ./rootfs/usr/local/bin
-          sudo ls -l ./rootfs/usr/local/sbin
-          sudo ls -l ./rootfs/usr/lib/libsnap7.so

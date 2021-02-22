@@ -83,7 +83,6 @@ Device Drivers  --->
             Toolchain (Custom toolchain)
             Toolchain origin (Pre-installed toolchain)
         ($(TOPDIR)/../host/usr) Toolchain path
-        ($(ARCH)-linux) Toolchain prefix
         ($(ARCH)-htbox-linux-gnueabihf) Toolchain prefix
             External toolchain gcc version (4.7.x)
             External toolchain kernel headers series (3.2.x)
