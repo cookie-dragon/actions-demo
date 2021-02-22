@@ -168,7 +168,7 @@ jobs:
         working-directory: ./kernel
 
       - name: Tar Root File System
-        run: tar zcf rootfs.tar.gz rootfs/
+        run: sudo tar zcf rootfs.tar.gz rootfs/
 
       - name: Upload Root File System
         uses: actions/upload-artifact@v2
@@ -218,7 +218,7 @@ jobs:
         working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
 
       - name: Tar WirelessTools
-        run: tar zcf wireless_tools.tar.gz usr/
+        run: sudo tar zcf wireless_tools.tar.gz usr/
         working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
 
       - name: Upload Artifact WirelessTools
@@ -351,7 +351,7 @@ jobs:
           path: ./
 
       - name: Untar WirelessTools
-        run: tar zxf wireless_tools.tar.gz -C ./rootfs/
+        run: sudo tar zxf wireless_tools.tar.gz -C ./rootfs/
 
       - name: Download Artifact Hostapd
         uses: actions/download-artifact@v2
@@ -360,7 +360,7 @@ jobs:
           path: ./
 
       - name: Untar Hostapd
-        run: tar zxf hostapd.tar.gz -C ./rootfs/
+        run: sudo tar zxf hostapd.tar.gz -C ./rootfs/
 
       - name: Download Artifact WpaSupplicant
         uses: actions/download-artifact@v2
@@ -369,7 +369,7 @@ jobs:
           path: ./
 
       - name: Untar WpaSupplicant
-        run: tar zxf wpa_supplicant.tar.gz -C ./rootfs/
+        run: sudo tar zxf wpa_supplicant.tar.gz -C ./rootfs/
 
       - name: Download Artifact Snap7
         uses: actions/download-artifact@v2
@@ -378,19 +378,19 @@ jobs:
           path: ./
 
       - name: Untar Snap7
-        run: tar zxf snap7.tar.gz -C ./rootfs/
+        run: sudo tar zxf snap7.tar.gz -C ./rootfs/
 
       - name: Fix Root File System
         run: |
-          rm -rf rootfs/lib/modules/*/build
-          rm -rf rootfs/lib/modules/*/source
-          rm -rf rootfs/etc/init.d/S60openvpn
-          cp -rf htbox-forlinx/rootfs-add/* rootfs/
-          chmod +x rootfs/etc/init.d/*
-          chmod +x rootfs/usr/local/bin/*
+          sudo rm -rf rootfs/lib/modules/*/build
+          sudo rm -rf rootfs/lib/modules/*/source
+          sudo rm -rf rootfs/etc/init.d/S60openvpn
+          sudo cp -rf htbox-forlinx/rootfs-add/* rootfs/
+          sudo chmod +x rootfs/etc/init.d/*
+          sudo chmod +x rootfs/usr/local/bin/*
 
       - name: Tar Final Root File System
-        run: tar zcf rootfs-final.tar.gz rootfs/
+        run: sudo tar zcf rootfs-final.tar.gz rootfs/
 
       - name: Upload Final Root File System
         uses: actions/upload-artifact@v2
@@ -408,3 +408,9 @@ jobs:
         with:
           name: ubi.img
           path: ./ubi.img
+
+      - name: Final Show
+        run: |
+          sudo ls -l ./rootfs
+          sudo ls -l ./rootfs/usr/local/bin
+          sudo ls -l ./rootfs/usr/local/sbin
