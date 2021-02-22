@@ -13,7 +13,15 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
 
-      - run: cat /etc/passwd
+      - run: |
+        cat /etc/passwd
+        who
+        users
+        whoami
+        sudo -i
+        who
+        users
+        whoami
   
   # job_toolchain:
   #   name: Toolchain
