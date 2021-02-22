@@ -74,8 +74,11 @@ jobs:
           patch -p1 < ../htbox-forlinx/buildroot-patch/ncurses.mk.patch
         working-directory: ./buildroot-2019.02.11
 
-      - name: Config Buildroot
+      - name: Config Buildroot Base
         run: cp -f htbox-forlinx/buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
+
+      # - name: Config Buildroot Full
+      #   run: cp -f htbox-forlinx/buildroot-config/config.2019.02.11 buildroot-2019.02.11/.config
 
       - name: Build Buildroot
         run: make -j$(nproc)
@@ -400,8 +403,8 @@ jobs:
 
       - name: Build UBI File System
         run: |
-          mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
-          ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 htbox-forlinx/rootfs-config/ubinize-256M.cfg
+          sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+          sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 htbox-forlinx/rootfs-config/ubinize-256M.cfg
 
       - name: Upload Artifact UBI File System
         uses: actions/upload-artifact@v2
@@ -414,3 +417,4 @@ jobs:
           sudo ls -l ./rootfs
           sudo ls -l ./rootfs/usr/local/bin
           sudo ls -l ./rootfs/usr/local/sbin
+          sudo ls -l ./rootfs/usr/lib/libsnap7.so
