@@ -15,17 +15,16 @@ reset_password() {
 reset_user() {
 	deluser user
 	deluser admin
-	delgroup admin
 
-	addgroup -S admin
+	mkdir -p /home
 
-  mkdir -p /home
-
-	adduser -g AdminUser -G admin -S -D -H admin
-	echo admin:ht@315800|chpasswd
+	adduser -g AdminUser -G root -S -D -H admin
+	# echo admin:ht@315800|chpasswd
+	echo "ht@315800" | passwd admin
 
 	adduser -g NormalUser -G users -D user
-	echo user:p@ssw0rd|chpasswd
+	# echo user:p@ssw0rd|chpasswd
+	echo "p@ssw0rd" | passwd user
 }
 
 reset_config() {
