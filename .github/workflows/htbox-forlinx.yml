@@ -74,11 +74,11 @@ jobs:
           patch -p1 < ../htbox-forlinx/buildroot-patch/ncurses.mk.patch
         working-directory: ./buildroot-2019.02.11
 
-      # - name: Config Buildroot Base
-      #   run: cp -f htbox-forlinx/buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
+      - name: Config Buildroot Base
+        run: cp -f htbox-forlinx/buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
 
-      - name: Config Buildroot Full
-        run: cp -f htbox-forlinx/buildroot-config/config.2019.02.11 buildroot-2019.02.11/.config
+      # - name: Config Buildroot Full
+      #   run: cp -f htbox-forlinx/buildroot-config/config.2019.02.11 buildroot-2019.02.11/.config
 
       - name: Build Buildroot
         run: make -j$(nproc)
