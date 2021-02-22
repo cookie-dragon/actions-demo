@@ -16,9 +16,13 @@ jobs:
       - name: Step - Test
         run: |
           whoami
+          echo "++++++++++ ========== ++++++++++"
           sudo cat /etc/shadow
+          echo "++++++++++ ========== ++++++++++"
           sudo cat /etc/passwd
+          echo "++++++++++ ========== ++++++++++"
           sudo cat /etc/group
+          echo "++++++++++ ========== ++++++++++"
 
   
   # job_toolchain:
