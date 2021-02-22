@@ -75,7 +75,7 @@ jobs:
         working-directory: ./buildroot-2019.02.11
 
       - name: Config Buildroot
-        run: cp -f htbox-forlinx/buildroot-config/config.2019.02.11 buildroot-2019.02.11/.config
+        run: cp -f htbox-forlinx/buildroot-config/config.base.2019.02.11 buildroot-2019.02.11/.config
 
       - name: Build Buildroot
         run: make -j$(nproc)
@@ -158,7 +158,7 @@ jobs:
       - name: Untar Base Root File System
         run: |
           mkdir -p rootfs
-          tar xf rootfs.tar -C ./rootfs/
+          sudo tar xf rootfs.tar -C ./rootfs/
           
       - name: Kernel Modules Install
         env:
@@ -342,7 +342,7 @@ jobs:
           path: ./
 
       - name: Untar Root File System
-        run: tar zxf rootfs.tar.gz
+        run: sudo tar zxf rootfs.tar.gz
 
       - name: Download Artifact WirelessTools
         uses: actions/download-artifact@v2
@@ -382,6 +382,7 @@ jobs:
 
       - name: Fix Root File System
         run: |
+          rm -rf rootfs/lib/modules/*/build
           rm -rf rootfs/lib/modules/*/source
           rm -rf rootfs/etc/init.d/S60openvpn
           cp -rf htbox-forlinx/rootfs-add/* rootfs/
