@@ -164,7 +164,7 @@ jobs:
         env:
           TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
           CROSS_COMPILE: arm-linux-gnueabihf-
-        run: make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
+        run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
         working-directory: ./kernel
 
       - name: Tar Root File System
