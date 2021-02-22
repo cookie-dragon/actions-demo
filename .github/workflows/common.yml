@@ -12,6 +12,8 @@ jobs:
     name: Job - Test
     runs-on: ubuntu-18.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Step - Test
         run: |
@@ -24,6 +26,13 @@ jobs:
           sudo cat /etc/group
           echo "++++++++++ ========== ++++++++++"
 
+      - name: Step - Test2
+        run: |
+          sudo chown -R root:root htbox-forlinx/rootfs-add/*
+          sudo chmod -R -x htbox-forlinx/rootfs-add/*
+          sudo chmod -R +x htbox-forlinx/rootfs-add/etc/init.d/*
+          sudo chmod -R +x htbox-forlinx/rootfs-add/etc/mdev/*
+          sudo chmod -R +x htbox-forlinx/rootfs-add/usr/local/bin/*
   
   # job_toolchain:
   #   name: Toolchain
