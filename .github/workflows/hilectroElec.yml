@@ -6,7 +6,7 @@ on:
       # - 'common/**'
       # - 'hilectroElec/version.json'
       # - 'hilectroElec/**'
-      # - '.github/workflows/hilectroElec.yml'
+      - '.github/workflows/hilectroElec.yml'
   workflow_dispatch:
 
 jobs:
