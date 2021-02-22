@@ -389,7 +389,7 @@ jobs:
           sudo rm -rf rootfs/lib/modules/*/source
           sudo rm -rf rootfs/etc/init.d/S60openvpn
           sudo chown -R root:root htbox-forlinx/rootfs-add/*
-          sudo chmod -R -x htbox-forlinx/rootfs-add/*
+          sudo find ./htbox-forlinx/rootfs-add -type f -exec sudo chmod -R -x {} \;
           sudo chmod -R +x htbox-forlinx/rootfs-add/etc/init.d/*
           sudo chmod -R +x htbox-forlinx/rootfs-add/etc/mdev/*
           sudo chmod -R +x htbox-forlinx/rootfs-add/usr/local/bin/*
