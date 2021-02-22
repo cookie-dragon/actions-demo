@@ -17,11 +17,18 @@ jobs:
 
       - name: Step - Test
         run: |
+          mkdir -p rootfs
+
           sudo chown -R root:root htbox-forlinx/rootfs-add/*
-          sudo find ./htbox-forlinx/rootfs-add -type f -exec sudo chmod -R -x {} \;
-          sudo chmod -R +x htbox-forlinx/rootfs-add/etc/init.d/*
-          sudo chmod -R +x htbox-forlinx/rootfs-add/etc/mdev/*
-          sudo chmod -R +x htbox-forlinx/rootfs-add/usr/local/bin/*
+          sudo chmod -R 750 htbox-forlinx/rootfs-add/*
+          sudo find ./htbox-forlinx/rootfs-add -type f | xargs sudo chmod 640
+          sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/init.d/*
+          sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/mdev/*
+          sudo chmod -R 440 htbox-forlinx/rootfs-add/etc/sudoers.d/*
+          sudo chmod -R 750 htbox-forlinx/rootfs-add/opt/bin/*
+          sudo chmod -R 750 htbox-forlinx/rootfs-add/opt/sbin/*
+          sudo chmod -R 750 htbox-forlinx/rootfs-add/usr/local/bin/*
+          sudo cp -rf htbox-forlinx/rootfs-add/* rootfs/
   
   # job_toolchain:
   #   name: Toolchain
