@@ -3,7 +3,7 @@ name: hilectroElec CI
 on:
   push:
     paths: 
-      - 'common/**'
+      # - 'common/**'
       # - 'hilectroElec/version.json'
       # - 'hilectroElec/**'
       # - '.github/workflows/hilectroElec.yml'

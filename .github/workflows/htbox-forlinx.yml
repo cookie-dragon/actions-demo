@@ -3,10 +3,10 @@ name: htbox-forlinx CI
 on:
   push:
     paths: 
-      - 'common/**'
+      # - 'common/**'
       # - 'htbox-forlinx/version.json'
       # - 'htbox-forlinx/**'
-      - '.github/workflows/htbox-forlinx.yml'
+      # - '.github/workflows/htbox-forlinx.yml'
   workflow_dispatch:
 
 jobs:
@@ -246,7 +246,7 @@ jobs:
         working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/hostapd
 
       - name: Tar Hostapd
-        run: sudo tar zcf hostapd.tar.gz /usr/local/bin/hostapd /usr/local/bin/hostapd_cli
+        run: sudo tar zcf hostapd.tar.gz usr/local/bin/hostapd usr/local/bin/hostapd_cli
         working-directory: /
 
       - name: Upload Artifact Hostapd
@@ -266,7 +266,7 @@ jobs:
         working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
 
       - name: Tar WpaSupplicant
-        run: sudo tar zcf wpa_supplicant.tar.gz /usr/local/sbin/wpa_cli /usr/local/sbin/wpa_passphrase /usr/local/sbin/wpa_supplicant
+        run: sudo tar zcf wpa_supplicant.tar.gz usr/local/sbin/wpa_cli usr/local/sbin/wpa_passphrase usr/local/sbin/wpa_supplicant
         working-directory: /
 
       - name: Upload Artifact WpaSupplicant
@@ -316,7 +316,7 @@ jobs:
         working-directory: ./snap7-iot-arm-1.4.2/build/unix
 
       - name: Tar Snap7
-        run: sudo tar zcf snap7.tar.gz /usr/lib/libsnap7.so
+        run: sudo tar zcf snap7.tar.gz usr/lib/libsnap7.so
         working-directory: /
 
       - name: Upload Artifact Snap7
@@ -389,11 +389,18 @@ jobs:
           sudo rm -rf rootfs/lib/modules/*/source
           sudo rm -rf rootfs/etc/init.d/S60openvpn
           sudo chown -R root:root htbox-forlinx/rootfs-add/*
-          sudo find ./htbox-forlinx/rootfs-add -type f -exec sudo chmod -R -x {} \;
+          sudo find ./htbox-forlinx/rootfs-add -type f | xargs sudo chmod -R -x
           sudo chmod -R +x htbox-forlinx/rootfs-add/etc/init.d/*
           sudo chmod -R +x htbox-forlinx/rootfs-add/etc/mdev/*
+          sudo chmod -R +x htbox-forlinx/rootfs-add/opt/bin/*
+          sudo chmod -R +x htbox-forlinx/rootfs-add/opt/sbin/*
           sudo chmod -R +x htbox-forlinx/rootfs-add/usr/local/bin/*
           sudo cp -rf htbox-forlinx/rootfs-add/* rootfs/
+
+      - name: Patch Root File System
+        run: |
+          sudo find ../htbox-forlinx/rootfs-patch -name "*.patch" | xargs sudo patch -p1 < 
+        working-directory: ./rootfs
 
       - name: Tar Final Root File System
         run: sudo tar zcf rootfs-final.tar.gz rootfs/

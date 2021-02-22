@@ -1,13 +1,13 @@
 #!/bin/sh
 
-index=0
+bitrate=250000
 if [[ $2 -ne "" ]]; then
-  index=$2
+  bitrate=$2
 fi
 
-bitrate=250000
+index=0
 if [[ $3 -ne "" ]]; then
-  bitrate=$3
+  index=$3
 fi
 
 start() {
