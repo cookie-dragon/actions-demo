@@ -20,7 +20,7 @@ jobs:
     
       - name: Stress
         run: |
-          wget http://people.seas.harvard.edu/~apw/stress/stress-1.0.4.tar.gz
+          wget https://fossies.org/linux/privat/stress-1.0.4.tar.gz
           tar zxf stress-1.0.4.tar.gz
          
       - name: Cross Compile Build
