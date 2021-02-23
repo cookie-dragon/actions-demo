@@ -1,0 +1,39 @@
+name: cross compile CI
+
+on:
+  push:
+    paths: 
+      - '.github/workflows/cross-compile.yml'
+  workflow_dispatch:
+
+jobs:
+
+  job_cross_compile:
+    name: Job - Cross Compile
+    runs-on: ubuntu-18.04
+    steps:
+    
+      - name: Toolchain
+        run: |
+          wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+    
+      - name: Stress
+        run: |
+          wget http://people.seas.harvard.edu/~apw/stress/stress-1.0.4.tar.gz
+          tar zxf stress-1.0.4.tar.gz
+         
+      - name: Cross Compile Build
+        env:
+          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
+          CROSS_COMPILE: arm-linux-gnueabihf-
+        run: |
+          ./configure CC=${CROSS_COMPILE}gcc --host=$CROSS_COMPILE
+          make
+        working-directory: ./stress-1.0.4
+
+      - name: Upload Artifact Bin
+        uses: actions/upload-artifact@v2
+        with:
+          name: bin
+          path: ./stress-1.0.4/src/stress
