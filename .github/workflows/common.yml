@@ -19,9 +19,6 @@ jobs:
         run: |
           mkdir -p rootfs
 
-          sudo rm -rf rootfs/lib/modules/*/build
-          sudo rm -rf rootfs/lib/modules/*/source
-
           sudo chown -R root:root htbox-forlinx/rootfs-add/*
           sudo find ./htbox-forlinx/rootfs-add -type d | xargs sudo chmod -f 777
           sudo find ./htbox-forlinx/rootfs-add -type f | xargs sudo chmod -f 640
