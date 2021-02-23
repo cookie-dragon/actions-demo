@@ -152,8 +152,8 @@ jobs:
 
       - name: Fix
         run: |
-          sed -i "2c CC=$(CROSS_COMPILE)gcc" Makefile
-          sed -i "3c AR=$(CROSS_COMPILE)ar" Makefile
+          sed -i '2c CC=${CROSS_COMPILE}gcc' Makefile
+          sed -i '3c AR=${CROSS_COMPILE}ar' Makefile
         working-directory: ./rt-tests
         
       - name: Build
