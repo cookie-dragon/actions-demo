@@ -11,14 +11,29 @@ jobs:
   job_toolchain:
     name: Toolchain
     runs-on: ubuntu-18.04
+    outputs:
+      TOOLCHAIN: ${{steps.step_set_env.outputs.TOOLCHAIN}}
     steps:
       
       - name: Wget Toolchain
+        run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      
+      - name: Rename Toolchain
+        run: mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
+        
+      - id: step_set_env
+        name: Set Env
         run: |
-          wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-          tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-          mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
-          tar zcf toolchain.tar.gz toolchain
+          TOOLCHAIN=`pwd`
+          echo ${TOOLCHAIN}
+          echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
+        working-directory: ./toolchain/bin
+        
+      - name: Retar Toolchain
+        run: tar zcf toolchain.tar.gz toolchain
 
       - name: Upload Artifact Toolchain
         uses: actions/upload-artifact@v2
