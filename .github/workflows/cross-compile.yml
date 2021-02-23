@@ -25,7 +25,7 @@ jobs:
           echo "Line 4" >> test.txt
           cat test.txt
           echo "=========="
-          sed -i "2c CC=${{github.event.inputs.cross_compile}}gcc" test.txt
+          sed -i '2c CC=${{github.event.inputs.cross_compile}}gcc' test.txt
           cat test.txt
           echo "=========="
 
