@@ -102,11 +102,11 @@ jobs:
       - name: Download Artifact Toolchain
         uses: actions/download-artifact@v2
         with:
-          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          name: toolchain
           path: ./
-
+      
       - name: Untar Toolchain
-        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+        run: tar zxf toolchain.tar.gz
         
       - name: Get
         run: |
