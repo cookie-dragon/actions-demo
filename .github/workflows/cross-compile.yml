@@ -80,7 +80,10 @@ jobs:
           git checkout stable/v1.0
 
       - name: Fix
-        run: cat Makefile
+        run: |
+          sed -i '2c CC=$(CROSS_COMPILE)gcc' Makefile
+          sed -i '3c AR=$(CROSS_COMPILE)ar' Makefile
+          cat Makefile
         working-directory: ./rt-tests
         
 #       - name: Build
