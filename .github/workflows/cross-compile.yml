@@ -39,7 +39,7 @@ jobs:
       - id: step_set_cross_compile
         name: Set CROSS_COMPILE
         run: |
-          if [ -z "${{github.event.inputs.name}}" ]; then
+          if [ -z "${{github.event.inputs.cross_compile}}" ]; then
             CROSS_COMPILE=arm-linux-gnueabihf-
           else
             CROSS_COMPILE=${{github.event.inputs.cross_compile}}
