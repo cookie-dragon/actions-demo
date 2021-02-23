@@ -393,7 +393,7 @@ jobs:
           sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/mdev/*
           sudo chmod -R 440 htbox-forlinx/rootfs-add/etc/sudoers.d/*
           sudo chmod -R 750 htbox-forlinx/rootfs-add/opt/bin/*
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/opt/sbin/*
+          
           sudo chmod -R 755 htbox-forlinx/rootfs-add/usr/local/bin/*
 
           sudo chmod -R 750 htbox-forlinx/rootfs-add/media/sample/rootfs/etc/init.d/*
