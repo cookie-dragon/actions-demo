@@ -255,7 +255,7 @@ jobs:
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: |
           export PATH=$TOOLCHAIN:$PATH
-          make CC=${CROSS_COMPILE}-gcc
+          make CC=${CROSS_COMPILE}gcc
           sudo make install
         working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
 
