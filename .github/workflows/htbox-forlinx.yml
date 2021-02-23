@@ -407,7 +407,6 @@ jobs:
           sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_inittab.patch
           sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_mdev.conf.patch
           sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_profile.patch
-          sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_sudoers.patch
         working-directory: ./rootfs
 
       - name: Tar Final Root File System
