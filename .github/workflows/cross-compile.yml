@@ -36,11 +36,20 @@ jobs:
           echo "=========="
           ABC="XYZ-"
           
+          sed -i '1c CC=$(CROSS_COMPILE)gcc' test.txt
+          sed -i '2c CC=${CROSS_COMPILE}gcc' test.txt
           sed -i '4c CC=$(ABC)gcc' test.txt
           sed -i '5c CC=${ABC}gcc' test.txt
-          sed -i '6c CC=${{ABC}}gcc' test.txt
           sed -i '7c CC=${{github.event.inputs.cross_compile}}gcc' test.txt
-
+          
+          sed -i "8c CC=$(CROSS_COMPILE)gcc" test.txt
+          sed -i "9c CC=${CROSS_COMPILE}gcc" test.txt
+          sed -i "11c CC=$(ABC)gcc" test.txt
+          sed -i "12c CC=${ABC}gcc" test.txt
+          sed -i "14c CC=${{github.event.inputs.cross_compile}}gcc" test.txt
+          
+          cat test.txt
+          echo "=========="
 
 #   job_toolchain:
 #     name: Toolchain
