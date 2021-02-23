@@ -1,0 +1,20 @@
+#!/bin/sh
+
+case "$1" in
+start)
+    if [[ ! -f /etc/htbox/htbox.conf ]]; then
+        printf "BOX配置初始化: "
+        cp -f /etc/htbox/htbox.conf.def /etc/htbox/htbox.conf
+        echo "OK"
+    fi
+    ;;
+*)
+    echo "Usage: $0 {start}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0
+
+
+

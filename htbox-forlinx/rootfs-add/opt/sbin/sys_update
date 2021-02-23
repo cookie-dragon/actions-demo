@@ -89,6 +89,7 @@ if [[ -f /media/$MDEV/update ]]; then
 
 		echo "OK - "${spl_mtdindex}" blockcnt: "${spl_blockcnt}
 	fi
+
 	if [[ -f /media/$MDEV/u-boot.img ]]; then
 		printf "Update u-boot.img: "
 
@@ -110,6 +111,7 @@ if [[ -f /media/$MDEV/update ]]; then
 
 		echo "OK - "${uboot_mtdindex}" blockcnt: "${uboot_blockcnt}
 	fi
+	
 	if [[ -f /media/$MDEV/uImage ]]; then
 		printf "Update uImage: "
 

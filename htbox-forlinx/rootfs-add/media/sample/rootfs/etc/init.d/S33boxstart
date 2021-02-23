@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2020/12/25 2:47 下午
 # @Author  : Cooky Long
-# @File    : S33htbox.py
+# @File    : S33boxstart.py
 import os
 import sys
 
@@ -37,11 +37,11 @@ if __name__ == '__main__':
             elif cmd_shell == 'start':
                 exit_sys = start(conf)
                 print("开启默认路由监控: ", end="")
-                os.system('/opt/bin/defroute_monitor.py >/dev/null &')
+                os.system('/opt/bin/defroute_monitor >/dev/null &')
                 print("OK")
             elif cmd_shell == 'stop':
                 print("关闭默认路由监控: ", end="")
-                JobShell.killjob('/opt/bin/defroute_monitor.py')
+                JobShell.killjob('/opt/bin/defroute_monitor')
                 print("OK")
                 exit_sys = stop(conf)
                 if exit_sys == 0:

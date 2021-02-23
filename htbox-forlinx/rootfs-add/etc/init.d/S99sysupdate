@@ -1,0 +1,18 @@
+#!/bin/sh
+
+case "$1" in
+start)
+	printf "系统更新监听: "
+	/opt/sbin/sys_update_loop >/dev/null &
+	echo "OK"
+	;;
+*)
+	echo "Usage: $0 {start}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
+
+
+

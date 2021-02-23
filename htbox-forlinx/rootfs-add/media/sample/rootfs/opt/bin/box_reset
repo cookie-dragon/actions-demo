@@ -2,11 +2,11 @@
 
 reset_config() {
 	cp -f /etc/htbox/htbox.conf.def /etc/htbox/htbox.conf.tmp
-	python /etc/init.d/S33htbox.py restart
+	python /etc/init.d/S33boxstart restart
 }
 
 case "$1" in
-config)
+reset)
 	reset_config
 	;;
 *)

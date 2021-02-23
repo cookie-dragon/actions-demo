@@ -1,6 +1,6 @@
 #!/bin/sh
 
 while [[ 1 ]]; do
-	/opt/sbin/box_update
+	/opt/sbin/sys_update
 	sleep 5
 done

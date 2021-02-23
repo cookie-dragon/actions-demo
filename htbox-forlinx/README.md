@@ -113,17 +113,21 @@ Device Drivers  --->
                 [ ] i2c-tools
             Interpreter languages and scripting  --->
                 [*] python3
-										External python modules  --->
-											[*] python-can
-											[*] python-cffi
-											[*] python-lxml
-											[*] python-pip
-											[*] python-serial
-											-*- python-setuptools
-											[ ] python-smbus-cffi
+			External python modules  --->
+				[*] python-can
+				[*] python-cffi
+				[*] python-lxml
+				[*] python-pip
+				[*] python-pyqrcode
+				[*] python-serial
+				-*- python-setuptools
+				[ ] python-smbus-cffi
             Libraries  --->
                 Database  --->
                     [*] redis
+                Graphics
+                	[*] libqrencode
+                	[*]   libqrencode tools
                 JSON/XML  --->
                     [*] cJSON
                 Networking  --->
