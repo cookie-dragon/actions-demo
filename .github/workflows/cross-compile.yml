@@ -18,12 +18,13 @@ jobs:
           wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
           tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
           mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
+          tar zcf toolchain.tar.gz toolchain
 
       - name: Upload Artifact Toolchain
         uses: actions/upload-artifact@v2
         with:
           name: toolchain
-          path: ./toolchain
+          path: ./toolchain.tar.gz
 
   job_stress:
     name: Job - Stress
@@ -36,6 +37,9 @@ jobs:
         with:
           name: toolchain
           path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
 
       - name: Get
         run: |
