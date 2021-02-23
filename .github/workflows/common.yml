@@ -22,13 +22,16 @@ jobs:
           sudo chown -R root:root htbox-forlinx/rootfs-add/*
           sudo find ./htbox-forlinx/rootfs-add -type d | xargs sudo chmod 777
           sudo find ./htbox-forlinx/rootfs-add -type f | xargs sudo chmod 640
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/init.d/*
+
+          
           sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/mdev/*
           sudo chmod -R 440 htbox-forlinx/rootfs-add/etc/sudoers.d/*
           sudo chmod -R 750 htbox-forlinx/rootfs-add/opt/bin/*
           sudo chmod -R 750 htbox-forlinx/rootfs-add/opt/sbin/*
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/usr/local/bin/*
-          sudo cp -rf htbox-forlinx/rootfs-add/* rootfs/
+          sudo chmod -R 755 htbox-forlinx/rootfs-add/usr/local/bin/*
+
+          sudo chmod -R 750 htbox-forlinx/rootfs-add/media/sample/rootfs/etc/init.d/*
+          sudo chmod -R 750 htbox-forlinx/rootfs-add/media/sample/rootfs/opt/bin/*
   
   # job_toolchain:
   #   name: Toolchain
@@ -39,7 +42,7 @@ jobs:
   #     #   run: |
   #     #     sudo dpkg --add-architecture i386
   #     #     sudo apt-get update
-  #     #     sudo apt-get install -y rsync bc
+  #     #     sudo apt-get install -y rsync bc libncurses-dev
   #     #     sudo apt-get install -y git build-essential python diffstat texinfo gawk chrpath dos2unix wget unzip socat doxygen libc6:i386 libncurses5:i386 libstdc++6:i386 libz1:i386
   #     #     sudo apt-get install -y gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm python3-subunit mesa-common-dev
 

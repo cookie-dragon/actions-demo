@@ -2,14 +2,10 @@
 
 reset_password() {
 	s_line=`cat /proc/cpuinfo | grep Serial`
-
 	s=`echo ${s_line#*": "}`
-	# echo root:${s}|chpasswd
-	# echo "User 'root' password has changed! -> [${s}]"
-
 	s_md5=`echo -n ${s}|md5sum |cut -d" " -f1`
-	echo root:${s_md5}|chpasswd
-	# echo "User 'root' password has changed! -> [${s_md5}]"
+	echo -e "${s_md5}\n${s_md5}" | passwd root
+	echo "User 'root' password has changed! -> [${s_md5}]"
 }
 
 reset_user() {
@@ -18,13 +14,11 @@ reset_user() {
 
 	mkdir -p /home
 
-	adduser -g AdminUser -G root -S -D -H admin
-	# echo admin:ht@315800|chpasswd
-	echo "ht@315800" | passwd admin
+	adduser -g AdminUser -G root -D admin
+	echo -e "ht@315800\nht@315800" | passwd admin
 
 	adduser -g NormalUser -G users -D user
-	# echo user:p@ssw0rd|chpasswd
-	echo "p@ssw0rd" | passwd user
+	echo -e "p@ssw0rd\np@ssw0rd" | passwd user
 }
 
 reset_config() {
@@ -45,6 +39,5 @@ config)
 *)
 	reset_password
 	reset_user
-	reset_config
 	;;
 esac

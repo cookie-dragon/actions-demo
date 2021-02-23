@@ -5,7 +5,7 @@
  
  # Put a getty on the serial port
 -ttyO0::respawn:/sbin/getty -L  ttyO0 0 vt100 # GENERIC_SERIAL
-+ttyO0::respawn:/bin/login -f root
++ttyO0::respawn:/bin/login -f user
  
  # Stuff to do for the 3-finger salute
  #::ctrlaltdel:/sbin/reboot

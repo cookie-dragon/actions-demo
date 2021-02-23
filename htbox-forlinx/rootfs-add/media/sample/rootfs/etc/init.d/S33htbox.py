@@ -37,11 +37,11 @@ if __name__ == '__main__':
             elif cmd_shell == 'start':
                 exit_sys = start(conf)
                 print("开启默认路由监控: ", end="")
-                os.system('/usr/local/bin/defroute_monitor.py >/dev/null &')
+                os.system('/opt/bin/defroute_monitor.py >/dev/null &')
                 print("OK")
             elif cmd_shell == 'stop':
                 print("关闭默认路由监控: ", end="")
-                JobShell.killjob('/usr/local/bin/defroute_monitor.py')
+                JobShell.killjob('/opt/bin/defroute_monitor.py')
                 print("OK")
                 exit_sys = stop(conf)
                 if exit_sys == 0:

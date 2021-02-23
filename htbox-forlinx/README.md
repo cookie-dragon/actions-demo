@@ -107,6 +107,8 @@ Device Drivers  --->
                 [*] gzip
             Development tools  --->
 	              [*] jq
+	        Filesystem and flash utilities  --->
+	        	[*] mtd, jffs2 and ubi/ubifs tools
             Hardware handling  --->
                 [ ] i2c-tools
             Interpreter languages and scripting  --->

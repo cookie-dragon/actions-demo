@@ -14,6 +14,10 @@ if __name__ == '__main__':
         cmd_shell = sys.argv[1]
         if cmd_shell == 'start':
             if not Path("/etc/htbox/htbox.conf").exists():
+                print("系统用户初始化: ", end="")
+                os.system('/opt/bin/reset.sh')
+                print("OK")
+
                 print("网络初始化: ", end="")
                 os.system('cp -f /etc/htbox/htbox.conf.def /etc/htbox/htbox.conf')
                 print("OK")
