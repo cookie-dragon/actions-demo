@@ -72,6 +72,7 @@ jobs:
       - name: Patch Buildroot Package
         run: |
           patch -p1 < ../htbox-forlinx/buildroot-patch/ncurses.mk.patch
+          patch -p1 < ../htbox-forlinx/buildroot-patch/python-ipy_Config.in.patch
         working-directory: ./buildroot-2019.02.11
 
       - name: Config Buildroot Full
