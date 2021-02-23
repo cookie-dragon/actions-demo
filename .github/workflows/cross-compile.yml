@@ -198,9 +198,9 @@ jobs:
       - name: Fix WirelessTools
         run: |
           sed -i "8c PREFIX = ./usr/local" Makefile
-          sed -i "12c CC = ${{needs.job_toolchain.outputs.TOOLCHAIN}}gcc" Makefile
-          sed -i "14c AR = ${{needs.job_toolchain.outputs.TOOLCHAIN}}ar" Makefile
-          sed -i "15c RANLIB = ${{needs.job_toolchain.outputs.TOOLCHAIN}}ranlib" Makefile
+          sed -i "12c CC = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}gcc" Makefile
+          sed -i "14c AR = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}ar" Makefile
+          sed -i "15c RANLIB = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}ranlib" Makefile
           cat Makefile
         working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
 
