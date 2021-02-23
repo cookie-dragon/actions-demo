@@ -42,10 +42,14 @@ jobs:
           rm -rf buildroot-2019.02.11/package/paho-mqtt-c
           cp -rf buildroot-2017.02.11/package/paho-mqtt-c buildroot-2019.02.11/package/
 
+      - name: Add Buildroot Package
+        run: cp -rf htbox-forlinx/buildroot-add/* buildroot-2019.02.11/
+
       - name: Patch Buildroot Package
         run: |
           patch -p1 < ../htbox-forlinx/buildroot-patch/ncurses.mk.patch
           patch -p1 < ../htbox-forlinx/buildroot-patch/python-ipy_Config.in.patch
+          patch -p1 < ../htbox-forlinx/buildroot-patch/package_Config.in.patch
         working-directory: ./buildroot-2019.02.11
 
       - name: Config Buildroot Full
