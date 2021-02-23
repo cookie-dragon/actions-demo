@@ -1,4 +1,4 @@
-name: htbox-forlinx CI
+name: htbox-forlinx_pre CI
 
 on:
   push:
@@ -77,6 +77,9 @@ jobs:
 
       - name: Fix Root File System
         run: |
+
+          mkdir -p rootfs
+          
           sudo rm -rf rootfs/lib/modules/*/build
           sudo rm -rf rootfs/lib/modules/*/source
 
