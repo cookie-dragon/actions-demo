@@ -28,6 +28,7 @@ jobs:
           TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
           CROSS_COMPILE: arm-linux-gnueabihf-
         run: |
+          export PATH=$TOOLCHAIN:$PATH
           ./configure CC=${CROSS_COMPILE}gcc --host=$CROSS_COMPILE
           make
         working-directory: ./stress-1.0.4
