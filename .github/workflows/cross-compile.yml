@@ -17,7 +17,7 @@ jobs:
     name: Toolchain
     runs-on: ubuntu-18.04
     outputs:
-      TOOLCHAIN: ${{steps.step_set_env.outputs.TOOLCHAIN}}
+      TOOLCHAIN: ${{steps.step_set_toolchain.outputs.TOOLCHAIN}}
     steps:
       
       - name: Wget Toolchain
@@ -29,7 +29,7 @@ jobs:
       - name: Rename Toolchain
         run: mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
         
-      - id: step_set_env
+      - id: step_set_toolchain
         name: Set TOOLCHAIN
         run: |
           TOOLCHAIN=`pwd`
@@ -38,8 +38,7 @@ jobs:
         working-directory: ./toolchain/bin
         
       - id: step_set_cross_compile
-        name: Set CROSS_COMPILE if input
-        if: ${{ github.event.inputs.name != '' }}
+        name: Set CROSS_COMPILE
         run: |
           if [ -z "${{github.event.inputs.name}}" ]; then
             CROSS_COMPILE=arm-linux-gnueabihf-
