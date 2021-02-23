@@ -36,9 +36,6 @@ jobs:
           echo "=========="
           ABC="XYZ-"
           
-          sed -i '1c CC=$(CROSS_COMPILE)gcc' test.txt
-          sed -i '2c CC=${CROSS_COMPILE}gcc' test.txt
-          sed -i '3c CC=${{CROSS_COMPILE}}gcc' test.txt
           sed -i '4c CC=$(ABC)gcc' test.txt
           sed -i '5c CC=${ABC}gcc' test.txt
           sed -i '6c CC=${{ABC}}gcc' test.txt
