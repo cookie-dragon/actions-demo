@@ -19,19 +19,22 @@ jobs:
         run: |
           mkdir -p rootfs
 
+          sudo rm -rf rootfs/lib/modules/*/build
+          sudo rm -rf rootfs/lib/modules/*/source
+
           sudo chown -R root:root htbox-forlinx/rootfs-add/*
-          sudo find ./htbox-forlinx/rootfs-add -type d | xargs sudo chmod 777
-          sudo find ./htbox-forlinx/rootfs-add -type f | xargs sudo chmod 640
-
+          sudo find ./htbox-forlinx/rootfs-add -type d | xargs sudo chmod -f 777
+          sudo find ./htbox-forlinx/rootfs-add -type f | xargs sudo chmod -f 640
           
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/mdev/*
-          sudo chmod -R 440 htbox-forlinx/rootfs-add/etc/sudoers.d/*
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/opt/bin/*
-          
-          sudo chmod -R 755 htbox-forlinx/rootfs-add/usr/local/bin/*
+          sudo chmod -f -R 750 htbox-forlinx/rootfs-add/etc/init.d/*
+          sudo chmod -f -R 750 htbox-forlinx/rootfs-add/etc/mdev/*
+          sudo chmod -f -R 440 htbox-forlinx/rootfs-add/etc/sudoers.d/*
+          sudo chmod -f -R 750 htbox-forlinx/rootfs-add/opt/bin/*
+          sudo chmod -f -R 750 htbox-forlinx/rootfs-add/opt/sbin/*
+          sudo chmod -f -R 755 htbox-forlinx/rootfs-add/usr/local/bin/*
+          sudo chmod -f -R 755 htbox-forlinx/rootfs-add/usr/local/sbin/*
 
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/media/sample/rootfs/etc/init.d/*
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/media/sample/rootfs/opt/bin/*
+          sudo cp -rf htbox-forlinx/rootfs-add/* rootfs/
   
   # job_toolchain:
   #   name: Toolchain

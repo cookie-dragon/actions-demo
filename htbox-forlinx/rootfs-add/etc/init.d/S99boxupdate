@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/opt/sbin/box_update_loop >/dev/null &

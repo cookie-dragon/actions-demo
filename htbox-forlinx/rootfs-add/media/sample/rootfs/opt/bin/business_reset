@@ -1,0 +1,15 @@
+#!/bin/sh
+
+reset_config() {
+	cp -f /etc/htbox/htbox.conf.def /etc/htbox/htbox.conf.tmp
+	python /etc/init.d/S33htbox.py restart
+}
+
+case "$1" in
+config)
+	reset_config
+	;;
+*)
+	reset_config
+	;;
+esac

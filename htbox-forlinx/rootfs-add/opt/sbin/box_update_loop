@@ -1,0 +1,6 @@
+#!/bin/sh
+
+while [[ 1 ]]; do
+	/opt/sbin/box_update
+	sleep 5
+done
