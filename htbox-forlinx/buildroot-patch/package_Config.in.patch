@@ -1,0 +1,10 @@
+--- buildroot-2019.02.11.orgi/package/Config.in	2021-02-23 21:47:59.057801000 +0800
++++ buildroot-2019.02.11/package/Config.in	2021-02-23 21:48:43.293223000 +0800
+@@ -983,6 +983,7 @@
+ 	source "package/python-pymysql/Config.in"
+ 	source "package/python-pynacl/Config.in"
+ 	source "package/python-pyopenssl/Config.in"
++	source "package/python-pyotp/Config.in"
+ 	source "package/python-pyparsing/Config.in"
+ 	source "package/python-pyparted/Config.in"
+ 	source "package/python-pypcap/Config.in"

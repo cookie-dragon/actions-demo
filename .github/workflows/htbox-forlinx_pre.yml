@@ -1,0 +1,93 @@
+name: htbox-forlinx CI
+
+on:
+  push:
+    paths: 
+      - '.github/workflows/htbox-forlinx_pre.yml'
+  workflow_dispatch:
+
+jobs:
+
+  job_base_rootfs:
+    name: Base Root File System
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Wget Buildroot
+        run: |
+          wget https://buildroot.org/downloads/buildroot-2019.02.11.tar.gz
+          wget https://buildroot.org/downloads/buildroot-2017.02.11.tar.gz
+          wget https://buildroot.org/downloads/buildroot-2016.02.tar.gz
+
+      - name: Untar Buildroot
+        run: |
+          tar zxf buildroot-2019.02.11.tar.gz
+          tar zxf buildroot-2017.02.11.tar.gz
+          tar zxf buildroot-2016.02.tar.gz
+
+      - name: Replace Buildroot Package Version
+        run: |
+          rm -rf buildroot-2019.02.11/package/openssh
+          cp -rf buildroot-2016.02/package/openssh buildroot-2019.02.11/package/
+          rm -rf buildroot-2019.02.11/package/openssl
+          cp -rf buildroot-2016.02/package/openssl buildroot-2019.02.11/package/
+          rm -rf buildroot-2019.02.11/package/zlib
+          cp -rf buildroot-2016.02/package/zlib buildroot-2019.02.11/package/
+          rm -rf buildroot-2019.02.11/package/mosquitto
+          cp -rf buildroot-2016.02/package/mosquitto buildroot-2019.02.11/package/
+          rm -rf buildroot-2019.02.11/package/iproute2
+          cp -rf buildroot-2017.02.11/package/iproute2 buildroot-2019.02.11/package/
+          rm -rf buildroot-2019.02.11/package/paho-mqtt-c
+          cp -rf buildroot-2017.02.11/package/paho-mqtt-c buildroot-2019.02.11/package/
+
+      - name: Patch Buildroot Package
+        run: |
+          patch -p1 < ../htbox-forlinx/buildroot-patch/ncurses.mk.patch
+          patch -p1 < ../htbox-forlinx/buildroot-patch/python-ipy_Config.in.patch
+        working-directory: ./buildroot-2019.02.11
+
+      - name: Config Buildroot Full
+        run: cp -f htbox-forlinx/buildroot-config/config.2019.02.11 buildroot-2019.02.11/.config
+
+  job_kernel:
+    name: Kernel
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Git Kernel
+        run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
+
+      - name: Patch Kernel
+        run : patch -p1 < ../common/kernel-patch/timeconst.pl.x64.patch
+        working-directory: ./kernel
+
+      - name: Add Kernel File
+        run: cp -rf htbox-forlinx/kernel-add/* kernel/
+
+  job_final_rootfs:
+    name: Final Root File System
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Fix Root File System
+        run: |
+          sudo rm -rf rootfs/lib/modules/*/build
+          sudo rm -rf rootfs/lib/modules/*/source
+
+          sudo chown -R root:root htbox-forlinx/rootfs-add/*
+          sudo find ./htbox-forlinx/rootfs-add -type d | xargs sudo chmod 777
+          sudo find ./htbox-forlinx/rootfs-add -type f | xargs sudo chmod 640
+          
+          sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/init.d/*
+          sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/mdev/*
+          sudo chmod -R 440 htbox-forlinx/rootfs-add/etc/sudoers.d/*
+          sudo chmod -R 750 htbox-forlinx/rootfs-add/opt/sbin/*
+          sudo chmod -R 755 htbox-forlinx/rootfs-add/usr/local/bin/*
+
+          sudo cp -rf htbox-forlinx/rootfs-add/* rootfs/
