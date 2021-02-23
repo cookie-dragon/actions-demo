@@ -154,6 +154,7 @@ jobs:
         run: |
           sed -i '2c CC=${CROSS_COMPILE}gcc' Makefile
           sed -i '3c AR=${CROSS_COMPILE}ar' Makefile
+          cat Makefile
         working-directory: ./rt-tests
         
       - name: Build
@@ -199,7 +200,8 @@ jobs:
           sed -i "8c PREFIX = ./usr/local" Makefile
           sed -i "12c CC = ${{needs.job_toolchain.outputs.TOOLCHAIN}}gcc" Makefile
           sed -i "14c AR = ${{needs.job_toolchain.outputs.TOOLCHAIN}}ar" Makefile
-          sed -i "15c RANLIB = ${{needs.job_toolchain.outputs.TOOLCHAIN}}-ranlib" Makefile
+          sed -i "15c RANLIB = ${{needs.job_toolchain.outputs.TOOLCHAIN}}ranlib" Makefile
+          cat Makefile
         working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
 
       - name: Build WirelessTools
