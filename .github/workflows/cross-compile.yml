@@ -5,6 +5,11 @@ on:
     paths: 
       - '.github/workflows/cross-compile.yml'
   workflow_dispatch:
+    inputs:
+      cross_compile:
+        description: 'CROSS_COMPILE'
+        required: true
+        default: 'arm-linux-gnueabihf-'
 
 jobs:
 
@@ -25,13 +30,25 @@ jobs:
         run: mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
         
       - id: step_set_env
-        name: Set Env
+        name: Set TOOLCHAIN
         run: |
           TOOLCHAIN=`pwd`
           echo ${TOOLCHAIN}
           echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
         working-directory: ./toolchain/bin
         
+      - id: step_set_cross_compile
+        name: Set CROSS_COMPILE if input
+        if: ${{ github.event.inputs.name != '' }}
+        run: |
+          if [ -z "${{github.event.inputs.name}}" ]; then
+            CROSS_COMPILE=arm-linux-gnueabihf-
+          else
+            CROSS_COMPILE=${{github.event.inputs.name}}
+          fi
+          echo ${CROSS_COMPILE}
+          echo "::set-output name=CROSS_COMPILE::${CROSS_COMPILE}"
+
       - name: Retar Toolchain
         run: tar zcf toolchain.tar.gz toolchain
 
@@ -63,7 +80,7 @@ jobs:
          
       - name: Build
         env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/toolchain/bin
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: arm-linux-gnueabihf-
         run: |
           export PATH=$TOOLCHAIN:$PATH
