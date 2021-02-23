@@ -93,44 +93,44 @@ jobs:
           name: stress
           path: ./stress-1.0.4/src/stress
 
-#   job_rt-tests:
-#     name: Job - rt-tests
-#     needs: [job_toolchain]
-#     runs-on: ubuntu-18.04
-#     steps:
+  job_rt-tests:
+    name: Job - rt-tests
+    needs: [job_toolchain]
+    runs-on: ubuntu-18.04
+    steps:
     
-#       - name: Download Artifact Toolchain
-#         uses: actions/download-artifact@v2
-#         with:
-#           name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-#           path: ./
+      - name: Download Artifact Toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          path: ./
 
-#       - name: Untar Toolchain
-#         run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
         
-#       - name: Get
-#         run: |
-#           git clone git://git.kernel.org/pub/scm/utils/rt-tests/rt-tests.git
-#           cd rt-tests
-#           git checkout stable/v1.0
+      - name: Get
+        run: |
+          git clone git://git.kernel.org/pub/scm/utils/rt-tests/rt-tests.git
+          cd rt-tests
+          git checkout stable/v1.0
 
-#       - name: Fix
-#         run: |
-#           sed -i '2c CC=$(CROSS_COMPILE)gcc' Makefile
-#           sed -i '3c AR=$(CROSS_COMPILE)ar' Makefile
-#         working-directory: ./rt-tests
+      - name: Fix
+        run: |
+          sed -i '2c CC=$(CROSS_COMPILE)gcc' Makefile
+          sed -i '3c AR=$(CROSS_COMPILE)ar' Makefile
+        working-directory: ./rt-tests
         
-#       - name: Build
-#         env:
-#           TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-#           CROSS_COMPILE: arm-linux-gnueabihf-
-#         run: |
-#           export PATH=$TOOLCHAIN:$PATH
-#           make
-#         working-directory: ./rt-tests
+      - name: Build
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=$TOOLCHAIN:$PATH
+          make
+        working-directory: ./rt-tests
 
-#       - name: Upload Artifact Bin
-#         uses: actions/upload-artifact@v2
-#         with:
-#           name: cyclictest
-#           path: ./rt-tests/cyclictest
+      - name: Upload Artifact Bin
+        uses: actions/upload-artifact@v2
+        with:
+          name: cyclictest
+          path: ./rt-tests/cyclictest
