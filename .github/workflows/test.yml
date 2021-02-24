@@ -15,7 +15,7 @@ jobs:
 
       - name: Step - Test
         run: |
-          echo "BR2_TOOLCHAIN_EXTERNAL_PATH="$(TOPDIR)/../toolchain"" >> config
-          echo "BR2_TOOLCHAIN_EXTERNAL_PREFIX="$(ARCH)-linux-gnueabihf"" >> config
-          echo "BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-linux-gnueabihf"" >> config
+          echo 'BR2_TOOLCHAIN_EXTERNAL_PATH="$(TOPDIR)/../toolchain"'' >> config
+          echo 'BR2_TOOLCHAIN_EXTERNAL_PREFIX="$(ARCH)-linux-gnueabihf"'' >> config
+          echo 'BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-linux-gnueabihf"'' >> config
           cat config
