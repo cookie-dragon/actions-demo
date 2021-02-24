@@ -133,7 +133,7 @@ jobs:
 
       - name: Config BusyBox
         run: |
-          cp -f htbox-forlinx/buildroot-config/config.busybox.new buildroot-2019.02.11/output/build/busybox-1.29.3/.config
+          cp -f htbox-forlinx/buildroot-config/config.busybox buildroot-2019.02.11/output/build/busybox-1.29.3/.config
           rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_configured
           rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_built
           rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_target_installed
