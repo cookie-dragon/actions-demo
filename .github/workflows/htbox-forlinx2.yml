@@ -1,4 +1,4 @@
-name: htbox-forlinx CI
+name: htbox-forlinx2 CI
 
 on:
   push:
@@ -6,24 +6,59 @@ on:
       # - 'common/**'
       # - 'htbox-forlinx/version.json'
       # - 'htbox-forlinx/**'
-      - '.github/workflows/htbox-forlinx.yml'
+      - '.github/workflows/htbox-forlinx2.yml'
   workflow_dispatch:
+    inputs:
+      cross_compile:
+        description: 'CROSS_COMPILE'
+        required: true
+        default: 'arm-linux-gnueabihf-'
 
 jobs:
 
   job_toolchain:
     name: Toolchain
     runs-on: ubuntu-18.04
+    outputs:
+      TOOLCHAIN: ${{steps.step_set_toolchain.outputs.TOOLCHAIN}}
+      CROSS_COMPILE: ${{steps.step_set_cross_compile.outputs.CROSS_COMPILE}}
     steps:
       
       - name: Wget Toolchain
         run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      
+      - name: Rename Toolchain
+        run: mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
+        
+      - id: step_set_toolchain
+        name: Set TOOLCHAIN
+        run: |
+          TOOLCHAIN=`pwd`
+          echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
+        working-directory: ./toolchain/bin
+        
+      - id: step_set_cross_compile
+        name: Set CROSS_COMPILE
+        run: |
+          if [ -z "${{github.event.inputs.cross_compile}}" ]; then
+            CROSS_COMPILE=arm-linux-gnueabihf-
+          else
+            CROSS_COMPILE=${{github.event.inputs.cross_compile}}
+          fi
+          echo ${CROSS_COMPILE}
+          echo "::set-output name=CROSS_COMPILE::${CROSS_COMPILE}"
+
+      - name: Retar Toolchain
+        run: tar zcf toolchain.tar.gz toolchain
+
       - name: Upload Artifact Toolchain
         uses: actions/upload-artifact@v2
         with:
-          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-          path: ./gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          name: toolchain
+          path: ./toolchain.tar.gz
 
   job_base_rootfs:
     name: Base Root File System
@@ -36,11 +71,11 @@ jobs:
       - name: Download Artifact Toolchain
         uses: actions/download-artifact@v2
         with:
-          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          name: toolchain
           path: ./
-
+      
       - name: Untar Toolchain
-        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+        run: tar zxf toolchain.tar.gz
 
       - name: Wget Buildroot
         run: |
@@ -80,7 +115,7 @@ jobs:
         working-directory: ./buildroot-2019.02.11
 
       - name: Config Buildroot Full
-        run: cp -f htbox-forlinx/buildroot-config/config.2019.02.11 buildroot-2019.02.11/.config
+        run: cp -f htbox-forlinx/buildroot-config/config.base2.2019.02.11 buildroot-2019.02.11/.config
 
       - name: Build Buildroot
         run: make -j$(nproc)
@@ -100,7 +135,7 @@ jobs:
       - name: Upload Artifact Base Root File System
         uses: actions/upload-artifact@v2
         with:
-          name: rootfs.tar
+          name: base_rootfs
           path: ./buildroot-2019.02.11/output/images/rootfs.tar
 
   job_kernel:
@@ -119,11 +154,11 @@ jobs:
       - name: Download Artifact Toolchain
         uses: actions/download-artifact@v2
         with:
-          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          name: toolchain
           path: ./
-
+      
       - name: Untar Toolchain
-        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+        run: tar zxf toolchain.tar.gz
 
       - name: Git Kernel
         run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
@@ -157,7 +192,7 @@ jobs:
       - name: Download Artifact Base Root File System
         uses: actions/download-artifact@v2
         with:
-          name: rootfs.tar
+          name: base_rootfs
           path: ./
 
       - name: Untar Base Root File System
@@ -167,8 +202,8 @@ jobs:
           
       - name: Kernel Modules Install
         env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-          CROSS_COMPILE: arm-linux-gnueabihf-
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
         working-directory: ./kernel
 
@@ -178,256 +213,110 @@ jobs:
       - name: Upload Artifact Root File System
         uses: actions/upload-artifact@v2
         with:
-          name: rootfs.tar.gz
+          name: base_rootfs_with_modules
           path: ./rootfs.tar.gz
 
-  job_wireless:
-    name: Wireless
-    needs: [job_toolchain]
-    runs-on: ubuntu-18.04
-    steps:
+  # job_final_rootfs:
+  #   name: Final Root File System
+  #   needs: [job_kernel]
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Download Artifact Toolchain
-        uses: actions/download-artifact@v2
-        with:
-          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-          path: ./
+  #     - name: Install APT Packages
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y mtd-utils
 
-      - name: Untar Toolchain
-        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+  #     - name: Download Artifact Root File System
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: rootfs.tar.gz
+  #         path: ./
 
-      - name: Git RTL8723D
-        run: git clone -b v5.2.15.1_26226.20180129_COEX20171212-2222 https://github.com/cookie-dragon/realtek-rtl8723d.git 
+  #     - name: Untar Root File System
+  #       run: sudo tar zxf rootfs.tar.gz
 
-      - name: Untar WirelessTools
-        run: |
-          tar zxf wireless_tools.30.rtl.tar.gz
-        working-directory: ./realtek-rtl8723d/wireless_tools
+  #     - name: Download Artifact WirelessTools
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: wireless_tools.tar.gz
+  #         path: ./
 
-      - name: Fix WirelessTools
-        run: |
-          sed -i '8c PREFIX = ./usr/local' Makefile
-          sed -i '12c CC = arm-linux-gnueabihf-gcc' Makefile
-          sed -i '14c AR = arm-linux-gnueabihf-ar' Makefile
-          sed -i '15c RANLIB = arm-linux-gnueabihf-ranlib' Makefile
-        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+  #     - name: Untar WirelessTools
+  #       run: sudo tar zxf wireless_tools.tar.gz -C ./rootfs/
 
-      - name: Build WirelessTools
-        env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-          CROSS_COMPILE: arm-linux-gnueabihf-
-        run: |
-          export PATH=$TOOLCHAIN:$PATH
-          make
-          sudo make install
-        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+  #     - name: Download Artifact Hostapd
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: hostapd.tar.gz
+  #         path: ./
 
-      - name: Tar WirelessTools
-        run: sudo tar zcf wireless_tools.tar.gz usr/
-        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+  #     - name: Untar Hostapd
+  #       run: sudo tar zxf hostapd.tar.gz -C ./rootfs/
 
-      - name: Upload Artifact WirelessTools
-        uses: actions/upload-artifact@v2
-        with:
-          name: wireless_tools.tar.gz
-          path: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl/wireless_tools.tar.gz
+  #     - name: Download Artifact WpaSupplicant
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: wpa_supplicant.tar.gz
+  #         path: ./
 
-      - name: Untar WpaSupplicant And Hostapd
-        run: |
-          tar zxf wpa_supplicant_hostapd-0.8_rtw_r24647.20171025.tar.gz
-        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd
+  #     - name: Untar WpaSupplicant
+  #       run: sudo tar zxf wpa_supplicant.tar.gz -C ./rootfs/
 
-      - name: Build Hostapd
-        env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-          CROSS_COMPILE: arm-linux-gnueabihf-
-        run: |
-          export PATH=$TOOLCHAIN:$PATH
-          make CC=arm-linux-gnueabihf-gcc
-          sudo make install
-        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/hostapd
+  #     - name: Download Artifact Snap7
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: snap7.tar.gz
+  #         path: ./
 
-      - name: Tar Hostapd
-        run: sudo tar zcf hostapd.tar.gz usr/local/bin/hostapd usr/local/bin/hostapd_cli
-        working-directory: /
+  #     - name: Untar Snap7
+  #       run: sudo tar zxf snap7.tar.gz -C ./rootfs/
 
-      - name: Upload Artifact Hostapd
-        uses: actions/upload-artifact@v2
-        with:
-          name: hostapd.tar.gz
-          path: /hostapd.tar.gz
+  #     - name: Fix Root File System
+  #       run: |
+  #         sudo rm -rf rootfs/lib/modules/*/build
+  #         sudo rm -rf rootfs/lib/modules/*/source
 
-      - name: Build WpaSupplicant
-        env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-          CROSS_COMPILE: arm-linux-gnueabihf-
-        run: |
-          export PATH=$TOOLCHAIN:$PATH
-          make CC=arm-linux-gnueabihf-gcc
-          sudo make install
-        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
-
-      - name: Tar WpaSupplicant
-        run: sudo tar zcf wpa_supplicant.tar.gz usr/local/sbin/wpa_cli usr/local/sbin/wpa_passphrase usr/local/sbin/wpa_supplicant
-        working-directory: /
-
-      - name: Upload Artifact WpaSupplicant
-        uses: actions/upload-artifact@v2
-        with:
-          name: wpa_supplicant.tar.gz
-          path: /wpa_supplicant.tar.gz
-
-  job_snap7:
-    name: Snap7
-    needs: [job_toolchain]
-    runs-on: ubuntu-18.04
-    steps:
-
-      - name: Download Artifact Toolchain
-        uses: actions/download-artifact@v2
-        with:
-          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-          path: ./
-
-      - name: Untar Toolchain
-        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-
-      - name: Wget Snap7
-        run: wget https://netix.dl.sourceforge.net/project/snap7/Snap7-IoT/snap7-iot-arm/snap7-iot-arm-1.4.2.tar.gz
-
-      - name: Untar Snap7
-        run: tar zxvf snap7-iot-arm-1.4.2.tar.gz
-
-      - name: Fix Snap7
-        run: |
-          sed -i '8c LinkerName := ${CROSS_COMPILE}g++' common.mk
-          sed -i '9c SharedObjectLinkerName := ${CROSS_COMPILE}g++ -shared -fPIC' common.mk
-          sed -i '30c AR := ${CROSS_COMPILE}ar rcus' common.mk
-          sed -i '31c CXX := ${CROSS_COMPILE}g++' common.mk
-          sed -i '32c CC := ${CROSS_COMPILE}gcc' common.mk
-        working-directory: ./snap7-iot-arm-1.4.2/build/unix
-
-      - name: Build Snap7
-        env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-          CROSS_COMPILE: arm-linux-gnueabihf-
-        run: |
-          export PATH=$TOOLCHAIN:$PATH
-          make -f arm_v7_linux.mk
-          sudo cp -f ../bin/arm_v7-linux/libsnap7.so /usr/lib
-        working-directory: ./snap7-iot-arm-1.4.2/build/unix
-
-      - name: Tar Snap7
-        run: sudo tar zcf snap7.tar.gz usr/lib/libsnap7.so
-        working-directory: /
-
-      - name: Upload Artifact Snap7
-        uses: actions/upload-artifact@v2
-        with:
-          name: snap7.tar.gz
-          path: /snap7.tar.gz
-
-  job_final_rootfs:
-    name: Final Root File System
-    needs: [job_kernel, job_wireless, job_snap7]
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install APT Packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mtd-utils
-
-      - name: Download Artifact Root File System
-        uses: actions/download-artifact@v2
-        with:
-          name: rootfs.tar.gz
-          path: ./
-
-      - name: Untar Root File System
-        run: sudo tar zxf rootfs.tar.gz
-
-      - name: Download Artifact WirelessTools
-        uses: actions/download-artifact@v2
-        with:
-          name: wireless_tools.tar.gz
-          path: ./
-
-      - name: Untar WirelessTools
-        run: sudo tar zxf wireless_tools.tar.gz -C ./rootfs/
-
-      - name: Download Artifact Hostapd
-        uses: actions/download-artifact@v2
-        with:
-          name: hostapd.tar.gz
-          path: ./
-
-      - name: Untar Hostapd
-        run: sudo tar zxf hostapd.tar.gz -C ./rootfs/
-
-      - name: Download Artifact WpaSupplicant
-        uses: actions/download-artifact@v2
-        with:
-          name: wpa_supplicant.tar.gz
-          path: ./
-
-      - name: Untar WpaSupplicant
-        run: sudo tar zxf wpa_supplicant.tar.gz -C ./rootfs/
-
-      - name: Download Artifact Snap7
-        uses: actions/download-artifact@v2
-        with:
-          name: snap7.tar.gz
-          path: ./
-
-      - name: Untar Snap7
-        run: sudo tar zxf snap7.tar.gz -C ./rootfs/
-
-      - name: Fix Root File System
-        run: |
-          sudo rm -rf rootfs/lib/modules/*/build
-          sudo rm -rf rootfs/lib/modules/*/source
-
-          sudo chown -R root:root htbox-forlinx/rootfs-add/*
-          sudo find ./htbox-forlinx/rootfs-add -type d | xargs sudo chmod 777
-          sudo find ./htbox-forlinx/rootfs-add -type f | xargs sudo chmod 640
+  #         sudo chown -R root:root htbox-forlinx/rootfs-add/*
+  #         sudo find ./htbox-forlinx/rootfs-add -type d | xargs sudo chmod 777
+  #         sudo find ./htbox-forlinx/rootfs-add -type f | xargs sudo chmod 640
           
-          sudo chmod 600 htbox-forlinx/rootfs-add/etc/cron/crontabs/*
-          sudo chmod 750 htbox-forlinx/rootfs-add/etc/init.d/*
-          sudo chmod 750 htbox-forlinx/rootfs-add/etc/mdev/*
-          sudo chmod 440 htbox-forlinx/rootfs-add/etc/sudoers.d/*
-          sudo chmod 750 htbox-forlinx/rootfs-add/opt/sbin/*
-          sudo chmod 755 htbox-forlinx/rootfs-add/usr/local/bin/*
+  #         sudo chmod 600 htbox-forlinx/rootfs-add/etc/cron/crontabs/*
+  #         sudo chmod 750 htbox-forlinx/rootfs-add/etc/init.d/*
+  #         sudo chmod 750 htbox-forlinx/rootfs-add/etc/mdev/*
+  #         sudo chmod 440 htbox-forlinx/rootfs-add/etc/sudoers.d/*
+  #         sudo chmod 750 htbox-forlinx/rootfs-add/opt/sbin/*
+  #         sudo chmod 755 htbox-forlinx/rootfs-add/usr/local/bin/*
 
-          sudo cp -rf htbox-forlinx/rootfs-add/* rootfs/
+  #         sudo cp -rf htbox-forlinx/rootfs-add/* rootfs/
 
-      - name: Patch Root File System
-        run: |
-          sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_bluetooth_main.conf.patch
-          sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_inittab.patch
-          sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_mdev.conf.patch
-          sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_profile.patch
-        working-directory: ./rootfs
+  #     - name: Patch Root File System
+  #       run: |
+  #         sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_bluetooth_main.conf.patch
+  #         sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_inittab.patch
+  #         sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_mdev.conf.patch
+  #         sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_profile.patch
+  #       working-directory: ./rootfs
 
-      - name: Tar Final Root File System
-        run: sudo tar zcf rootfs-final.tar.gz rootfs/
+  #     - name: Tar Final Root File System
+  #       run: sudo tar zcf rootfs-final.tar.gz rootfs/
 
-      - name: Upload Artifact Final Root File System
-        uses: actions/upload-artifact@v2
-        with:
-          name: rootfs-final.tar.gz
-          path: ./rootfs-final.tar.gz
+  #     - name: Upload Artifact Final Root File System
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: rootfs-final.tar.gz
+  #         path: ./rootfs-final.tar.gz
 
-      - name: Build UBI File System
-        run: |
-          sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
-          sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 htbox-forlinx/rootfs-config/ubinize-256M.cfg
+  #     - name: Build UBI File System
+  #       run: |
+  #         sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+  #         sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 htbox-forlinx/rootfs-config/ubinize-256M.cfg
 
-      - name: Upload Artifact UBI File System
-        uses: actions/upload-artifact@v2
-        with:
-          name: ubi.img
-          path: ./ubi.img
+  #     - name: Upload Artifact UBI File System
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: ubi.img
+  #         path: ./ubi.img
 
