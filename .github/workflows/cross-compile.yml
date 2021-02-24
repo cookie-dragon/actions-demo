@@ -326,6 +326,8 @@ jobs:
           mkdir -p rootfs/opt/bin
           mkdir -p rootfs/opt/sbin
 
+          tree -pug
+
           chmod 755 rootfs/bin/*
           chmod 755 rootfs/sbin/*
           chmod 755 rootfs/usr/bin/*
