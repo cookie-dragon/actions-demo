@@ -52,14 +52,14 @@ jobs:
 
       - name: Test2
         run: |
-          mkdir -p rootfs/usr/local/bin
-          touch rootfs/usr/local/bin/stress
+          mkdir -p sort_out/rootfs_sort_out/usr/local/bin
+          touch sort_out/rootfs_sort_out/usr/local/bin/stress
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
           name: sort_out
-          path: ./rootfs
+          path: ./sort_out/
 
 #   job_toolchain:
 #     name: Toolchain
