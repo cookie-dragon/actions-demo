@@ -12,139 +12,140 @@ on:
         default: 'arm-linux-gnueabihf-'
 
 jobs:
-  job_test:
-    name: Test
+  
+  # job_test:
+  #   name: Test
+  #   runs-on: ubuntu-18.04
+  #   steps:
+
+  #     - name: Test
+  #       run: |
+  #         echo "=========="
+  #         echo "Line 1" > test.txt
+  #         echo "Line 2" >> test.txt
+  #         echo "Line 3" >> test.txt
+  #         echo "Line 4" >> test.txt
+  #         echo "Line 5" >> test.txt
+  #         echo "==========" >> test.txt
+  #         echo "Line 7" >> test.txt
+  #         echo "Line 8" >> test.txt
+  #         echo "Line 9" >> test.txt
+  #         echo "Line 10" >> test.txt
+  #         echo "Line 11" >> test.txt
+  #         cat test.txt
+  #         echo "=========="
+  #         ABC="XYZ-"
+          
+  #         sed -i '1c CC=$(CROSS_COMPILE)gcc' test.txt
+  #         sed -i '2c CC=${CROSS_COMPILE}gcc' test.txt
+  #         sed -i '3c CC=$(ABC)gcc' test.txt
+  #         sed -i '4c CC=${ABC}gcc' test.txt
+  #         sed -i '5c CC=${{github.event.inputs.cross_compile}}gcc' test.txt
+          
+  #         sed -i "7c CC=$(CROSS_COMPILE)gcc" test.txt
+  #         sed -i "8c CC=${CROSS_COMPILE}gcc" test.txt
+  #         sed -i "9c CC=$(ABC)gcc" test.txt
+  #         sed -i "10c CC=${ABC}gcc" test.txt
+  #         sed -i "11c CC=${{github.event.inputs.cross_compile}}gcc" test.txt
+          
+  #         cat test.txt
+  #         echo "=========="
+
+  #     - name: Test2
+  #       run: |
+  #         mkdir -p sort_out/rootfs_sort_out/usr/local/bin
+  #         touch sort_out/rootfs_sort_out/usr/local/bin/stress
+
+  #     - name: Upload Artifact
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: sort_out
+  #         path: ./sort_out/
+
+  job_toolchain:
+    name: Toolchain
+    runs-on: ubuntu-18.04
+    outputs:
+      TOOLCHAIN: ${{steps.step_set_toolchain.outputs.TOOLCHAIN}}
+      CROSS_COMPILE: ${{steps.step_set_cross_compile.outputs.CROSS_COMPILE}}
+    steps:
+      
+      - name: Wget Toolchain
+        run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      
+      - name: Rename Toolchain
+        run: mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
+        
+      - id: step_set_toolchain
+        name: Set TOOLCHAIN
+        run: |
+          TOOLCHAIN=`pwd`
+          echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
+        working-directory: ./toolchain/bin
+        
+      - id: step_set_cross_compile
+        name: Set CROSS_COMPILE
+        run: |
+          if [ -z "${{github.event.inputs.cross_compile}}" ]; then
+            CROSS_COMPILE=arm-linux-gnueabihf-
+          else
+            CROSS_COMPILE=${{github.event.inputs.cross_compile}}
+          fi
+          echo ${CROSS_COMPILE}
+          echo "::set-output name=CROSS_COMPILE::${CROSS_COMPILE}"
+
+      - name: Retar Toolchain
+        run: tar zcf toolchain.tar.gz toolchain
+
+      - name: Upload Artifact Toolchain
+        uses: actions/upload-artifact@v2
+        with:
+          name: toolchain
+          path: ./toolchain.tar.gz
+
+  job_stress:
+    name: Job - stress
+    needs: [job_toolchain]
     runs-on: ubuntu-18.04
     steps:
+    
+      - name: Download Artifact Toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
 
-      # - name: Test
-      #   run: |
-      #     echo "=========="
-      #     echo "Line 1" > test.txt
-      #     echo "Line 2" >> test.txt
-      #     echo "Line 3" >> test.txt
-      #     echo "Line 4" >> test.txt
-      #     echo "Line 5" >> test.txt
-      #     echo "==========" >> test.txt
-      #     echo "Line 7" >> test.txt
-      #     echo "Line 8" >> test.txt
-      #     echo "Line 9" >> test.txt
-      #     echo "Line 10" >> test.txt
-      #     echo "Line 11" >> test.txt
-      #     cat test.txt
-      #     echo "=========="
-      #     ABC="XYZ-"
-          
-      #     sed -i '1c CC=$(CROSS_COMPILE)gcc' test.txt
-      #     sed -i '2c CC=${CROSS_COMPILE}gcc' test.txt
-      #     sed -i '3c CC=$(ABC)gcc' test.txt
-      #     sed -i '4c CC=${ABC}gcc' test.txt
-      #     sed -i '5c CC=${{github.event.inputs.cross_compile}}gcc' test.txt
-          
-      #     sed -i "7c CC=$(CROSS_COMPILE)gcc" test.txt
-      #     sed -i "8c CC=${CROSS_COMPILE}gcc" test.txt
-      #     sed -i "9c CC=$(ABC)gcc" test.txt
-      #     sed -i "10c CC=${ABC}gcc" test.txt
-      #     sed -i "11c CC=${{github.event.inputs.cross_compile}}gcc" test.txt
-          
-      #     cat test.txt
-      #     echo "=========="
+      - name: Get
+        run: |
+          wget https://fossies.org/linux/privat/stress-1.0.4.tar.gz
+          tar zxf stress-1.0.4.tar.gz
+         
+      - name: Build
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=$TOOLCHAIN:$PATH
+          ./configure CC=${CROSS_COMPILE}gcc --host=$CROSS_COMPILE
+          make
+        working-directory: ./stress-1.0.4
 
-      - name: Test2
+      - name: Sort Out
         run: |
           mkdir -p sort_out/rootfs_sort_out/usr/local/bin
-          touch sort_out/rootfs_sort_out/usr/local/bin/stress
+          cp stress-1.0.4/src/stress sort_out/rootfs_sort_out/usr/local/bin
 
-      - name: Upload Artifact
+      - name: Upload Artifact Bin
         uses: actions/upload-artifact@v2
         with:
           name: sort_out
           path: ./sort_out/
-
-#   job_toolchain:
-#     name: Toolchain
-#     runs-on: ubuntu-18.04
-#     outputs:
-#       TOOLCHAIN: ${{steps.step_set_toolchain.outputs.TOOLCHAIN}}
-#       CROSS_COMPILE: ${{steps.step_set_cross_compile.outputs.CROSS_COMPILE}}
-#     steps:
-      
-#       - name: Wget Toolchain
-#         run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-
-#       - name: Untar Toolchain
-#         run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-      
-#       - name: Rename Toolchain
-#         run: mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
-        
-#       - id: step_set_toolchain
-#         name: Set TOOLCHAIN
-#         run: |
-#           TOOLCHAIN=`pwd`
-#           echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
-#         working-directory: ./toolchain/bin
-        
-#       - id: step_set_cross_compile
-#         name: Set CROSS_COMPILE
-#         run: |
-#           if [ -z "${{github.event.inputs.cross_compile}}" ]; then
-#             CROSS_COMPILE=arm-linux-gnueabihf-
-#           else
-#             CROSS_COMPILE=${{github.event.inputs.cross_compile}}
-#           fi
-#           echo ${CROSS_COMPILE}
-#           echo "::set-output name=CROSS_COMPILE::${CROSS_COMPILE}"
-
-#       - name: Retar Toolchain
-#         run: tar zcf toolchain.tar.gz toolchain
-
-#       - name: Upload Artifact Toolchain
-#         uses: actions/upload-artifact@v2
-#         with:
-#           name: toolchain
-#           path: ./toolchain.tar.gz
-
-#   job_stress:
-#     name: Job - stress
-#     needs: [job_toolchain]
-#     runs-on: ubuntu-18.04
-#     steps:
-    
-#       - name: Download Artifact Toolchain
-#         uses: actions/download-artifact@v2
-#         with:
-#           name: toolchain
-#           path: ./
-      
-#       - name: Untar Toolchain
-#         run: tar zxf toolchain.tar.gz
-
-#       - name: Get
-#         run: |
-#           wget https://fossies.org/linux/privat/stress-1.0.4.tar.gz
-#           tar zxf stress-1.0.4.tar.gz
-         
-#       - name: Build
-#         env:
-#           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
-#           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-#         run: |
-#           export PATH=$TOOLCHAIN:$PATH
-#           ./configure CC=${CROSS_COMPILE}gcc --host=$CROSS_COMPILE
-#           make
-#         working-directory: ./stress-1.0.4
-
-#       - name: Sort Out
-#         run: |
-#           mkdir -p rootfs/usr/local/bin
-#           cp stress-1.0.4/src/stress rootfs/usr/local/bin
-
-#       - name: Upload Artifact Bin
-#         uses: actions/upload-artifact@v2
-#         with:
-#           name: stress
-#           path: ./stress-1.0.4/src/stress
 
 #   job_rt-tests:
 #     name: Job - rt-tests
