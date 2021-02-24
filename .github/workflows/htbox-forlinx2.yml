@@ -172,8 +172,8 @@ jobs:
 
       - name: Build Kernel
         env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-          CROSS_COMPILE: arm-linux-gnueabihf-
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: |
           export PATH=$TOOLCHAIN:$PATH
           make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
