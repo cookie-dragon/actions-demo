@@ -292,7 +292,7 @@ jobs:
       - name: Sort Out
         run: |
           mkdir -p sort_out/rootfs_sort_out
-          cp -rf rootfs-add/* sort_out/rootfs_sort_out
+          cp -rf htbox-forlinx/rootfs-add/* sort_out/rootfs_sort_out
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
