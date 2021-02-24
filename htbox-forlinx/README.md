@@ -72,24 +72,24 @@ Device Drivers  --->
 ## buildroot
 ```
     Target options  --->
-        Target Architecture (ARM (little endian))
-        Target Architecture Variant (cortex-A8)
-        Target ABI (EABIhf)
+    	    Target Architecture (ARM (little endian))
+    	    Target Architecture Variant (cortex-A8)
+    	    Target ABI (EABIhf)
     Build options  --->
-        ($(TOPDIR)/../dl) Download dir
-        libraries (shared only)
+    	($(TOPDIR)/../dl) Download dir
+    	    libraries (shared only)  --->
     Toolchain  --->
-            Toolchain type (External toolchain)
-            Toolchain (Custom toolchain)
-            Toolchain origin (Pre-installed toolchain)
-        ($(TOPDIR)/../host/usr) Toolchain path
-        ($(ARCH)-htbox-linux-gnueabihf) Toolchain prefix
-            External toolchain gcc version (4.7.x)
-            External toolchain kernel headers series (3.2.x)
-            External toolchain C library (glibc/eglibc) 
-        [*] Toolchain has SSP support?
-        [*] Toolchain has RPC support?
-        [*] Toolchain has C++ support?
+		    Toolchain type (External toolchain)  --->
+		    Toolchain (Custom toolchain)  --->
+		    Toolchain origin (Pre-installed toolchain)  --->
+		()  Toolchain path
+		($(ARCH)-linux) Toolchain prefix
+		    External toolchain gcc version (4.7.x)  --->
+		    External toolchain kernel headers series (3.2.x)  --->
+		    External toolchain C library (glibc/eglibc)  --->
+		[*] Toolchain has SSP support?
+		[*] Toolchain has RPC support?
+		[*] Toolchain has C++ support?
     System configuration  --->
         (htbox-undefined) System hostname
         (Welcome to HT-BOX) System banner
