@@ -71,112 +71,113 @@ Device Drivers  --->
 
 ## buildroot
 ```
-    Target options  --->
-    	    Target Architecture (ARM (little endian))
-    	    Target Architecture Variant (cortex-A8)
-    	    Target ABI (EABIhf)
+	Target options  --->
+			Target Architecture (ARM (little endian))
+			Target Architecture Variant (cortex-A8)
+			Target ABI (EABIhf)
     Build options  --->
-    	($(TOPDIR)/../dl) Download dir
-    	    libraries (shared only)  --->
+		($(TOPDIR)/../dl) Download dir
+			libraries (shared only)  --->
     Toolchain  --->
-		    Toolchain type (External toolchain)  --->
-		    Toolchain (Custom toolchain)  --->
-		    Toolchain origin (Pre-installed toolchain)  --->
+			Toolchain type (External toolchain)  --->
+			Toolchain (Custom toolchain)  --->
+			Toolchain origin (Pre-installed toolchain)  --->
 		()  Toolchain path
 		($(ARCH)-linux) Toolchain prefix
-		    External toolchain gcc version (4.7.x)  --->
-		    External toolchain kernel headers series (3.2.x)  --->
-		    External toolchain C library (glibc/eglibc)  --->
+			External toolchain gcc version (4.7.x)  --->
+			External toolchain kernel headers series (3.2.x)  --->
+			External toolchain C library (glibc/eglibc)  --->
 		[*] Toolchain has SSP support?
 		[*] Toolchain has RPC support?
 		[*] Toolchain has C++ support?
-    System configuration  --->
-        (htbox-undefined) System hostname
-        (Welcome to HT-BOX) System banner
-            /dev management (Dynamic using devtmpfs + mdev)
-        [*] Enable root login with password
-        ()    Root password
-            /bin/sh (bash)
-        [*] Run a getty (login prompt) after boot  --->
-            (ttyO0) TTY port
-        (eth0) Network interface to configure through DHCP
-        (/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/opt/bin:/opt/sbin) Set the system's default PATH
-    Target packages  --->
-        [*]   Show packages that are also provided by busybox
-            Compressors and decompressors  --->
-                [*] gzip
-            Development tools  --->
-	              [*] jq
-	        Filesystem and flash utilities  --->
-	        	[*] mtd, jffs2 and ubi/ubifs tools
-            Hardware handling  --->
-                [ ] i2c-tools
-            Interpreter languages and scripting  --->
-                [*] python3
-			External python modules  --->
-				[*] python-can
-				[*] python-cffi
-				[*] python-ipy
-				[*] python-lxml
-				[*] python-pip
-				-*- python-pycparser
-				[*] python-pyotp
-				[*] python-pyqrcode
-				[*] python-serial
-				-*- python-setuptools
-				[ ] python-smbus-cffi
-				-*- python-wrapt
-            Libraries  --->
-                Database  --->
-                    [*] redis
-                Graphics
-                	[*] libqrencode
-                	[*]   libqrencode tools
-                JSON/XML  --->
-                    [*] cJSON
-                Networking  --->
-                    [*] libcurl
-                    [*]   curl binary
-                    [*] libmodbus
-                    [*] libsocketcan
-                    [*] paho-mqtt-c
-            Networking applications  --->
-                [*] bluez-tools
-                [*] bluez-utils
-                [*] bridge-utils
-                [*] can-utils
-                [ ] hostapd
-                [*] iperf3
-                [*] iproute2
-                [*] iptables
-                [*] mosquitto
-                [*] net-tools
-                [*] nginx
-                [*] ntp
-                [*] openssh
-                [*] openvpn
-                [*] pppd
-                [*] wget
-                [ ] wireless tools
-                [ ] wpa_supplicant
-            Shell and utilities  --->
-                [*] sudo
+	System configuration  --->
+		(htbox-undefined) System hostname
+		(Welcome to HT-BOX) System banner
+			/dev management (Dynamic using devtmpfs + mdev)  --->
+		[*] Enable root login with password
+		()    Root password
+			/bin/sh (bash)  --->
+		[*] Run a getty (login prompt) after boot  --->
+			(ttyO0) TTY port
+		(eth0) Network interface to configure through DHCP
+		(/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/opt/bin:/opt/sbin) Set the system's default PATH
+	Target packages  --->
+		[*]   Show packages that are also provided by busybox
+			Compressors and decompressors  --->
+				[*] gzip
+			Development tools  --->
+				[*] jq
+			Filesystem and flash utilities  --->
+				[*] mtd, jffs2 and ubi/ubifs tools
+			Hardware handling  --->
+				[ ] i2c-tools
+			Interpreter languages and scripting  --->
+				[*] python3
+					  core python3 modules  --->
+					External python modules  --->
+						[*] python-can
+						[*] python-cffi
+						[*] python-ipy
+						[*] python-lxml
+						[*] python-pip
+						-*- python-pycparser
+						[*] python-pyotp
+						[*] python-pyqrcode
+						[*] python-serial
+						-*- python-setuptools
+						[ ] python-smbus-cffi
+						-*- python-wrapt
+			Libraries  --->
+				Database  --->
+					[*] redis
+				Graphics
+					[*] libqrencode
+					[*]   libqrencode tools
+				JSON/XML  --->
+					[*] cJSON
+				Networking  --->
+					[*] libcurl
+					[*]   curl binary
+					[*] libmodbus
+					[*] libsocketcan
+					[*] paho-mqtt-c
+			Networking applications  --->
+				[*] bluez-tools
+				[*] bluez-utils
+				[*] bridge-utils
+				[*] can-utils
+				[ ] hostapd
+				[*] iperf3
+				[*] iproute2
+				[*] iptables
+				[*] mosquitto
+				[*] net-tools
+				[*] nginx  --->
+				[*] ntp
+				[*] openssh
+				[*] openvpn
+				[*] pppd
+				[*] wget
+				[ ] wireless tools
+				[ ] wpa_supplicant
+			Shell and utilities  --->
+				[*] sudo
 ```
 
 ## busybox
 ```
-    Settings  --->
-    	[*]   vi-style line editing commands
-    	[*]     Username completion
-    	[*]   Fancy shell prompts
-    Archival Utilities  --->
-    	[*] Make tar, rpm, modprobe etc understand .xz data
-    	[*] Make tar, rpm, modprobe etc understand .lzma data
-    	[*] Make tar, rpm, modprobe etc understand .bz2 data
-    	[*] Make tar, rpm, modprobe etc understand .gz data
-    	[*] Make tar, rpm, modprobe etc understand .Z data
-    Linux Module Utilities  --->
-	    [*] depmod
-    Networking Utilities  --->
-	    [*] udhcpd
+	Settings  --->
+		[*]   vi-style line editing commands
+		[*]     Username completion
+		[*]   Fancy shell prompts
+	Archival Utilities  --->
+		[*] Make tar, rpm, modprobe etc understand .xz data
+		[*] Make tar, rpm, modprobe etc understand .lzma data
+		[*] Make tar, rpm, modprobe etc understand .bz2 data
+		[*] Make tar, rpm, modprobe etc understand .gz data
+		[*] Make tar, rpm, modprobe etc understand .Z data
+	Linux Module Utilities  --->
+		[*] depmod
+	Networking Utilities  --->
+		[*] udhcpd
 ```

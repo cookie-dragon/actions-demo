@@ -258,7 +258,7 @@ jobs:
       - name: Sort Out
         run: |
           mkdir -p sort_out/rootfs/usr/local/bin
-          cp -rf stress-1.0.4/src/stress sort_out/rootf/usr/local/bin
+          cp -rf stress-1.0.4/src/stress sort_out/rootfs/usr/local/bin
 
       - name: Upload Artifact stress
         uses: actions/upload-artifact@v2
