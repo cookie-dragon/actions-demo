@@ -116,12 +116,16 @@ Device Drivers  --->
 			External python modules  --->
 				[*] python-can
 				[*] python-cffi
+				[*] python-ipy
 				[*] python-lxml
 				[*] python-pip
+				-*- python-pycparser
+				[*] python-pyotp
 				[*] python-pyqrcode
 				[*] python-serial
 				-*- python-setuptools
 				[ ] python-smbus-cffi
+				-*- python-wrapt
             Libraries  --->
                 Database  --->
                     [*] redis

@@ -2,8 +2,8 @@
 
 case "$1" in
 start)
-	printf "系统更新监听: "
-	/opt/sbin/sys_update_loop >/dev/null &
+	printf "定时任务: "
+	crond -c /etc/cron/crontabs
 	echo "OK"
 	;;
 *)
@@ -13,6 +13,3 @@ start)
 esac
 
 exit 0
-
-
-

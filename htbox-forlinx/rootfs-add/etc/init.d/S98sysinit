@@ -1,0 +1,15 @@
+#!/bin/sh
+
+case "$1" in
+start)
+	printf "启动初始化: "
+	/opt/sbin/sys_admin_totp_chpwd
+	echo "OK"
+	;;
+*)
+	echo "Usage: $0 {start}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
