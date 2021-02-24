@@ -59,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: sort_out
-          path: ./rootfs/
+          path: ./rootfs
 
 #   job_toolchain:
 #     name: Toolchain
