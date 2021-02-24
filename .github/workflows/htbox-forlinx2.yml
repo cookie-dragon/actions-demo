@@ -45,7 +45,7 @@ jobs:
         name: Set PREFIX and CROSS_COMPILE
         run: |
           if [ -z "${{github.event.inputs.cross_compile}}" ]; then
-            PREFIX=arm-linux-gnueabihf-
+            PREFIX=arm-linux-gnueabihf
           else
             PREFIX=${{github.event.inputs.cross_compile}}
           fi
