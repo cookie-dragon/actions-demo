@@ -16,51 +16,51 @@ on:
 
 jobs:
 
-  job_toolchain:
-    name: Toolchain
-    runs-on: ubuntu-18.04
-    outputs:
-      TOOLCHAIN: ${{steps.step_set_toolchain.outputs.TOOLCHAIN}}
-      PREFIX: ${{steps.step_set_prefix_cross_compile.outputs.PREFIX}}
-      CROSS_COMPILE: ${{steps.step_set_prefix_cross_compile.outputs.CROSS_COMPILE}}
-    steps:
+  # job_toolchain:
+  #   name: Toolchain
+  #   runs-on: ubuntu-18.04
+  #   outputs:
+  #     TOOLCHAIN: ${{steps.step_set_toolchain.outputs.TOOLCHAIN}}
+  #     PREFIX: ${{steps.step_set_prefix_cross_compile.outputs.PREFIX}}
+  #     CROSS_COMPILE: ${{steps.step_set_prefix_cross_compile.outputs.CROSS_COMPILE}}
+  #   steps:
       
-      - name: Wget Toolchain
-        run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+  #     - name: Wget Toolchain
+  #       run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-      - name: Untar Toolchain
-        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+  #     - name: Untar Toolchain
+  #       run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
       
-      - name: Rename Toolchain
-        run: mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
+  #     - name: Rename Toolchain
+  #       run: mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
         
-      - id: step_set_toolchain
-        name: Set TOOLCHAIN
-        run: |
-          TOOLCHAIN=`pwd`
-          echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
-        working-directory: ./toolchain
+  #     - id: step_set_toolchain
+  #       name: Set TOOLCHAIN
+  #       run: |
+  #         TOOLCHAIN=`pwd`
+  #         echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
+  #       working-directory: ./toolchain
         
-      - id: step_set_prefix_cross_compile
-        name: Set PREFIX and CROSS_COMPILE
-        run: |
-          if [ -z "${{github.event.inputs.cross_compile}}" ]; then
-            PREFIX=arm-linux-gnueabihf
-          else
-            PREFIX=${{github.event.inputs.cross_compile}}
-          fi
-          echo "::set-output name=PREFIX::${PREFIX}"
-          CROSS_COMPILE=${PREFIX}-
-          echo "::set-output name=CROSS_COMPILE::${CROSS_COMPILE}"
+  #     - id: step_set_prefix_cross_compile
+  #       name: Set PREFIX and CROSS_COMPILE
+  #       run: |
+  #         if [ -z "${{github.event.inputs.cross_compile}}" ]; then
+  #           PREFIX=arm-linux-gnueabihf
+  #         else
+  #           PREFIX=${{github.event.inputs.cross_compile}}
+  #         fi
+  #         echo "::set-output name=PREFIX::${PREFIX}"
+  #         CROSS_COMPILE=${PREFIX}-
+  #         echo "::set-output name=CROSS_COMPILE::${CROSS_COMPILE}"
 
-      - name: Retar Toolchain
-        run: tar zcf toolchain.tar.gz toolchain
+  #     - name: Retar Toolchain
+  #       run: tar zcf toolchain.tar.gz toolchain
 
-      - name: Upload Artifact toolchain
-        uses: actions/upload-artifact@v2
-        with:
-          name: toolchain
-          path: ./toolchain.tar.gz
+  #     - name: Upload Artifact toolchain
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: toolchain
+  #         path: ./toolchain.tar.gz
 
   # job_base_rootfs:
   #   name: Base Root File System
