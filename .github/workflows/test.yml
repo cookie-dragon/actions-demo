@@ -1,0 +1,21 @@
+name: test CI
+
+on:
+  push:
+    paths: 
+      - '.github/workflows/test.yml'
+  workflow_dispatch:
+
+jobs:
+
+  job_test:
+    name: Job - Test
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Step - Test
+        run: |
+          echo "BR2_TOOLCHAIN_EXTERNAL_PATH="$(TOPDIR)/../toolchain"" >> config
+          echo "BR2_TOOLCHAIN_EXTERNAL_PREFIX="$(ARCH)-linux-gnueabihf"" >> config
+          echo "BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-linux-gnueabihf"" >> config
+          cat config
