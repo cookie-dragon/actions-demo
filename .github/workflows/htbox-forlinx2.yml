@@ -351,7 +351,7 @@ jobs:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: |
-          export PATH=$TOOLCHAIN:$PATH
+          export PATH=${TOOLCHAIN}/bin:$PATH
           make
           sudo make install
         working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
@@ -366,7 +366,7 @@ jobs:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: |
-          export PATH=$TOOLCHAIN:$PATH
+          export PATH=${TOOLCHAIN}/bin:$PATH
           make CC=${CROSS_COMPILE}gcc
           sudo make install
         working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/hostapd
@@ -376,7 +376,7 @@ jobs:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: |
-          export PATH=$TOOLCHAIN:$PATH
+          export PATH=${TOOLCHAIN}/bin:$PATH
           make CC=${CROSS_COMPILE}gcc
           sudo make install
         working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
@@ -434,7 +434,7 @@ jobs:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: |
-          export PATH=$TOOLCHAIN:$PATH
+          export PATH=${TOOLCHAIN}/bin:$PATH
           make -f arm_v7_linux.mk
           sudo cp -f ../bin/arm_v7-linux/libsnap7.so /usr/lib
         working-directory: ./snap7-iot-arm-1.4.2/build/unix
