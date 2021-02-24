@@ -314,5 +314,6 @@ jobs:
 
       - name: Show
         run: |
-          ls -l
+          tree
+        working-directory: ./rootfs_sort_out
 
