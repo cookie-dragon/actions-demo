@@ -12,10 +12,10 @@ jobs:
     name: Job - Test
     runs-on: ubuntu-18.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Step - Test
         run: |
-          echo 'BR2_TOOLCHAIN_EXTERNAL_PATH="$(TOPDIR)/../toolchain"'' >> config
-          echo 'BR2_TOOLCHAIN_EXTERNAL_PREFIX="$(ARCH)-linux-gnueabihf"'' >> config
-          echo 'BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-linux-gnueabihf"'' >> config
-          cat config
+          cat config.base.2019.02.11
+        working-directory: ./htbox-forlinx/buildroot-config
