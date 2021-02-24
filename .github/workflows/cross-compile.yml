@@ -328,14 +328,14 @@ jobs:
 
           tree -pug
 
-          chmod 755 rootfs/bin/*
-          chmod 755 rootfs/sbin/*
-          chmod 755 rootfs/usr/bin/*
-          chmod 755 rootfs/usr/sbin/*
-          chmod 755 rootfs/usr/local/bin/*
-          chmod 755 rootfs/usr/local/sbin/*
-          chmod 750 rootfs/opt/bin/*
-          chmod 750 rootfs/opt/sbin/*
+          chmod -R 755 rootfs/bin
+          chmod -R 755 rootfs/sbin
+          chmod -R 755 rootfs/usr/bin
+          chmod -R 755 rootfs/usr/sbin
+          chmod -R 755 rootfs/usr/local/bin
+          chmod -R 755 rootfs/usr/local/sbin
+          chmod -R 750 rootfs/opt/bin
+          chmod -R 750 rootfs/opt/sbin
 
           mv rootfs sort_out
           sudo chown -R root:root sort_out/rootfs
