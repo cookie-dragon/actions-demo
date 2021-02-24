@@ -450,6 +450,87 @@ jobs:
           name: snap7
           path: ./sort_out/
 
+  job_rootfs_custom:
+    name: Job - Rootfs Custom
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Sort Out
+        run: |
+          mkdir -p sort_out/rootfs_sort_out
+          cp -rf htbox-forlinx/rootfs-add/* sort_out/rootfs_sort_out
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_custom
+          path: ./sort_out/
+
+  job_rootfs_sort_out:
+    name: Job - Rootfs Sort Out
+    needs: [job_rootfs_custom, job_cc_stress, job_rt-job_cc_rt, job_cc_wireless, job_cc_snap7]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Download Artifact rootfs_custom
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_custom
+          path: ./
+
+      - name: Download Artifact stress
+        uses: actions/download-artifact@v2
+        with:
+          name: stress
+          path: ./
+
+      - name: Download Artifact rt-tests
+        uses: actions/download-artifact@v2
+        with:
+          name: rt-tests
+          path: ./ 
+
+      - name: Download Artifact wireless
+        uses: actions/download-artifact@v2
+        with:
+          name: wireless
+          path: ./
+
+      - name: Download Artifact snap7
+        uses: actions/download-artifact@v2
+        with:
+          name: snap7
+          path: ./
+
+      - name: Sort Out
+        run: |
+          mkdir -p sort_out
+          mv rootfs_sort_out rootfs
+          mv rootfs sort_out
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_sort_out
+          path: ./sort_out/
+
+  job_check:
+    name: Job - Rootfs Check
+    needs: [job_rootfs_sort_out]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_sort_out
+          path: ./
+
+      - name: Sort Out
+        run: tree -pug
+
   # job_final_rootfs:
   #   name: Final Root File System
   #   needs: [job_kernel]
