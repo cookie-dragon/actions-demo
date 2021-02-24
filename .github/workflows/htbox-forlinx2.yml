@@ -544,8 +544,8 @@ jobs:
           name: rootfs_part_custom
           path: ./sort_out/
 
-  job_rootfs_part_busness:
-    name: Job - Rootfs Part - Busness
+  job_rootfs_part_business:
+    name: Job - Rootfs Part - Business
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -554,12 +554,12 @@ jobs:
       - name: Sort Out
         run: |
           mkdir -p sort_out/rootfs
-          cp -rf htbox-forlinx/rootfs-busness-add/* sort_out/rootfs
+          cp -rf htbox-forlinx/rootfs-business-add/* sort_out/rootfs
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: rootfs_part_busness
+          name: rootfs_part_business
           path: ./sort_out/
 
   # job_rootfs_sort_out:
