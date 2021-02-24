@@ -282,11 +282,36 @@ jobs:
           name: snap7
           path: ./sort_out/
 
-  job_sort_out:
-    name: Job - Sort Out
-    needs: [job_stress, job_rt-tests, job_wireless, job_snap7]
+  job_custom:
+    name: Job - Custom
     runs-on: ubuntu-18.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Sort Out
+        run: |
+          mkdir -p sort_out/rootfs_sort_out
+          cp -rf rootfs-add/* sort_out/rootfs_sort_out
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: custom
+          path: ./sort_out/
+
+
+  job_sort_out:
+    name: Job - Sort Out
+    needs: [job_custom, job_stress, job_rt-tests, job_wireless, job_snap7]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Download Artifact custom
+        uses: actions/download-artifact@v2
+        with:
+          name: custom
+          path: ./
 
       - name: Download Artifact stress
         uses: actions/download-artifact@v2
@@ -316,27 +341,7 @@ jobs:
         run: |
           mkdir -p sort_out
           mv rootfs_sort_out rootfs
-
-          mkdir -p rootfs/bin
-          mkdir -p rootfs/sbin
-          mkdir -p rootfs/usr/bin
-          mkdir -p rootfs/usr/sbin
-          mkdir -p rootfs/usr/local/bin
-          mkdir -p rootfs/usr/local/sbin
-          mkdir -p rootfs/opt/bin
-          mkdir -p rootfs/opt/sbin
-
-          chmod -R 755 rootfs/bin
-          chmod -R 755 rootfs/sbin
-          chmod -R 755 rootfs/usr/bin
-          chmod -R 755 rootfs/usr/sbin
-          chmod -R 755 rootfs/usr/local/bin
-          chmod -R 755 rootfs/usr/local/sbin
-          chmod -R 750 rootfs/opt/bin
-          chmod -R 750 rootfs/opt/sbin
-
           mv rootfs sort_out
-          tree -pug
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
@@ -358,4 +363,3 @@ jobs:
 
       - name: Sort Out
         run: tree -pug
-
