@@ -189,11 +189,11 @@ jobs:
           mkdir -p sort_out/rootfs_sort_out/usr/local/bin
           cp -rf rt-tests/cyclictest sort_out/rootfs_sort_out/usr/local/bin
 
-       - name: Upload Artifact
-         uses: actions/upload-artifact@v2
-           with:
-           name: rt-tests
-           path: ./sort_out/
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+          with:
+          name: rt-tests
+          path: ./sort_out/
 
   job_wireless:
     name: Job - wireless
