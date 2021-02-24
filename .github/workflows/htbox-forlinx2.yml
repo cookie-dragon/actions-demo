@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       cross_compile:
-        description: 'CROSS_COMPILE'
+        description: 'PREFIX'
         required: true
-        default: 'arm-linux-gnueabihf-'
+        default: 'arm-linux-gnueabihf'
 
 jobs:
 
@@ -21,7 +21,8 @@ jobs:
     runs-on: ubuntu-18.04
     outputs:
       TOOLCHAIN: ${{steps.step_set_toolchain.outputs.TOOLCHAIN}}
-      CROSS_COMPILE: ${{steps.step_set_cross_compile.outputs.CROSS_COMPILE}}
+      PREFIX: ${{steps.step_set_prefix_cross_compile.outputs.PREFIX}}
+      CROSS_COMPILE: ${{steps.step_set_prefix_cross_compile.outputs.CROSS_COMPILE}}
     steps:
       
       - name: Wget Toolchain
@@ -40,15 +41,16 @@ jobs:
           echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
         working-directory: ./toolchain/bin
         
-      - id: step_set_cross_compile
-        name: Set CROSS_COMPILE
+      - id: step_set_prefix_cross_compile
+        name: Set PREFIX and CROSS_COMPILE
         run: |
           if [ -z "${{github.event.inputs.cross_compile}}" ]; then
-            CROSS_COMPILE=arm-linux-gnueabihf-
+            PREFIX=arm-linux-gnueabihf-
           else
-            CROSS_COMPILE=${{github.event.inputs.cross_compile}}
+            PREFIX=${{github.event.inputs.cross_compile}}
           fi
-          echo ${CROSS_COMPILE}
+          echo "::set-output name=PREFIX::${PREFIX}"
+          CROSS_COMPILE=${PREFIX}-
           echo "::set-output name=CROSS_COMPILE::${CROSS_COMPILE}"
 
       - name: Retar Toolchain
@@ -115,7 +117,13 @@ jobs:
         working-directory: ./buildroot-2019.02.11
 
       - name: Config Buildroot Full
-        run: cp -f htbox-forlinx/buildroot-config/config.base2.2019.02.11 buildroot-2019.02.11/.config
+        run: |
+          cp -f htbox-forlinx/buildroot-config/config.base2.2019.02.11 buildroot-2019.02.11/.config
+          sed -i "/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH=\"${{needs.job_toolchain.outputs.TOOLCHAIN}}\"" buildroot-2019.02.11/.config
+          sed -i "/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}\"" buildroot-2019.02.11/.config
+          sed -i "/BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}"\" buildroot-2019.02.11/.config
+          cat buildroot-2019.02.11/.config
+
 
       - name: Build Buildroot
         run: make -j$(nproc)
