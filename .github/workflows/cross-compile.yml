@@ -326,8 +326,6 @@ jobs:
           mkdir -p rootfs/opt/bin
           mkdir -p rootfs/opt/sbin
 
-          tree -pug
-
           chmod -R 755 rootfs/bin
           chmod -R 755 rootfs/sbin
           chmod -R 755 rootfs/usr/bin
@@ -338,7 +336,6 @@ jobs:
           chmod -R 750 rootfs/opt/sbin
 
           mv rootfs sort_out
-          sudo chown -R root:root sort_out/rootfs
           tree -pug
 
       - name: Upload Artifact
