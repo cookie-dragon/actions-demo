@@ -39,7 +39,7 @@ jobs:
         run: |
           TOOLCHAIN=`pwd`
           echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
-        working-directory: ./toolchain/bin
+        working-directory: ./toolchain
         
       - id: step_set_prefix_cross_compile
         name: Set PREFIX and CROSS_COMPILE
@@ -183,7 +183,7 @@ jobs:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: |
-          export PATH=$TOOLCHAIN:$PATH
+          export PATH=${TOOLCHAIN}/bin:$PATH
           make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
           make ok335xhtbox_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
           make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
@@ -210,7 +210,6 @@ jobs:
           
       - name: Kernel Modules Install
         env:
-          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
         working-directory: ./kernel
