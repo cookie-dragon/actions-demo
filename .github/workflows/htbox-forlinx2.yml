@@ -62,168 +62,168 @@ jobs:
           name: toolchain
           path: ./toolchain.tar.gz
 
-  job_base_rootfs:
-    name: Base Root File System
-    needs: [job_toolchain]
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # job_base_rootfs:
+  #   name: Base Root File System
+  #   needs: [job_toolchain]
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Download Artifact toolchain
-        uses: actions/download-artifact@v2
-        with:
-          name: toolchain
-          path: ./
+  #     - name: Download Artifact toolchain
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: toolchain
+  #         path: ./
       
-      - name: Untar Toolchain
-        run: tar zxf toolchain.tar.gz
+  #     - name: Untar Toolchain
+  #       run: tar zxf toolchain.tar.gz
 
-      - name: Get Buildroot
-        run: |
-          wget https://buildroot.org/downloads/buildroot-2019.02.11.tar.gz
-          wget https://buildroot.org/downloads/buildroot-2017.02.11.tar.gz
-          wget https://buildroot.org/downloads/buildroot-2016.02.tar.gz
+  #     - name: Get Buildroot
+  #       run: |
+  #         wget https://buildroot.org/downloads/buildroot-2019.02.11.tar.gz
+  #         wget https://buildroot.org/downloads/buildroot-2017.02.11.tar.gz
+  #         wget https://buildroot.org/downloads/buildroot-2016.02.tar.gz
 
-          tar zxf buildroot-2019.02.11.tar.gz
-          tar zxf buildroot-2017.02.11.tar.gz
-          tar zxf buildroot-2016.02.tar.gz
+  #         tar zxf buildroot-2019.02.11.tar.gz
+  #         tar zxf buildroot-2017.02.11.tar.gz
+  #         tar zxf buildroot-2016.02.tar.gz
 
-      - name: Replace Buildroot Package Version
-        run: |
-          rm -rf buildroot-2019.02.11/package/openssh
-          cp -rf buildroot-2016.02/package/openssh buildroot-2019.02.11/package/
+  #     - name: Replace Buildroot Package Version
+  #       run: |
+  #         rm -rf buildroot-2019.02.11/package/openssh
+  #         cp -rf buildroot-2016.02/package/openssh buildroot-2019.02.11/package/
 
-          rm -rf buildroot-2019.02.11/package/openssl
-          cp -rf buildroot-2016.02/package/openssl buildroot-2019.02.11/package/
+  #         rm -rf buildroot-2019.02.11/package/openssl
+  #         cp -rf buildroot-2016.02/package/openssl buildroot-2019.02.11/package/
 
-          rm -rf buildroot-2019.02.11/package/zlib
-          cp -rf buildroot-2016.02/package/zlib buildroot-2019.02.11/package/
+  #         rm -rf buildroot-2019.02.11/package/zlib
+  #         cp -rf buildroot-2016.02/package/zlib buildroot-2019.02.11/package/
 
-          rm -rf buildroot-2019.02.11/package/mosquitto
-          cp -rf buildroot-2016.02/package/mosquitto buildroot-2019.02.11/package/
+  #         rm -rf buildroot-2019.02.11/package/mosquitto
+  #         cp -rf buildroot-2016.02/package/mosquitto buildroot-2019.02.11/package/
 
-          rm -rf buildroot-2019.02.11/package/iproute2
-          cp -rf buildroot-2017.02.11/package/iproute2 buildroot-2019.02.11/package/
+  #         rm -rf buildroot-2019.02.11/package/iproute2
+  #         cp -rf buildroot-2017.02.11/package/iproute2 buildroot-2019.02.11/package/
 
-          rm -rf buildroot-2019.02.11/package/paho-mqtt-c
-          cp -rf buildroot-2017.02.11/package/paho-mqtt-c buildroot-2019.02.11/package/
+  #         rm -rf buildroot-2019.02.11/package/paho-mqtt-c
+  #         cp -rf buildroot-2017.02.11/package/paho-mqtt-c buildroot-2019.02.11/package/
 
-      - name: Add Buildroot Package
-        run: cp -rf htbox-forlinx/buildroot-add/* buildroot-2019.02.11/
+  #     - name: Add Buildroot Package
+  #       run: cp -rf htbox-forlinx/buildroot-add/* buildroot-2019.02.11/
 
-      - name: Patch Buildroot
-        run: |
-          patch -p1 < ../htbox-forlinx/buildroot-patch/ncurses.mk.patch
-          patch -p1 < ../htbox-forlinx/buildroot-patch/python-ipy_Config.in.patch
-          patch -p1 < ../htbox-forlinx/buildroot-patch/package_Config.in.patch
-        working-directory: ./buildroot-2019.02.11
+  #     - name: Patch Buildroot
+  #       run: |
+  #         patch -p1 < ../htbox-forlinx/buildroot-patch/ncurses.mk.patch
+  #         patch -p1 < ../htbox-forlinx/buildroot-patch/python-ipy_Config.in.patch
+  #         patch -p1 < ../htbox-forlinx/buildroot-patch/package_Config.in.patch
+  #       working-directory: ./buildroot-2019.02.11
 
-      - name: Config Buildroot
-        run: |
-          cp -f htbox-forlinx/buildroot-config/config.base.new buildroot-2019.02.11/.config
-          sed -i "/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH=\"${{needs.job_toolchain.outputs.TOOLCHAIN}}\"" buildroot-2019.02.11/.config
-          sed -i "/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}\"" buildroot-2019.02.11/.config
-          sed -i "/BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}"\" buildroot-2019.02.11/.config
-          cat buildroot-2019.02.11/.config
+  #     - name: Config Buildroot
+  #       run: |
+  #         cp -f htbox-forlinx/buildroot-config/config.base.new buildroot-2019.02.11/.config
+  #         sed -i "/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH=\"${{needs.job_toolchain.outputs.TOOLCHAIN}}\"" buildroot-2019.02.11/.config
+  #         sed -i "/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}\"" buildroot-2019.02.11/.config
+  #         sed -i "/BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}"\" buildroot-2019.02.11/.config
+  #         cat buildroot-2019.02.11/.config
 
-      - name: Build Buildroot
-        run: make -j$(nproc)
-        working-directory: ./buildroot-2019.02.11
+  #     - name: Build Buildroot
+  #       run: make -j$(nproc)
+  #       working-directory: ./buildroot-2019.02.11
 
-      - name: Config BusyBox
-        run: |
-          cp -f htbox-forlinx/buildroot-config/config.busybox buildroot-2019.02.11/output/build/busybox-1.29.3/.config
-          rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_configured
-          rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_built
-          rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_target_installed
+  #     - name: Config BusyBox
+  #       run: |
+  #         cp -f htbox-forlinx/buildroot-config/config.busybox buildroot-2019.02.11/output/build/busybox-1.29.3/.config
+  #         rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_configured
+  #         rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_built
+  #         rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_target_installed
 
-      - name: Build Buildroot Again
-        run: make -j$(nproc)
-        working-directory: ./buildroot-2019.02.11
+  #     - name: Build Buildroot Again
+  #       run: make -j$(nproc)
+  #       working-directory: ./buildroot-2019.02.11
 
-      - name: Upload Artifact base_rootfs
-        uses: actions/upload-artifact@v2
-        with:
-          name: base_rootfs
-          path: ./buildroot-2019.02.11/output/images/rootfs.tar
+  #     - name: Upload Artifact base_rootfs
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: base_rootfs
+  #         path: ./buildroot-2019.02.11/output/images/rootfs.tar
 
-  job_kernel:
-    name: Kernel
-    needs: [job_toolchain, job_base_rootfs]
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # job_kernel:
+  #   name: Kernel
+  #   needs: [job_toolchain, job_base_rootfs]
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Install APT Packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y u-boot-tools
+  #     - name: Install APT Packages
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y u-boot-tools
 
-      - name: Download Artifact toolchain
-        uses: actions/download-artifact@v2
-        with:
-          name: toolchain
-          path: ./
+  #     - name: Download Artifact toolchain
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: toolchain
+  #         path: ./
       
-      - name: Untar Toolchain
-        run: tar zxf toolchain.tar.gz
+  #     - name: Untar Toolchain
+  #       run: tar zxf toolchain.tar.gz
 
-      - name: Get Kernel
-        run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
+  #     - name: Get Kernel
+  #       run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
 
-      - name: Add Kernel File
-        run: cp -rf htbox-forlinx/kernel-add/* kernel/
+  #     - name: Add Kernel File
+  #       run: cp -rf htbox-forlinx/kernel-add/* kernel/
 
-      - name: Patch Kernel
-        run : patch -p1 < ../common/kernel-patch/timeconst.pl.x64.patch
-        working-directory: ./kernel
+  #     - name: Patch Kernel
+  #       run : patch -p1 < ../common/kernel-patch/timeconst.pl.x64.patch
+  #       working-directory: ./kernel
 
-      - name: Build Kernel
-        env:
-          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
-          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-        run: |
-          export PATH=${TOOLCHAIN}/bin:$PATH
-          make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-          make ok335xhtbox_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-          make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
-          make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
-          make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules
-        working-directory: ./kernel
+  #     - name: Build Kernel
+  #       env:
+  #         TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+  #         CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+  #       run: |
+  #         export PATH=${TOOLCHAIN}/bin:$PATH
+  #         make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+  #         make ok335xhtbox_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+  #         make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+  #         make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
+  #         make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules
+  #       working-directory: ./kernel
 
-      - name: Upload Artifact uImage
-        uses: actions/upload-artifact@v2
-        with:
-          name: uImage
-          path: ./kernel/arch/arm/boot/uImage
+  #     - name: Upload Artifact uImage
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: uImage
+  #         path: ./kernel/arch/arm/boot/uImage
 
-      - name: Download Artifact base_rootfs
-        uses: actions/download-artifact@v2
-        with:
-          name: base_rootfs
-          path: ./
+  #     - name: Download Artifact base_rootfs
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: base_rootfs
+  #         path: ./
 
-      - name: Untar Base Root File System
-        run: |
-          mkdir -p rootfs
-          sudo tar xf rootfs.tar -C ./rootfs/
+  #     - name: Untar Base Root File System
+  #       run: |
+  #         mkdir -p rootfs
+  #         sudo tar xf rootfs.tar -C ./rootfs/
           
-      - name: Kernel Modules Install
-        env:
-          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-        run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
-        working-directory: ./kernel
+  #     - name: Kernel Modules Install
+  #       env:
+  #         CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+  #       run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
+  #       working-directory: ./kernel
 
-      - name: Tar Base Root File System With Modules
-        run: sudo tar zcf rootfs.tar.gz rootfs/
+  #     - name: Tar Base Root File System With Modules
+  #       run: sudo tar zcf rootfs.tar.gz rootfs/
 
-      - name: Upload Artifact base_rootfs_with_modules
-        uses: actions/upload-artifact@v2
-        with:
-          name: base_rootfs_with_modules
-          path: ./rootfs.tar.gz
+  #     - name: Upload Artifact base_rootfs_with_modules
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: base_rootfs_with_modules
+  #         path: ./rootfs.tar.gz
 
   job_cc_stress:
     name: Job - stress
@@ -257,8 +257,8 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs_sort_out/usr/local/bin
-          cp -rf stress-1.0.4/src/stress sort_out/rootfs_sort_out/usr/local/bin
+          mkdir -p sort_out/rootfs/usr/local/bin
+          cp -rf stress-1.0.4/src/stress sort_out/rootf/usr/local/bin
 
       - name: Upload Artifact stress
         uses: actions/upload-artifact@v2
@@ -305,8 +305,8 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs_sort_out/usr/local/bin
-          cp -rf rt-tests/cyclictest sort_out/rootfs_sort_out/usr/local/bin
+          mkdir -p sort_out/rootfs/usr/local/bin
+          cp -rf rt-tests/cyclictest sort_out/rootfs/usr/local/bin
 
       - name: Upload Artifact rt-tests
         uses: actions/upload-artifact@v2
@@ -383,15 +383,15 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs_sort_out
-          cp -rf realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl/usr sort_out/rootfs_sort_out
-          mkdir -p sort_out/rootfs_sort_out/usr/local/bin
-          sudo cp -rf /usr/local/bin/hostapd sort_out/rootfs_sort_out/usr/local/bin
-          sudo cp -rf /usr/local/bin/hostapd_cli sort_out/rootfs_sort_out/usr/local/bin
-          mkdir -p sort_out/rootfs_sort_out/usr/local/sbin
-          sudo cp -rf /usr/local/sbin/wpa_cli sort_out/rootfs_sort_out/usr/local/sbin
-          sudo cp -rf /usr/local/sbin/wpa_passphrase sort_out/rootfs_sort_out/usr/local/sbin
-          sudo cp -rf /usr/local/sbin/wpa_supplicant sort_out/rootfs_sort_out/usr/local/sbin
+          mkdir -p sort_out/rootfs
+          cp -rf realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl/usr sort_out/rootfs
+          mkdir -p sort_out/rootfs/usr/local/bin
+          sudo cp -rf /usr/local/bin/hostapd sort_out/rootfs/usr/local/bin
+          sudo cp -rf /usr/local/bin/hostapd_cli sort_out/rootfs/usr/local/bin
+          mkdir -p sort_out/rootfs/usr/local/sbin
+          sudo cp -rf /usr/local/sbin/wpa_cli sort_out/rootfs/usr/local/sbin
+          sudo cp -rf /usr/local/sbin/wpa_passphrase sort_out/rootfs/usr/local/sbin
+          sudo cp -rf /usr/local/sbin/wpa_supplicant sort_out/rootfs/usr/local/sbin
 
       - name: Upload Artifact wireless
         uses: actions/upload-artifact@v2
@@ -441,8 +441,8 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs_sort_out/usr/lib
-          sudo cp -rf /usr/lib/libsnap7.so sort_out/rootfs_sort_out/usr/lib
+          mkdir -p sort_out/rootfs/usr/lib
+          sudo cp -rf /usr/lib/libsnap7.so sort_out/rootfs/usr/lib
 
       - name: Upload Artifact snap7
         uses: actions/upload-artifact@v2
@@ -450,36 +450,11 @@ jobs:
           name: snap7
           path: ./sort_out/
 
-  job_rootfs_custom:
-    name: Job - Rootfs Custom
+  job_rootfs_part_cc:
+    name: Job - Rootfs Part - Cross Compile
+    needs: [job_cc_stress, job_cc_rt-tests, job_cc_wireless, job_cc_snap7]
     runs-on: ubuntu-18.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Sort Out
-        run: |
-          mkdir -p sort_out/rootfs_sort_out
-          cp -rf htbox-forlinx/rootfs-add/* sort_out/rootfs_sort_out
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: rootfs_custom
-          path: ./sort_out/
-
-  job_rootfs_sort_out:
-    name: Job - Rootfs Sort Out
-    needs: [job_rootfs_custom, job_cc_stress, job_cc_rt-tests, job_cc_wireless, job_cc_snap7]
-    runs-on: ubuntu-18.04
-    steps:
-
-      - name: Download Artifact rootfs_custom
-        uses: actions/download-artifact@v2
-        with:
-          name: rootfs_custom
-          path: ./
-
       - name: Download Artifact stress
         uses: actions/download-artifact@v2
         with:
@@ -507,88 +482,172 @@ jobs:
       - name: Sort Out
         run: |
           mkdir -p sort_out
-          mv rootfs_sort_out rootfs
-          mv rootfs sort_out
+          mv rootfs sort_out/
 
-      - name: Upload Artifact
+      - name: Upload Artifact rootfs_part_cc
         uses: actions/upload-artifact@v2
         with:
-          name: rootfs_sort_out
+          name: rootfs_part_cc
           path: ./sort_out/
 
-  job_rootfs_sort_out_check:
-    name: Job - Rootfs Sort Out Check
-    needs: [job_rootfs_sort_out]
-    runs-on: ubuntu-18.04
-    steps:
+  # job_rootfs_custom:
+  #   name: Job - Rootfs Custom
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Download Artifact rootfs_sort_out
-        uses: actions/download-artifact@v2
-        with:
-          name: rootfs_sort_out
-          path: ./
+  #     - name: Sort Out
+  #       run: |
+  #         mkdir -p sort_out/rootfs_sort_out
+  #         cp -rf htbox-forlinx/rootfs-add/* sort_out/rootfs_sort_out
 
-      - name: Check
-        run: tree -pug
+  #     - name: Upload Artifact
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: rootfs_custom
+  #         path: ./sort_out/
 
-  job_final_rootfs:
-    name: Final Root File System
-    needs: [job_kernel]
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # job_rootfs_sort_out:
+  #   name: Job - Rootfs Sort Out
+  #   needs: [job_rootfs_custom, job_cc_stress, job_cc_rt-tests, job_cc_wireless, job_cc_snap7]
+  #   runs-on: ubuntu-18.04
+  #   steps:
 
-      - name: Install APT Packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mtd-utils
+  #     - name: Download Artifact rootfs_custom
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: rootfs_custom
+  #         path: ./
 
-      - name: Download Artifact base_rootfs_with_modules
-        uses: actions/download-artifact@v2
-        with:
-          name: base_rootfs_with_modules
-          path: ./
+  #     - name: Download Artifact stress
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: stress
+  #         path: ./
 
-      - name: Untar Root File System
-        run: sudo tar zxf rootfs.tar.gz
+  #     - name: Download Artifact rt-tests
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: rt-tests
+  #         path: ./ 
 
-      - name: Fix Root File System (Base)
-        run: |
-          sudo -u root mkdir -p rootfs/bin
-          sudo -u root mkdir -p rootfs/sbin
-          sudo -u root mkdir -p rootfs/usr/bin
-          sudo -u root mkdir -p rootfs/usr/sbin
-          sudo -u root mkdir -p rootfs/usr/local/bin
-          sudo -u root mkdir -p rootfs/usr/local/sbin
-          sudo -u root mkdir -p rootfs/opt/bin
-          sudo -u root mkdir -p rootfs/opt/sbin
+  #     - name: Download Artifact wireless
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: wireless
+  #         path: ./
 
-          sudo rm -rf rootfs/lib/modules/*/build
-          sudo rm -rf rootfs/lib/modules/*/source
+  #     - name: Download Artifact snap7
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: snap7
+  #         path: ./
 
-      - name: Patch Root File System (Base)
-        run: |
-          sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_profile.patch
-        working-directory: ./rootfs
+  #     - name: Sort Out
+  #       run: |
+  #         mkdir -p sort_out
+  #         mv rootfs_sort_out rootfs
+  #         mv rootfs sort_out
 
-      - name: Tar Final Root File System (Base)
-        run: sudo tar zcf rootfs-base.tar.gz rootfs/
+  #     - name: Upload Artifact
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: rootfs_sort_out
+  #         path: ./sort_out/
 
-      - name: Upload Artifact rootfs-base
-        uses: actions/upload-artifact@v2
-        with:
-          name: rootfs-base
-          path: ./rootfs-base.tar.gz
+  # job_rootfs_sort_out_check:
+  #   name: Job - Rootfs Sort Out Check
+  #   needs: [job_rootfs_sort_out]
+  #   runs-on: ubuntu-18.04
+  #   steps:
 
-      - name: Build UBI File System (Base)
-        run: |
-          sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
-          sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 htbox-forlinx/rootfs-config/ubinize-256M.cfg
+  #     - name: Download Artifact rootfs_sort_out
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: rootfs_sort_out
+  #         path: ./
 
-      - name: Upload Artifact ubi.img-base
-        uses: actions/upload-artifact@v2
-        with:
-          name: ubi.img-base
-          path: ./ubi.img
+  #     - name: Check
+  #       run: tree -pug
+
+  # job_final_rootfs:
+  #   name: Final Root File System
+  #   needs: [job_kernel]
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+
+  #     - name: Install APT Packages
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y mtd-utils
+
+  #     - name: Download Artifact base_rootfs_with_modules
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: base_rootfs_with_modules
+  #         path: ./
+
+  #     - name: Untar Root File System
+  #       run: sudo tar zxf rootfs.tar.gz
+
+  #     - name: Fix Root File System (Base)
+  #       run: |
+  #         sudo -u root mkdir -p rootfs/bin
+  #         sudo -u root mkdir -p rootfs/sbin
+  #         sudo -u root mkdir -p rootfs/usr/bin
+  #         sudo -u root mkdir -p rootfs/usr/sbin
+  #         sudo -u root mkdir -p rootfs/usr/local/bin
+  #         sudo -u root mkdir -p rootfs/usr/local/sbin
+  #         sudo -u root mkdir -p rootfs/opt/bin
+  #         sudo -u root mkdir -p rootfs/opt/sbin
+
+  #         sudo rm -rf rootfs/lib/modules/*/build
+  #         sudo rm -rf rootfs/lib/modules/*/source
+
+  #     - name: Add Root File System (Base)
+  #       run: |
+  #         echo "wifi/bt固件、mdev"
+
+  #     - name: Patch Root File System (Base)
+  #       run: |
+  #         sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_mdev.conf.patch
+  #         sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_profile.patch
+  #       working-directory: ./rootfs
+
+  #     - name: Add Root File System (Advance)
+  #       run: |
+  #         echo "载入额外交叉编译包"
+
+  #     - name: Patch Root File System (Advance)
+  #       run: |
+  #         sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_bluetooth_main.conf.patch
+
+  #     - name: Patch Root File System (Custom)
+  #       run: |
+  #         sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_inittab.patch
+          
+  #       working-directory: ./rootfs
+
+  #     - name: Tar Final Root File System
+  #       run: sudo tar zcf rootfs.tar.gz rootfs/
+
+  #     - name: Upload Artifact final_rootfs
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: final_rootfs
+  #         path: ./rootfs.tar.gz
+
+  #     - name: Build UBI File System
+  #       run: |
+  #         sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+  #         sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 htbox-forlinx/rootfs-config/ubinize-256M.cfg
+
+  #     - name: Upload Artifact ubi.img
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: ubi.img
+  #         path: ./ubi.img
 
