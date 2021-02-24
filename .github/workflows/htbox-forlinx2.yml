@@ -225,288 +225,342 @@ jobs:
   #         name: base_rootfs_with_modules
   #         path: ./rootfs.tar.gz
 
-  job_cc_stress:
-    name: Job - stress
-    needs: [job_toolchain]
-    runs-on: ubuntu-18.04
-    steps:
+  # job_cc_stress:
+  #   name: Job - stress
+  #   needs: [job_toolchain]
+  #   runs-on: ubuntu-18.04
+  #   steps:
     
-      - name: Download Artifact toolchain
-        uses: actions/download-artifact@v2
-        with:
-          name: toolchain
-          path: ./
+  #     - name: Download Artifact toolchain
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: toolchain
+  #         path: ./
       
-      - name: Untar Toolchain
-        run: tar zxf toolchain.tar.gz
+  #     - name: Untar Toolchain
+  #       run: tar zxf toolchain.tar.gz
 
-      - name: Get
-        run: |
-          wget https://fossies.org/linux/privat/stress-1.0.4.tar.gz
-          tar zxf stress-1.0.4.tar.gz
+  #     - name: Get
+  #       run: |
+  #         wget https://fossies.org/linux/privat/stress-1.0.4.tar.gz
+  #         tar zxf stress-1.0.4.tar.gz
          
-      - name: Build
-        env:
-          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
-          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-        run: |
-          export PATH=${TOOLCHAIN}/bin:$PATH
-          ./configure CC=${CROSS_COMPILE}gcc --host=$CROSS_COMPILE
-          make
-        working-directory: ./stress-1.0.4
+  #     - name: Build
+  #       env:
+  #         TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+  #         CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+  #       run: |
+  #         export PATH=${TOOLCHAIN}/bin:$PATH
+  #         ./configure CC=${CROSS_COMPILE}gcc --host=$CROSS_COMPILE
+  #         make
+  #       working-directory: ./stress-1.0.4
 
-      - name: Sort Out
-        run: |
-          mkdir -p sort_out/rootfs/usr/local/bin
-          cp -rf stress-1.0.4/src/stress sort_out/rootfs/usr/local/bin
+  #     - name: Sort Out
+  #       run: |
+  #         mkdir -p sort_out/rootfs/usr/local/bin
+  #         cp -rf stress-1.0.4/src/stress sort_out/rootfs/usr/local/bin
 
-      - name: Upload Artifact stress
-        uses: actions/upload-artifact@v2
-        with:
-          name: stress
-          path: ./sort_out/
+  #     - name: Upload Artifact stress
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: stress
+  #         path: ./sort_out/
 
-  job_cc_rt-tests:
-    name: Job - rt-tests
-    needs: [job_toolchain]
-    runs-on: ubuntu-18.04
-    steps:
+  # job_cc_rt-tests:
+  #   name: Job - rt-tests
+  #   needs: [job_toolchain]
+  #   runs-on: ubuntu-18.04
+  #   steps:
     
-      - name: Download Artifact toolchain
-        uses: actions/download-artifact@v2
-        with:
-          name: toolchain
-          path: ./
+  #     - name: Download Artifact toolchain
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: toolchain
+  #         path: ./
       
-      - name: Untar Toolchain
-        run: tar zxf toolchain.tar.gz
+  #     - name: Untar Toolchain
+  #       run: tar zxf toolchain.tar.gz
         
-      - name: Get
-        run: |
-          git clone git://git.kernel.org/pub/scm/utils/rt-tests/rt-tests.git
-          cd rt-tests
-          git checkout stable/v1.0
+  #     - name: Get
+  #       run: |
+  #         git clone git://git.kernel.org/pub/scm/utils/rt-tests/rt-tests.git
+  #         cd rt-tests
+  #         git checkout stable/v1.0
 
-      - name: Fix
-        run: |
-          sed -i '2c CC=${CROSS_COMPILE}gcc' Makefile
-          sed -i '3c AR=${CROSS_COMPILE}ar' Makefile
-          cat Makefile
-        working-directory: ./rt-tests
+  #     - name: Fix
+  #       run: |
+  #         sed -i '2c CC=${CROSS_COMPILE}gcc' Makefile
+  #         sed -i '3c AR=${CROSS_COMPILE}ar' Makefile
+  #         cat Makefile
+  #       working-directory: ./rt-tests
         
-      - name: Build
-        env:
-          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
-          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-        run: |
-          export PATH=${TOOLCHAIN}/bin:$PATH
-          make
-        working-directory: ./rt-tests
+  #     - name: Build
+  #       env:
+  #         TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+  #         CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+  #       run: |
+  #         export PATH=${TOOLCHAIN}/bin:$PATH
+  #         make
+  #       working-directory: ./rt-tests
 
-      - name: Sort Out
-        run: |
-          mkdir -p sort_out/rootfs/usr/local/bin
-          cp -rf rt-tests/cyclictest sort_out/rootfs/usr/local/bin
+  #     - name: Sort Out
+  #       run: |
+  #         mkdir -p sort_out/rootfs/usr/local/bin
+  #         cp -rf rt-tests/cyclictest sort_out/rootfs/usr/local/bin
 
-      - name: Upload Artifact rt-tests
-        uses: actions/upload-artifact@v2
-        with:
-          name: rt-tests
-          path: ./sort_out/
+  #     - name: Upload Artifact rt-tests
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: rt-tests
+  #         path: ./sort_out/
 
-  job_cc_wireless:
-    name: Job - wireless
-    needs: [job_toolchain]
+  # job_cc_wireless:
+  #   name: Job - wireless
+  #   needs: [job_toolchain]
+  #   runs-on: ubuntu-18.04
+  #   steps:
+
+  #     - name: Download Artifact toolchain
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: toolchain
+  #         path: ./
+      
+  #     - name: Untar Toolchain
+  #       run: tar zxf toolchain.tar.gz
+        
+  #     - name: Git RTL8723D
+  #       run: git clone -b v5.2.15.1_26226.20180129_COEX20171212-2222 https://github.com/cookie-dragon/realtek-rtl8723d.git 
+
+  #     - name: Untar WirelessTools
+  #       run: |
+  #         tar zxf wireless_tools.30.rtl.tar.gz
+  #       working-directory: ./realtek-rtl8723d/wireless_tools
+
+  #     - name: Fix WirelessTools
+  #       run: |
+  #         sed -i "8c PREFIX = ./usr/local" Makefile
+  #         sed -i "12c CC = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}gcc" Makefile
+  #         sed -i "14c AR = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}ar" Makefile
+  #         sed -i "15c RANLIB = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}ranlib" Makefile
+  #         cat Makefile
+  #       working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+
+  #     - name: Build WirelessTools
+  #       env:
+  #         TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+  #         CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+  #       run: |
+  #         export PATH=${TOOLCHAIN}/bin:$PATH
+  #         make
+  #         sudo make install
+  #       working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+
+  #     - name: Untar WpaSupplicant And Hostapd
+  #       run: |
+  #         tar zxf wpa_supplicant_hostapd-0.8_rtw_r24647.20171025.tar.gz
+  #       working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd
+
+  #     - name: Build Hostapd
+  #       env:
+  #         TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+  #         CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+  #       run: |
+  #         export PATH=${TOOLCHAIN}/bin:$PATH
+  #         make CC=${CROSS_COMPILE}gcc
+  #         sudo make install
+  #       working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/hostapd
+
+  #     - name: Build WpaSupplicant
+  #       env:
+  #         TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+  #         CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+  #       run: |
+  #         export PATH=${TOOLCHAIN}/bin:$PATH
+  #         make CC=${CROSS_COMPILE}gcc
+  #         sudo make install
+  #       working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
+
+  #     - name: Sort Out
+  #       run: |
+  #         mkdir -p sort_out/rootfs
+  #         cp -rf realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl/usr sort_out/rootfs
+  #         mkdir -p sort_out/rootfs/usr/local/bin
+  #         sudo cp -rf /usr/local/bin/hostapd sort_out/rootfs/usr/local/bin
+  #         sudo cp -rf /usr/local/bin/hostapd_cli sort_out/rootfs/usr/local/bin
+  #         mkdir -p sort_out/rootfs/usr/local/sbin
+  #         sudo cp -rf /usr/local/sbin/wpa_cli sort_out/rootfs/usr/local/sbin
+  #         sudo cp -rf /usr/local/sbin/wpa_passphrase sort_out/rootfs/usr/local/sbin
+  #         sudo cp -rf /usr/local/sbin/wpa_supplicant sort_out/rootfs/usr/local/sbin
+
+  #     - name: Upload Artifact wireless
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: wireless
+  #         path: ./sort_out/
+
+  # job_cc_snap7:
+  #   name: Job - snap7
+  #   needs: [job_toolchain]
+  #   runs-on: ubuntu-18.04
+  #   steps:
+
+  #     - name: Download Artifact toolchain
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: toolchain
+  #         path: ./
+      
+  #     - name: Untar Toolchain
+  #       run: tar zxf toolchain.tar.gz
+        
+  #     - name: Get
+  #       run: |
+  #         wget https://netix.dl.sourceforge.net/project/snap7/Snap7-IoT/snap7-iot-arm/snap7-iot-arm-1.4.2.tar.gz
+  #         tar zxvf snap7-iot-arm-1.4.2.tar.gz
+
+  #     - name: Fix
+  #       run: |
+  #         sed -i '8c LinkerName := ${CROSS_COMPILE}g++' common.mk
+  #         sed -i '9c SharedObjectLinkerName := ${CROSS_COMPILE}g++ -shared -fPIC' common.mk
+  #         sed -i '30c AR := ${CROSS_COMPILE}ar rcus' common.mk
+  #         sed -i '31c CXX := ${CROSS_COMPILE}g++' common.mk
+  #         sed -i '32c CC := ${CROSS_COMPILE}gcc' common.mk
+  #         cat common.mk
+  #       working-directory: ./snap7-iot-arm-1.4.2/build/unix
+
+  #     - name: Build
+  #       env:
+  #         TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+  #         CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+  #       run: |
+  #         export PATH=${TOOLCHAIN}/bin:$PATH
+  #         make -f arm_v7_linux.mk
+  #         sudo cp -f ../bin/arm_v7-linux/libsnap7.so /usr/lib
+  #       working-directory: ./snap7-iot-arm-1.4.2/build/unix
+
+  #     - name: Sort Out
+  #       run: |
+  #         mkdir -p sort_out/rootfs/usr/lib
+  #         sudo cp -rf /usr/lib/libsnap7.so sort_out/rootfs/usr/lib
+
+  #     - name: Upload Artifact snap7
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: snap7
+  #         path: ./sort_out/
+
+  # job_rootfs_part_cc:
+  #   name: Job - Rootfs Part - Cross Compile
+  #   needs: [job_cc_stress, job_cc_rt-tests, job_cc_wireless, job_cc_snap7]
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #     - name: Download Artifact stress
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: stress
+  #         path: ./
+
+  #     - name: Download Artifact rt-tests
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: rt-tests
+  #         path: ./ 
+
+  #     - name: Download Artifact wireless
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: wireless
+  #         path: ./
+
+  #     - name: Download Artifact snap7
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: snap7
+  #         path: ./
+
+  #     - name: Sort Out
+  #       run: |
+  #         mkdir -p sort_out
+  #         mv rootfs sort_out/
+
+  #     - name: Upload Artifact rootfs_part_cc
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: rootfs_part_cc
+  #         path: ./sort_out/
+
+  job_rootfs_part_base:
+    name: Job - Rootfs Part - Base
     runs-on: ubuntu-18.04
     steps:
-
-      - name: Download Artifact toolchain
-        uses: actions/download-artifact@v2
-        with:
-          name: toolchain
-          path: ./
-      
-      - name: Untar Toolchain
-        run: tar zxf toolchain.tar.gz
-        
-      - name: Git RTL8723D
-        run: git clone -b v5.2.15.1_26226.20180129_COEX20171212-2222 https://github.com/cookie-dragon/realtek-rtl8723d.git 
-
-      - name: Untar WirelessTools
-        run: |
-          tar zxf wireless_tools.30.rtl.tar.gz
-        working-directory: ./realtek-rtl8723d/wireless_tools
-
-      - name: Fix WirelessTools
-        run: |
-          sed -i "8c PREFIX = ./usr/local" Makefile
-          sed -i "12c CC = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}gcc" Makefile
-          sed -i "14c AR = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}ar" Makefile
-          sed -i "15c RANLIB = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}ranlib" Makefile
-          cat Makefile
-        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
-
-      - name: Build WirelessTools
-        env:
-          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
-          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-        run: |
-          export PATH=${TOOLCHAIN}/bin:$PATH
-          make
-          sudo make install
-        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
-
-      - name: Untar WpaSupplicant And Hostapd
-        run: |
-          tar zxf wpa_supplicant_hostapd-0.8_rtw_r24647.20171025.tar.gz
-        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd
-
-      - name: Build Hostapd
-        env:
-          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
-          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-        run: |
-          export PATH=${TOOLCHAIN}/bin:$PATH
-          make CC=${CROSS_COMPILE}gcc
-          sudo make install
-        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/hostapd
-
-      - name: Build WpaSupplicant
-        env:
-          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
-          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-        run: |
-          export PATH=${TOOLCHAIN}/bin:$PATH
-          make CC=${CROSS_COMPILE}gcc
-          sudo make install
-        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Sort Out
         run: |
           mkdir -p sort_out/rootfs
-          cp -rf realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl/usr sort_out/rootfs
-          mkdir -p sort_out/rootfs/usr/local/bin
-          sudo cp -rf /usr/local/bin/hostapd sort_out/rootfs/usr/local/bin
-          sudo cp -rf /usr/local/bin/hostapd_cli sort_out/rootfs/usr/local/bin
-          mkdir -p sort_out/rootfs/usr/local/sbin
-          sudo cp -rf /usr/local/sbin/wpa_cli sort_out/rootfs/usr/local/sbin
-          sudo cp -rf /usr/local/sbin/wpa_passphrase sort_out/rootfs/usr/local/sbin
-          sudo cp -rf /usr/local/sbin/wpa_supplicant sort_out/rootfs/usr/local/sbin
+          cp -rf htbox-forlinx/rootfs-base-add/* sort_out/rootfs
 
-      - name: Upload Artifact wireless
+      - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: wireless
+          name: rootfs_part_base
           path: ./sort_out/
 
-  job_cc_snap7:
-    name: Job - snap7
-    needs: [job_toolchain]
+  job_rootfs_part_advance:
+    name: Job - Rootfs Part - Advance
     runs-on: ubuntu-18.04
     steps:
-
-      - name: Download Artifact toolchain
-        uses: actions/download-artifact@v2
-        with:
-          name: toolchain
-          path: ./
-      
-      - name: Untar Toolchain
-        run: tar zxf toolchain.tar.gz
-        
-      - name: Get
-        run: |
-          wget https://netix.dl.sourceforge.net/project/snap7/Snap7-IoT/snap7-iot-arm/snap7-iot-arm-1.4.2.tar.gz
-          tar zxvf snap7-iot-arm-1.4.2.tar.gz
-
-      - name: Fix
-        run: |
-          sed -i '8c LinkerName := ${CROSS_COMPILE}g++' common.mk
-          sed -i '9c SharedObjectLinkerName := ${CROSS_COMPILE}g++ -shared -fPIC' common.mk
-          sed -i '30c AR := ${CROSS_COMPILE}ar rcus' common.mk
-          sed -i '31c CXX := ${CROSS_COMPILE}g++' common.mk
-          sed -i '32c CC := ${CROSS_COMPILE}gcc' common.mk
-          cat common.mk
-        working-directory: ./snap7-iot-arm-1.4.2/build/unix
-
-      - name: Build
-        env:
-          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
-          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-        run: |
-          export PATH=${TOOLCHAIN}/bin:$PATH
-          make -f arm_v7_linux.mk
-          sudo cp -f ../bin/arm_v7-linux/libsnap7.so /usr/lib
-        working-directory: ./snap7-iot-arm-1.4.2/build/unix
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs/usr/lib
-          sudo cp -rf /usr/lib/libsnap7.so sort_out/rootfs/usr/lib
+          mkdir -p sort_out/rootfs
+          cp -rf htbox-forlinx/rootfs-advance-add/* sort_out/rootfs
 
-      - name: Upload Artifact snap7
+      - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: snap7
+          name: rootfs_part_advance
           path: ./sort_out/
 
-  job_rootfs_part_cc:
-    name: Job - Rootfs Part - Cross Compile
-    needs: [job_cc_stress, job_cc_rt-tests, job_cc_wireless, job_cc_snap7]
+  job_rootfs_part_custom:
+    name: Job - Rootfs Part - Custom
     runs-on: ubuntu-18.04
     steps:
-      - name: Download Artifact stress
-        uses: actions/download-artifact@v2
-        with:
-          name: stress
-          path: ./
-
-      - name: Download Artifact rt-tests
-        uses: actions/download-artifact@v2
-        with:
-          name: rt-tests
-          path: ./ 
-
-      - name: Download Artifact wireless
-        uses: actions/download-artifact@v2
-        with:
-          name: wireless
-          path: ./
-
-      - name: Download Artifact snap7
-        uses: actions/download-artifact@v2
-        with:
-          name: snap7
-          path: ./
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out
-          mv rootfs sort_out/
+          mkdir -p sort_out/rootfs
+          cp -rf htbox-forlinx/rootfs-custom-add/* sort_out/rootfs
 
-      - name: Upload Artifact rootfs_part_cc
+      - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: rootfs_part_cc
+          name: rootfs_part_custom
           path: ./sort_out/
 
-  # job_rootfs_custom:
-  #   name: Job - Rootfs Custom
-  #   runs-on: ubuntu-18.04
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
+  job_rootfs_part_busness:
+    name: Job - Rootfs Part - Busness
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-  #     - name: Sort Out
-  #       run: |
-  #         mkdir -p sort_out/rootfs_sort_out
-  #         cp -rf htbox-forlinx/rootfs-add/* sort_out/rootfs_sort_out
+      - name: Sort Out
+        run: |
+          mkdir -p sort_out/rootfs
+          cp -rf htbox-forlinx/rootfs-busness-add/* sort_out/rootfs
 
-  #     - name: Upload Artifact
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: rootfs_custom
-  #         path: ./sort_out/
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_part_busness
+          path: ./sort_out/
 
   # job_rootfs_sort_out:
   #   name: Job - Rootfs Sort Out
