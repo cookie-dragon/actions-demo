@@ -470,7 +470,7 @@ jobs:
 
   job_rootfs_sort_out:
     name: Job - Rootfs Sort Out
-    needs: [job_rootfs_custom, job_cc_stress, job_rt-job_cc_rt, job_cc_wireless, job_cc_snap7]
+    needs: [job_rootfs_custom, job_cc_stress, job_cc_rt-tests, job_cc_wireless, job_cc_snap7]
     runs-on: ubuntu-18.04
     steps:
 
