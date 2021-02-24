@@ -312,8 +312,14 @@ jobs:
           name: snap7
           path: ./
 
-      - name: Show
+      - name: Sort Out
         run: |
-          tree
-        working-directory: ./rootfs_sort_out
+          mkdir -p sort_out
+          sudo cp -rf rootfs_sort_out sort_out
+          tree -pug sort_out
 
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sort_out
+          path: ./sort_out/
