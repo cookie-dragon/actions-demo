@@ -315,8 +315,8 @@ jobs:
       - name: Sort Out
         run: |
           mkdir -p sort_out
-          sudo cp -rf rootfs_sort_out sort_out
-          tree -pug sort_out
+          sudo mv rootfs_sort_out sort_out
+          tree -pug
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
