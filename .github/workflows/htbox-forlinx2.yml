@@ -502,7 +502,8 @@ jobs:
         run: sudo tar zxf rootfs-snap7.tgz
 
       - name: Fix
-        run: sudo tree -pug rootfs
+        run: tree -pug
+        working-directory: ./rootfs
 
       - name: Tar
         run: sudo tar zcf rootfs_part_cc.tgz rootfs/
@@ -522,18 +523,18 @@ jobs:
 
       - name: Make Rootfs Dir
         run: |
-          mkdir -p rootfs
+          sudo mkdir -p rootfs
           sudo cp -rf htbox-forlinx/rootfs-base-add/* rootfs/
-          # sudo chown -R root:root rootfs
+          sudo chown -R root:root rootfs
 
       - name: Fix
         run: |
-          # sudo find . -type d | xargs sudo chmod 755
-          # sudo find . -type f | xargs sudo chmod 644
+          sudo find . -type d | xargs sudo chmod 755
+          sudo find . -type f | xargs sudo chmod 644
 
           sudo chmod +x etc/mdev/*
 
-          tree -pug rootfs
+          tree -pug
         working-directory: ./rootfs
 
       - name: Tar
@@ -564,7 +565,7 @@ jobs:
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 644
 
-          sudo tree -pug rootfs
+          tree -pug
         working-directory: ./rootfs
 
       - name: Tar
@@ -601,7 +602,7 @@ jobs:
 
           sudo chmod 600 etc/cron/crontabs/*
 
-          sudo tree -pug rootfs
+          tree -pug
         working-directory: ./rootfs
 
       - name: Tar
@@ -635,7 +636,7 @@ jobs:
 
           sudo chmod +x etc/init.d/*
 
-          sudo tree -pug rootfs
+          tree -pug
         working-directory: ./rootfs
 
       - name: Tar
