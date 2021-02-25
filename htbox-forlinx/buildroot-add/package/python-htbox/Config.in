@@ -1,2 +1,3 @@
 config BR2_PACKAGE_PYTHON_HTBOX
+	depends on BR2_PACKAGE_PYTHON_IPY
 	bool "python-htbox"
