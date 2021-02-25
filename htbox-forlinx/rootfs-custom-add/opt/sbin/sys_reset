@@ -45,8 +45,8 @@ host)
 	reset_host
 	;;
 *)
+	reset_host
 	reset_root
 	reset_user
-	reset_host
 	;;
 esac
