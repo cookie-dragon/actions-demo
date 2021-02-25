@@ -524,21 +524,21 @@ jobs:
         run: |
           mkdir -p rootfs
           sudo cp -rf htbox-forlinx/rootfs-base-add/* rootfs/
-          # sudo chown -R root:root rootfs
+          sudo chown -R root:root rootfs
 
       - name: Fix
         run: |
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 644
 
-          # sudo chmod -f +x bin/*
-          # sudo chmod -f +x sbin/*
-          # sudo chmod -f +x usr/bin/*
-          # sudo chmod -f +x usr/sbin/*
-          # sudo chmod -f +x usr/local/bin/*
-          # sudo chmod -f +x usr/local/sbin/*
-          # sudo chmod -f +x opt/bin/*
-          # sudo chmod -f +x opt/sbin/*
+          sudo chmod -f +x bin/*
+          sudo chmod -f +x sbin/*
+          sudo chmod -f +x usr/bin/*
+          sudo chmod -f +x usr/sbin/*
+          sudo chmod -f +x usr/local/bin/*
+          sudo chmod -f +x usr/local/sbin/*
+          sudo chmod -f +x opt/bin/*
+          sudo chmod -f +x opt/sbin/*
 
           # sudo chmod -f +x etc/init.d/*
           # sudo chmod -f +x etc/mdev/*
