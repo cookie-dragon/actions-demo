@@ -1,0 +1,17 @@
+#!/bin/sh
+
+case "$1" in
+start)
+	printf "蓝牙主程序: "
+	bluetoothd
+	hciconfig hci0 up
+	sdptool add SP
+	echo "OK"
+	;;
+*)
+	echo "Usage: $0 {start}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
