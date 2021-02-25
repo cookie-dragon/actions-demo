@@ -699,6 +699,7 @@ def main():
                     continue
                 print('Error: Package {name} already exists'
                       .format(name=package.pkg_dir))
+                # TODO: 已存在的不处理
                 # del_pkg = input(
                 #     'Do you want to delete existing package ? [y/N]')
                 # if del_pkg.lower() == 'y':
