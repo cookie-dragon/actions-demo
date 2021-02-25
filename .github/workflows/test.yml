@@ -35,7 +35,7 @@ jobs:
           touch rfs_runner/a.txt
           sudo touch rfs_runner/b.txt
           tar zcf rfs_runner.tgz rfs_runner
-          sudo tar zcf rfs_runner2.tgz rfs_runner2
+          sudo tar zcf rfs_runner2.tgz rfs_runner
 
           mkdir tmp_runner1
           tar zxf rfs_runner.tgz -C tmp_runner1
