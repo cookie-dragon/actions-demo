@@ -27,7 +27,7 @@ jobs:
           sudo -u root cp c.txt rfs_runner/t/
 
           sudo mkdir -p rfs_sudo/t
-          cp a.txt rfs_sudo/t/
+          # cp a.txt rfs_sudo/t/
           sudo cp b.txt rfs_sudo/t/
           sudo -u root cp c.txt rfs_sudo/t/
 
@@ -36,4 +36,5 @@ jobs:
           sudo cp b.txt rfs_root/t/
           sudo -u root cp c.txt rfs_root/t/
 
+          tree -pug
 
