@@ -1,0 +1,24 @@
+name: test CI
+
+on:
+  push:
+    paths: 
+      # - 'common/**'
+      - '.github/workflows/test.yml'
+  workflow_dispatch:
+
+jobs:
+  job_test:
+    name: Job - Test
+    runs-on: ubuntu-18.04
+    steps:
+      # - name: Checkout
+      #   uses: actions/checkout@v2
+
+      - name: Step - Test
+        run: |
+          python --version
+          python3 --version
+          pip --version
+          pip3 --version
+  
