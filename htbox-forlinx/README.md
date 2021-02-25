@@ -115,13 +115,14 @@ Device Drivers  --->
 				[*] python3
 					  core python3 modules  --->
 					External python modules  --->
+						[*] python-htbox
+						[*] python-pyotp
 						[*] python-can
 						[*] python-cffi
 						[*] python-ipy
 						[*] python-lxml
 						[*] python-pip
 						-*- python-pycparser
-						[*] python-pyotp
 						[*] python-pyqrcode
 						[*] python-serial
 						-*- python-setuptools

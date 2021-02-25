@@ -109,7 +109,18 @@ jobs:
           rm -rf buildroot-2019.02.11/package/paho-mqtt-c
           cp -rf buildroot-2017.02.11/package/paho-mqtt-c buildroot-2019.02.11/package/
 
-      - name: Add Buildroot Package
+      - name: Install Scanpypi
+        run: |
+          git clone https://github.com/ishahak/buildroot_scanpypi3.git
+          cp buildroot_scanpypi3/scanpypi3 buildroot-2019.02.11/support/scripts/
+          chmod +x buildroot-2019.02.11/support/scripts/scanpypi3
+
+      - name: Install Buildroot Package by Scanpypi
+        run: |
+          ./support/scripts/scanpypi3 pyotp -o package
+        working-directory: ./buildroot-2019.02.11
+
+      - name: Add Buildroot Files
         run: cp -rf htbox-forlinx/buildroot-add/* buildroot-2019.02.11/
 
       - name: Patch Buildroot
@@ -121,11 +132,15 @@ jobs:
 
       - name: Config Buildroot
         run: |
-          cp -f htbox-forlinx/buildroot-config/config.base.new buildroot-2019.02.11/.config
+          cp -f htbox-forlinx/buildroot-config/config.advance.new buildroot-2019.02.11/.config
+
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH=\"${{needs.job_toolchain.outputs.TOOLCHAIN}}\"" buildroot-2019.02.11/.config
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}\"" buildroot-2019.02.11/.config
-          sed -i "/BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}"\" buildroot-2019.02.11/.config
-          cat buildroot-2019.02.11/.config
+          sed -i "/BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}\"" buildroot-2019.02.11/.config
+
+          # sed -i '/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH="$(TOPDIR)/../toolchain"' buildroot-2019.02.11/.config
+          # sed -i '/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX="$(ARCH)-linux-gnueabihf"' buildroot-2019.02.11/.config
+          # sed -i '/BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-linux-gnueabihf"' buildroot-2019.02.11/.config
 
       - name: Build Buildroot
         run: make -j$(nproc)
@@ -293,7 +308,6 @@ jobs:
         run: |
           sed -i '2c CC=${CROSS_COMPILE}gcc' Makefile
           sed -i '3c AR=${CROSS_COMPILE}ar' Makefile
-          cat Makefile
         working-directory: ./rt-tests
         
       - name: Build
@@ -347,7 +361,6 @@ jobs:
           sed -i "12c CC = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}gcc" Makefile
           sed -i "14c AR = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}ar" Makefile
           sed -i "15c RANLIB = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}ranlib" Makefile
-          cat Makefile
         working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
 
       - name: Build WirelessTools
@@ -432,7 +445,6 @@ jobs:
           sed -i '30c AR := ${CROSS_COMPILE}ar rcus' common.mk
           sed -i '31c CXX := ${CROSS_COMPILE}g++' common.mk
           sed -i '32c CC := ${CROSS_COMPILE}gcc' common.mk
-          cat common.mk
         working-directory: ./snap7-iot-arm-1.4.2/build/unix
 
       - name: Build
