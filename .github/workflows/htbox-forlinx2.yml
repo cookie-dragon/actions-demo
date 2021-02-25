@@ -521,13 +521,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Make Rootfs Dir
-        run: sudo mkdir -p rootfs
+        run: |
+          sudo mkdir -p rootfs
+          sudo cp -rf htbox-forlinx/rootfs-base-add/* rootfs/
+          sudo chown -R root:root rootfs
 
       - name: Fix
         run: |
-          sudo cp -rf htbox-forlinx/rootfs-base-add/* rootfs/
-
-          sudo chown -R root:root rootfs
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 644
 
@@ -546,6 +546,7 @@ jobs:
           sudo chmod -f 600 etc/cron/crontabs/*
 
           tree -pug rootfs
+        working-directory: ./rootfs
 
       - name: Tar
         run: sudo tar zcf rootfs_part_base.tgz rootfs/
@@ -564,13 +565,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Make Rootfs Dir
-        run: sudo mkdir -p rootfs
+        run: |
+          sudo mkdir -p rootfs
+          sudo cp -rf htbox-forlinx/rootfs-advance-add/* rootfs/
+          sudo chown -R root:root rootfs
 
       - name: Fix
         run: |
-          sudo cp -rf htbox-forlinx/rootfs-advance-add/* rootfs/
-          
-          sudo chown -R root:root rootfs
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 644
 
@@ -589,6 +590,7 @@ jobs:
           sudo chmod -f 600 etc/cron/crontabs/*
 
           tree -pug rootfs
+      working-directory: ./rootfs
 
       - name: Tar
         run: sudo tar zcf rootfs_part_advance.tgz rootfs/
@@ -607,13 +609,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Make Rootfs Dir
-        run: sudo mkdir -p rootfs
+        run: |
+          sudo mkdir -p rootfs
+          sudo cp -rf htbox-forlinx/rootfs-custom-add/* rootfs/
+          sudo chown -R root:root rootfs
 
       - name: Fix
         run: |
-          sudo cp -rf htbox-forlinx/rootfs-custom-add/* rootfs/
-          
-          sudo chown -R root:root rootfs
           sudo find . -type d | xargs sudo chmod 750
           sudo find . -type f | xargs sudo chmod 640
 
@@ -632,6 +634,7 @@ jobs:
           sudo chmod -f 600 etc/cron/crontabs/*
 
           tree -pug rootfs
+      working-directory: ./rootfs
 
       - name: Tar
         run: sudo tar zcf rootfs_part_custom.tgz rootfs/
@@ -650,13 +653,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Make Rootfs Dir
-        run: sudo mkdir -p rootfs
+        run: |
+          sudo mkdir -p rootfs
+          sudo cp -rf htbox-forlinx/rootfs-business-add/* rootfs/
+          sudo chown -R root:root rootfs
 
       - name: Fix
         run: |
-          sudo cp -rf htbox-forlinx/rootfs-business-add/* rootfs/
-                    
-          sudo chown -R root:root rootfs
           sudo find . -type d | xargs sudo chmod 750
           sudo find . -type f | xargs sudo chmod 640
 
@@ -675,6 +678,7 @@ jobs:
           sudo chmod -f 600 etc/cron/crontabs/*
 
           tree -pug rootfs
+      working-directory: ./rootfs
 
       - name: Tar
         run: sudo tar zcf rootfs_part_business.tgz rootfs/
