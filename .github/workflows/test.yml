@@ -35,21 +35,12 @@ jobs:
           touch rfs_runner/a.txt
           sudo touch rfs_runner/b.txt
           tar zcf rfs_runner.tgz rfs_runner
-
-          sudo mkdir -p rfs_root
-          sudo touch rfs_root/b.txt
-          sudo tar zcf rfs_root.tgz rfs_root
+          sudo tar zcf rfs_runner2.tgz rfs_runner2
 
           mkdir tmp_runner1
           tar zxf rfs_runner.tgz -C tmp_runner1
 
           mkdir tmp_runner2
-          sudo tar zxf rfs_runner.tgz -C tmp_runner2
-
-          mkdir tmp_root1
-          tar zxf rfs_root.tgz -C tmp_root1
-
-          mkdir tmp_root2
-          sudo tar zxf rfs_root.tgz -C tmp_root2
+          sudo tar zxf rfs_runner2.tgz -C tmp_runner2
 
           tree -pug
