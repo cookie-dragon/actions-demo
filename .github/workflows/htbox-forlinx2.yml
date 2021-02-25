@@ -522,7 +522,7 @@ jobs:
 
       - name: Make Rootfs Dir
         run: |
-          sudo mkdir -p rootfs
+          mkdir -p rootfs
           sudo cp -rf htbox-forlinx/rootfs-base-add/* rootfs/
           # sudo chown -R root:root rootfs
 
