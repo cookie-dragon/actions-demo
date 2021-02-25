@@ -556,7 +556,7 @@ jobs:
         run: |
           sudo mkdir -p rootfs
           # sudo cp -rf htbox-forlinx/rootfs-advance-add/* rootfs/
-          touch rootfs/placeholder
+          sudo touch rootfs/placeholder
           sudo chown -R root:root rootfs
 
       - name: Fix
