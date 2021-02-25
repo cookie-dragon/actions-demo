@@ -1,12 +1,12 @@
 name: hilectroElec CI
 
 on:
-  push:
-    paths: 
-      # - 'common/**'
-      # - 'hilectroElec/version.json'
-      # - 'hilectroElec/**'
-      - '.github/workflows/hilectroElec.yml'
+  # push:
+  #   paths: 
+  #     # - 'common/**'
+  #     # - 'hilectroElec/version.json'
+  #     # - 'hilectroElec/**'
+  #     - '.github/workflows/hilectroElec.yml'
   workflow_dispatch:
 
 jobs:
