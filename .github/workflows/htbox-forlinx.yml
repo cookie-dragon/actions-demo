@@ -394,12 +394,12 @@ jobs:
           sudo find ./htbox-forlinx/rootfs-add -type d | xargs sudo chmod 777
           sudo find ./htbox-forlinx/rootfs-add -type f | xargs sudo chmod 640
           
-          sudo chmod -R 600 htbox-forlinx/rootfs-add/etc/cron/crontabs/*
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/init.d/*
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/mdev/*
-          sudo chmod -R 440 htbox-forlinx/rootfs-add/etc/sudoers.d/*
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/opt/sbin/*
-          sudo chmod -R 755 htbox-forlinx/rootfs-add/usr/local/bin/*
+          sudo chmod 600 htbox-forlinx/rootfs-add/etc/cron/crontabs/*
+          sudo chmod 750 htbox-forlinx/rootfs-add/etc/init.d/*
+          sudo chmod 750 htbox-forlinx/rootfs-add/etc/mdev/*
+          sudo chmod 440 htbox-forlinx/rootfs-add/etc/sudoers.d/*
+          sudo chmod 750 htbox-forlinx/rootfs-add/opt/sbin/*
+          sudo chmod 755 htbox-forlinx/rootfs-add/usr/local/bin/*
 
           sudo cp -rf htbox-forlinx/rootfs-add/* rootfs/
 

@@ -300,7 +300,6 @@ jobs:
           name: custom
           path: ./sort_out/
 
-
   job_sort_out:
     name: Job - Sort Out
     needs: [job_custom, job_stress, job_rt-tests, job_wireless, job_snap7]
