@@ -70,6 +70,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Install APT Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-setuptools
+
       - name: Download Artifact toolchain
         uses: actions/download-artifact@v2
         with:
