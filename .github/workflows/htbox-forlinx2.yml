@@ -590,7 +590,7 @@ jobs:
           sudo chmod -f 600 etc/cron/crontabs/*
 
           tree -pug rootfs
-      working-directory: ./rootfs
+        working-directory: ./rootfs
 
       - name: Tar
         run: sudo tar zcf rootfs_part_advance.tgz rootfs/
@@ -634,7 +634,7 @@ jobs:
           sudo chmod -f 600 etc/cron/crontabs/*
 
           tree -pug rootfs
-      working-directory: ./rootfs
+        working-directory: ./rootfs
 
       - name: Tar
         run: sudo tar zcf rootfs_part_custom.tgz rootfs/
@@ -678,7 +678,7 @@ jobs:
           sudo chmod -f 600 etc/cron/crontabs/*
 
           tree -pug rootfs
-      working-directory: ./rootfs
+        working-directory: ./rootfs
 
       - name: Tar
         run: sudo tar zcf rootfs_part_business.tgz rootfs/
