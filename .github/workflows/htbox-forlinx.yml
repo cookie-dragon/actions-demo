@@ -1,12 +1,12 @@
 name: htbox-forlinx CI
 
 on:
-  # push:
-  #   paths: 
-  #     # - 'common/**'
-  #     # - 'htbox-forlinx/version.json'
-  #     # - 'htbox-forlinx/**'
-  #     - '.github/workflows/htbox-forlinx.yml'
+  push:
+    paths: 
+      # - 'common/**'
+      # - 'htbox-forlinx/version.json'
+      # - 'htbox-forlinx/**'
+      - '.github/workflows/htbox-forlinx.yml'
   workflow_dispatch:
     inputs:
       cross_compile:
@@ -134,7 +134,7 @@ jobs:
 
       - name: Config Buildroot
         run: |
-          cp -f htbox-forlinx/buildroot-config/config.advance.new buildroot-2019.02.11/.config
+          cp -f htbox-forlinx/buildroot-config/config.advance2.new buildroot-2019.02.11/.config
 
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH=\"${{needs.job_toolchain.outputs.TOOLCHAIN}}\"" buildroot-2019.02.11/.config
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}\"" buildroot-2019.02.11/.config
