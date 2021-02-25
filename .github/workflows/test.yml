@@ -12,10 +12,28 @@ jobs:
     name: Job - Test
     runs-on: ubuntu-18.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      # - name: Checkout
+      #   uses: actions/checkout@v2
 
       - name: Step - Test
         run: |
-          cat config.base.2019.02.11
-        working-directory: ./htbox-forlinx/buildroot-config
+          touch a.txt
+          touch b.txt
+          touch c.txt
+
+          mkdir -p rfs_runner/t
+          cp a.txt rfs_runner/t/
+          sudo cp b.txt rfs_runner/t/
+          sudo -u root cp c.txt rfs_runner/t/
+
+          sudo mkdir -p rfs_sudo/t
+          cp a.txt rfs_sudo/t/
+          sudo cp b.txt rfs_sudo/t/
+          sudo -u root cp c.txt rfs_sudo/t/
+
+          sudo -u root mkdir -p rfs_root/t
+          cp a.txt rfs_root/t/
+          sudo cp b.txt rfs_root/t/
+          sudo -u root cp c.txt rfs_root/t/
+
+
