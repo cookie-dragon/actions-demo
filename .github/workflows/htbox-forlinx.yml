@@ -73,7 +73,10 @@ jobs:
       - name: Install APT Packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-setuptools
+          sudo apt-get install -y python-setuptools python3-setuptools
+
+      - name: Install PIP Packages
+        run: pip3 install setuptools_rust
 
       - name: Download Artifact toolchain
         uses: actions/download-artifact@v2
@@ -114,19 +117,14 @@ jobs:
           rm -rf buildroot-2019.02.11/package/paho-mqtt-c
           cp -rf buildroot-2017.02.11/package/paho-mqtt-c buildroot-2019.02.11/package/
 
-      - name: Install Scanpypi
-        run: |
-          git clone https://github.com/ishahak/buildroot_scanpypi3.git
-          cp buildroot_scanpypi3/scanpypi3 buildroot-2019.02.11/support/scripts/
-          chmod +x buildroot-2019.02.11/support/scripts/scanpypi3
+      - name: Add Buildroot Files
+        run: cp -rf htbox-forlinx/buildroot-add/* buildroot-2019.02.11/
 
       - name: Install Buildroot Package by Scanpypi
         run: |
-          ./support/scripts/scanpypi3 pyotp -o package
+          python3 support/scripts/scanpypi3 pyotp -o package
+          python3 support/scripts/scanpypi3 asyncua -o package
         working-directory: ./buildroot-2019.02.11
-
-      - name: Add Buildroot Files
-        run: cp -rf htbox-forlinx/buildroot-add/* buildroot-2019.02.11/
 
       - name: Patch Buildroot
         run: |
