@@ -540,7 +540,7 @@ jobs:
           sudo chmod -f +x opt/bin/*
           sudo chmod -f +x opt/sbin/*
 
-          sudo chmod -f +x etc/init.d/*
+          # sudo chmod -f +x etc/init.d/*
           sudo chmod -f +x etc/mdev/*
 
           # sudo chmod -f 600 etc/cron/crontabs/*
