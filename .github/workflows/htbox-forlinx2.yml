@@ -62,8 +62,8 @@ jobs:
           name: toolchain
           path: ./toolchain.tar.gz
 
-  job_base_rootfs:
-    name: Base Root File System
+  job_rootfs_buildroot:
+    name: Buildroot Root File System
     needs: [job_toolchain]
     runs-on: ubuntu-18.04
     steps:
@@ -121,7 +121,7 @@ jobs:
 
       - name: Config Buildroot
         run: |
-          cp -f htbox-forlinx/buildroot-config/config.advance.new buildroot-2019.02.11/.config
+          cp -f htbox-forlinx/buildroot-config/config.base.new buildroot-2019.02.11/.config
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH=\"${{needs.job_toolchain.outputs.TOOLCHAIN}}\"" buildroot-2019.02.11/.config
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}\"" buildroot-2019.02.11/.config
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}"\" buildroot-2019.02.11/.config
@@ -142,15 +142,15 @@ jobs:
         run: make -j$(nproc)
         working-directory: ./buildroot-2019.02.11
 
-      - name: Upload Artifact base_rootfs
+      - name: Upload Artifact rootfs_buildroot
         uses: actions/upload-artifact@v2
         with:
-          name: base_rootfs
+          name: rootfs_buildroot
           path: ./buildroot-2019.02.11/output/images/rootfs.tar
 
   job_kernel:
     name: Kernel
-    needs: [job_toolchain, job_base_rootfs]
+    needs: [job_toolchain, job_rootfs_buildroot]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -199,13 +199,13 @@ jobs:
           name: uImage
           path: ./kernel/arch/arm/boot/uImage
 
-      - name: Download Artifact base_rootfs
+      - name: Download Artifact rootfs_buildroot
         uses: actions/download-artifact@v2
         with:
-          name: base_rootfs
+          name: rootfs_buildroot
           path: ./
 
-      - name: Untar Base Root File System
+      - name: Untar Buildroot Root File System
         run: |
           mkdir -p rootfs
           sudo tar xf rootfs.tar -C ./rootfs/
@@ -216,13 +216,13 @@ jobs:
         run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
         working-directory: ./kernel
 
-      - name: Tar Base Root File System With Modules
+      - name: Tar Buildroot Root File System With Modules
         run: sudo tar zcf rootfs.tar.gz rootfs/
 
-      - name: Upload Artifact base_rootfs_with_modules
+      - name: Upload Artifact rootfs_buildroot_with_modules
         uses: actions/upload-artifact@v2
         with:
-          name: base_rootfs_with_modules
+          name: rootfs_buildroot_with_modules
           path: ./rootfs.tar.gz
 
   job_cc_stress:
@@ -593,10 +593,10 @@ jobs:
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 640
 
-          sudo chmod +x usr/local/bin/*
-          sudo chmod +x opt/sbin/*
+          sudo chmod 750 usr/local/bin/*
+          sudo chmod 750 opt/sbin/*
 
-          sudo chmod +x etc/init.d/*
+          sudo chmod 750 etc/init.d/*
 
           sudo chmod 600 etc/cron/crontabs/*
 
@@ -630,9 +630,9 @@ jobs:
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 640
 
-          sudo chmod +x opt/bin/*
+          sudo chmod 750 opt/bin/*
 
-          sudo chmod +x etc/init.d/*
+          sudo chmod 750 etc/init.d/*
 
           tree -pug
         working-directory: ./rootfs
@@ -659,10 +659,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mtd-utils
 
-      - name: Download Artifact base_rootfs_with_modules
+      - name: Download Artifact rootfs_buildroot_with_modules
         uses: actions/download-artifact@v2
         with:
-          name: base_rootfs_with_modules
+          name: rootfs_buildroot_with_modules
           path: ./
 
       - name: Untar Root File System
@@ -684,14 +684,31 @@ jobs:
       - name: Untar rootfs_part_base
         run: sudo tar zxf rootfs_part_base.tgz
 
-      - name: Check
-        run: tree -pug rootfs/etc
-
       - name: Patch Root File System (Base)
         run: |
           sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_mdev.conf.patch
           sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_profile.patch
         working-directory: ./rootfs
+
+      - name: Tar Final Root File System (Base)
+        run: sudo tar zcf rootfs_final_base.tar.gz rootfs/
+
+      - name: Upload Artifact rootfs_final_base (Base)
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_final_base
+          path: ./rootfs_final_base.tar.gz
+
+      - name: Build UBI File System (Base)
+        run: |
+          sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+          sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 htbox-forlinx/rootfs-config/ubinize-256M.cfg
+
+      - name: Upload Artifact ubi_base (Base)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ubi_base
+          path: ./ubi.img
 
 # ########## # ########## # ########## # ########## # ########## #
 
@@ -718,6 +735,26 @@ jobs:
           sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_bluetooth_main.conf.patch
         working-directory: ./rootfs
 
+      - name: Tar Final Root File System (Advance)
+        run: sudo tar zcf rootfs_final_advance.tar.gz rootfs/
+
+      - name: Upload Artifact rootfs_final_advance (Advance)
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_final_advance
+          path: ./rootfs_final_advance.tar.gz
+
+      - name: Build UBI File System (Advance)
+        run: |
+          sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+          sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 htbox-forlinx/rootfs-config/ubinize-256M.cfg
+
+      - name: Upload Artifact ubi_advance (Advance)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ubi_advance
+          path: ./ubi.img
+
 # ########## # ########## # ########## # ########## # ########## #
 
       - name: Download Artifact rootfs_part_custom
@@ -734,6 +771,26 @@ jobs:
           sudo patch -p1 < ../htbox-forlinx/rootfs-patch/etc_inittab.patch
         working-directory: ./rootfs
 
+      - name: Tar Final Root File System (Custom)
+        run: sudo tar zcf rootfs_final_custom.tar.gz rootfs/
+
+      - name: Upload Artifact rootfs_final_custom (Custom)
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_final_custom
+          path: ./rootfs_final_custom.tar.gz
+
+      - name: Build UBI File System (Custom)
+        run: |
+          sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+          sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 htbox-forlinx/rootfs-config/ubinize-256M.cfg
+
+      - name: Upload Artifact ubi_custom (Custom)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ubi_custom
+          path: ./ubi.img
+
 # ########## # ########## # ########## # ########## # ########## #
 
       - name: Fix Root File System (Business)
@@ -749,25 +806,22 @@ jobs:
       - name: Untar rootfs_part_business
         run: sudo tar zxf rootfs_part_business.tgz
 
-# ########## # ########## # ########## # ########## # ########## #
+      - name: Tar Final Root File System (Business)
+        run: sudo tar zcf rootfs_final_business.tar.gz rootfs/
 
-      - name: Tar Final Root File System
-        run: sudo tar zcf rootfs.tar.gz rootfs/
-
-      - name: Upload Artifact final_rootfs
+      - name: Upload Artifact rootfs_final_business (Business)
         uses: actions/upload-artifact@v2
         with:
-          name: final_rootfs
-          path: ./rootfs.tar.gz
+          name: rootfs_final_business
+          path: ./rootfs_final_business.tar.gz
 
-      - name: Build UBI File System
+      - name: Build UBI File System (Business)
         run: |
           sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
           sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 htbox-forlinx/rootfs-config/ubinize-256M.cfg
 
-      - name: Upload Artifact ubi.img
+      - name: Upload Artifact ubi_business (Business)
         uses: actions/upload-artifact@v2
         with:
-          name: ubi.img
+          name: ubi_business
           path: ./ubi.img
-
