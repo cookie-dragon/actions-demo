@@ -318,7 +318,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: rt-tests
-          path: ./srootfs-rt-tests.tgz
+          path: ./rootfs-rt-tests.tgz
 
   job_cc_wireless:
     name: Job - wireless
@@ -523,7 +523,7 @@ jobs:
         run: |
           sudo mkdir -p rootfs
           sudo cp -rf htbox-forlinx/rootfs-base-add/* rootfs
-          chown -R root:root rootfs
+          sudo chown -R root:root rootfs
           tree -pug rootfs
           sudo tar zcf rootfs_part_base.tgz rootfs/
 
@@ -544,7 +544,7 @@ jobs:
         run: |
           sudo mkdir -p rootfs
           sudo cp -rf htbox-forlinx/rootfs-advance-add/* rootfs
-          chown -R root:root rootfs
+          sudo chown -R root:root rootfs
           tree -pug rootfs
           sudo tar zcf rootfs_part_advance.tgz rootfs/
 
@@ -565,7 +565,7 @@ jobs:
         run: |
           sudo mkdir -p rootfs
           sudo cp -rf htbox-forlinx/rootfs-custom-add/* rootfs
-          chown -R root:root rootfs
+          sudo chown -R root:root rootfs
           tree -pug rootfs
           sudo tar zcf rootfs_part_custom.tgz rootfs/
 
@@ -586,7 +586,7 @@ jobs:
         run: |
           sudo mkdir -p rootfs
           sudo cp -rf htbox-forlinx/rootfs-business-add/* rootfs
-          chown -R root:root rootfs
+          sudo chown -R root:root rootfs
           tree -pug rootfs
           sudo tar zcf rootfs_part_business.tgz rootfs/
 
