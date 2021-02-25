@@ -507,7 +507,7 @@ jobs:
       - name: Tar
         run: sudo tar zcf rootfs_part_cc.tgz rootfs/
 
-      - name: Upload Artifact rootfs_part_cc
+      - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
           name: rootfs_part_cc
@@ -525,7 +525,7 @@ jobs:
 
       - name: Fix
         run: |
-          sudo cp -rf htbox-forlinx/rootfs-base-add/* rootfs
+          sudo cp -rf htbox-forlinx/rootfs-base-add/* rootfs/
 
           sudo chown -R root:root rootfs
           sudo find . -type d | xargs sudo chmod 755
@@ -568,7 +568,7 @@ jobs:
 
       - name: Fix
         run: |
-          sudo cp -rf htbox-forlinx/rootfs-advance-add/* rootfs
+          sudo cp -rf htbox-forlinx/rootfs-advance-add/* rootfs/
           
           sudo chown -R root:root rootfs
           sudo find . -type d | xargs sudo chmod 755
@@ -611,7 +611,7 @@ jobs:
 
       - name: Fix
         run: |
-          sudo cp -rf htbox-forlinx/rootfs-custom-add/* rootfs
+          sudo cp -rf htbox-forlinx/rootfs-custom-add/* rootfs/
           
           sudo chown -R root:root rootfs
           sudo find . -type d | xargs sudo chmod 750
@@ -654,7 +654,7 @@ jobs:
 
       - name: Fix
         run: |
-          sudo cp -rf htbox-forlinx/rootfs-business-add/* rootfs
+          sudo cp -rf htbox-forlinx/rootfs-business-add/* rootfs/
                     
           sudo chown -R root:root rootfs
           sudo find . -type d | xargs sudo chmod 750
@@ -675,7 +675,7 @@ jobs:
           sudo chmod -f 600 etc/cron/crontabs/*
 
           tree -pug rootfs
-          
+
       - name: Tar
         run: sudo tar zcf rootfs_part_business.tgz rootfs/
 
