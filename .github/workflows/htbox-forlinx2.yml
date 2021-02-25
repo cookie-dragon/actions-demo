@@ -208,16 +208,19 @@ jobs:
       - name: Untar Base Root File System
         run: |
           mkdir -p rootfs
-          sudo tar xf rootfs.tar -C ./rootfs/
+          sudo -u root tar xf rootfs.tar -C ./rootfs/
           
       - name: Kernel Modules Install
         env:
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-        run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
+        run: sudo -u root make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
         working-directory: ./kernel
 
+      - name: Check
+        run: tree -pugL 2 rootfs
+
       - name: Tar Base Root File System With Modules
-        run: sudo tar zcf rootfs.tar.gz rootfs/
+        run: sudo -u root tar zcf rootfs.tar.gz rootfs/
 
       - name: Upload Artifact base_rootfs_with_modules
         uses: actions/upload-artifact@v2
@@ -257,8 +260,11 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs/usr/local/bin
-          cp -rf stress-1.0.4/src/stress sort_out/rootfs/usr/local/bin
+          sudo -u root mkdir -p sort_out/rootfs/usr/local/bin
+          sudo -u root cp -rf stress-1.0.4/src/stress sort_out/rootfs/usr/local/bin
+
+      - name: Check
+        run: tree -pugL 2 sort_out/rootfs
 
       - name: Upload Artifact stress
         uses: actions/upload-artifact@v2
@@ -305,8 +311,11 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs/usr/local/bin
-          cp -rf rt-tests/cyclictest sort_out/rootfs/usr/local/bin
+          sudo -u root mkdir -p sort_out/rootfs/usr/local/bin
+          sudo -u root cp -rf rt-tests/cyclictest sort_out/rootfs/usr/local/bin
+
+      - name: Check
+        run: tree -pugL 2 sort_out/rootfs
 
       - name: Upload Artifact rt-tests
         uses: actions/upload-artifact@v2
@@ -383,15 +392,18 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs
-          cp -rf realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl/usr sort_out/rootfs
-          mkdir -p sort_out/rootfs/usr/local/bin
-          sudo cp -rf /usr/local/bin/hostapd sort_out/rootfs/usr/local/bin
-          sudo cp -rf /usr/local/bin/hostapd_cli sort_out/rootfs/usr/local/bin
-          mkdir -p sort_out/rootfs/usr/local/sbin
-          sudo cp -rf /usr/local/sbin/wpa_cli sort_out/rootfs/usr/local/sbin
-          sudo cp -rf /usr/local/sbin/wpa_passphrase sort_out/rootfs/usr/local/sbin
-          sudo cp -rf /usr/local/sbin/wpa_supplicant sort_out/rootfs/usr/local/sbin
+          sudo -u root mkdir -p sort_out/rootfs
+          sudo -u root cp -rf realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl/usr sort_out/rootfs
+          sudo -u root mkdir -p sort_out/rootfs/usr/local/bin
+          sudo -u root  cp -rf /usr/local/bin/hostapd sort_out/rootfs/usr/local/bin
+          sudo -u root  cp -rf /usr/local/bin/hostapd_cli sort_out/rootfs/usr/local/bin
+          sudo -u root mkdir -p sort_out/rootfs/usr/local/sbin
+          sudo -u root  cp -rf /usr/local/sbin/wpa_cli sort_out/rootfs/usr/local/sbin
+          sudo -u root  cp -rf /usr/local/sbin/wpa_passphrase sort_out/rootfs/usr/local/sbin
+          sudo -u root  cp -rf /usr/local/sbin/wpa_supplicant sort_out/rootfs/usr/local/sbin
+
+      - name: Check
+        run: tree -pugL 2 sort_out/rootfs
 
       - name: Upload Artifact wireless
         uses: actions/upload-artifact@v2
@@ -441,8 +453,11 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs/usr/lib
-          sudo cp -rf /usr/lib/libsnap7.so sort_out/rootfs/usr/lib
+          sudo -u root mkdir -p sort_out/rootfs/usr/lib
+          sudo -u root cp -rf /usr/lib/libsnap7.so sort_out/rootfs/usr/lib
+
+      - name: Check
+        run: tree -pugL 2 sort_out/rootfs
 
       - name: Upload Artifact snap7
         uses: actions/upload-artifact@v2
@@ -481,8 +496,11 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out
-          mv rootfs sort_out/
+          sudo -u root mkdir -p sort_out
+          sudo -u root mv rootfs sort_out/
+
+      - name: Check
+        run: tree -pugL 2 sort_out/rootfs
 
       - name: Upload Artifact rootfs_part_cc
         uses: actions/upload-artifact@v2
@@ -499,8 +517,11 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs
-          cp -rf htbox-forlinx/rootfs-base-add/* sort_out/rootfs
+          sudo -u root mkdir -p sort_out/rootfs
+          sudo -u root cp -rf htbox-forlinx/rootfs-base-add/* sort_out/rootfs
+
+      - name: Check
+        run: tree -pugL 2 sort_out/rootfs
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
@@ -517,8 +538,11 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs
-          cp -rf htbox-forlinx/rootfs-advance-add/* sort_out/rootfs
+          sudo -u root mkdir -p sort_out/rootfs
+          sudo -u root cp -rf htbox-forlinx/rootfs-advance-add/* sort_out/rootfs
+
+      - name: Check
+        run: tree -pugL 2 sort_out/rootfs
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
@@ -535,8 +559,11 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs
-          cp -rf htbox-forlinx/rootfs-custom-add/* sort_out/rootfs
+          sudo -u root mkdir -p sort_out/rootfs
+          sudo -u root cp -rf htbox-forlinx/rootfs-custom-add/* sort_out/rootfs
+
+      - name: Check
+        run: tree -pugL 2 sort_out/rootfs
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
@@ -553,8 +580,11 @@ jobs:
 
       - name: Sort Out
         run: |
-          mkdir -p sort_out/rootfs
-          cp -rf htbox-forlinx/rootfs-business-add/* sort_out/rootfs
+          sudo -u root mkdir -p sort_out/rootfs
+          sudo -u root cp -rf htbox-forlinx/rootfs-business-add/* sort_out/rootfs
+
+      - name: Check
+        run: tree -pugL 2 sort_out/rootfs
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
@@ -583,6 +613,9 @@ jobs:
 
       - name: Untar Root File System
         run: sudo -u root tar zxf rootfs.tar.gz
+
+      - name: Check
+        run: tree -pugL 2 rootfs
 
 # ########## # ########## # ########## # ########## # ########## #
 
