@@ -556,6 +556,7 @@ jobs:
         run: |
           sudo mkdir -p rootfs
           # sudo cp -rf htbox-forlinx/rootfs-advance-add/* rootfs/
+          touch rootfs/placeholder
           sudo chown -R root:root rootfs
 
       - name: Fix
@@ -590,8 +591,8 @@ jobs:
 
       - name: Fix
         run: |
-          sudo find . -type d | xargs sudo chmod 750
-          sudo find . -type f | xargs sudo chmod 640
+          sudo find . -type d | xargs sudo chmod 755
+          sudo find . -type f | xargs sudo chmod 644
 
           sudo chmod +x usr/local/bin/*
           sudo chmod +x opt/sbin/*
@@ -627,8 +628,8 @@ jobs:
 
       - name: Fix
         run: |
-          sudo find . -type d | xargs sudo chmod 750
-          sudo find . -type f | xargs sudo chmod 640
+          sudo find . -type d | xargs sudo chmod 755
+          sudo find . -type f | xargs sudo chmod 644
 
           sudo chmod +x opt/bin/*
 
