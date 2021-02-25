@@ -120,10 +120,10 @@ jobs:
       - name: Add Buildroot Files
         run: cp -rf htbox-forlinx/buildroot-add/* buildroot-2019.02.11/
 
-      - name: Install Buildroot Package by Scanpypi
-        run: |
-          python3 support/scripts/scanpypi3 pyotp -o package
-        working-directory: ./buildroot-2019.02.11
+      # - name: Install Buildroot Package by Scanpypi
+      #   run: |
+      #     python3 support/scripts/scanpypi3 pyotp -o package
+      #   working-directory: ./buildroot-2019.02.11
 
       - name: Patch Buildroot
         run: |
