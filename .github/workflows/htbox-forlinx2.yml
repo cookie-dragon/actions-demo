@@ -121,7 +121,7 @@ jobs:
 
       - name: Config Buildroot
         run: |
-          cp -f htbox-forlinx/buildroot-config/config.base.new buildroot-2019.02.11/.config
+          cp -f htbox-forlinx/buildroot-config/config.new buildroot-2019.02.11/.config
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH=\"${{needs.job_toolchain.outputs.TOOLCHAIN}}\"" buildroot-2019.02.11/.config
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}\"" buildroot-2019.02.11/.config
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}"\" buildroot-2019.02.11/.config
