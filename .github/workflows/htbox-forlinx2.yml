@@ -502,7 +502,7 @@ jobs:
         run: sudo tar zxf rootfs-snap7.tgz
 
       - name: Fix
-        run: tree -pug rootfs
+        run: sudo tree -pug rootfs
 
       - name: Tar
         run: sudo tar zcf rootfs_part_cc.tgz rootfs/
@@ -533,7 +533,7 @@ jobs:
 
           sudo chmod +x etc/mdev/*
 
-          tree -pug rootfs
+          sudo tree -pug rootfs
         working-directory: ./rootfs
 
       - name: Tar
@@ -564,7 +564,7 @@ jobs:
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 644
 
-          tree -pug rootfs
+          sudo tree -pug rootfs
         working-directory: ./rootfs
 
       - name: Tar
@@ -601,7 +601,7 @@ jobs:
 
           sudo chmod 600 etc/cron/crontabs/*
 
-          tree -pug rootfs
+          sudo tree -pug rootfs
         working-directory: ./rootfs
 
       - name: Tar
@@ -635,7 +635,7 @@ jobs:
 
           sudo chmod +x etc/init.d/*
 
-          tree -pug rootfs
+          sudo tree -pug rootfs
         working-directory: ./rootfs
 
       - name: Tar
