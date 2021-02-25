@@ -594,7 +594,7 @@ jobs:
 
   job_final_rootfs:
     name: Final Root File System
-    needs: [job_kernel]
+    needs: [job_kernel, job_rootfs_part_cc, job_rootfs_part_base, job_rootfs_part_advance, job_rootfs_part_custom, job_rootfs_part_business]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
