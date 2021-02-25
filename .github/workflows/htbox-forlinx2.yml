@@ -522,7 +522,7 @@ jobs:
 
       - name: Make Rootfs Dir
         run: |
-          mkdir -p rootfs
+          sudo mkdir -p rootfs
           sudo cp -rf htbox-forlinx/rootfs-base-add/* rootfs/
           sudo chown -R root:root rootfs
 
@@ -531,7 +531,7 @@ jobs:
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 644
 
-          sudo chmod -f +x etc/mdev/*
+          sudo chmod +x etc/mdev/*
 
           tree -pug rootfs
         working-directory: ./rootfs
@@ -593,12 +593,12 @@ jobs:
           sudo find . -type d | xargs sudo chmod 750
           sudo find . -type f | xargs sudo chmod 640
 
-          sudo chmod -f +x usr/local/bin/*
-          sudo chmod -f +x opt/sbin/*
+          sudo chmod +x usr/local/bin/*
+          sudo chmod +x opt/sbin/*
 
-          sudo chmod -f +x etc/init.d/*
+          sudo chmod +x etc/init.d/*
 
-          sudo chmod -f 600 etc/cron/crontabs/*
+          sudo chmod 600 etc/cron/crontabs/*
 
           tree -pug rootfs
         working-directory: ./rootfs
@@ -630,9 +630,9 @@ jobs:
           sudo find . -type d | xargs sudo chmod 750
           sudo find . -type f | xargs sudo chmod 640
 
-          sudo chmod -f +x opt/bin/*
+          sudo chmod +x opt/bin/*
 
-          sudo chmod -f +x etc/init.d/*
+          sudo chmod +x etc/init.d/*
 
           tree -pug rootfs
         working-directory: ./rootfs
