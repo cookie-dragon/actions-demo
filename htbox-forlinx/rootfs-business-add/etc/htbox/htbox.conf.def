@@ -3,7 +3,7 @@
     "eth0": {
       "mode": "main",
       "device": {
-        "inet": "dhcp",
+        "inet": "static",
         "inet_static": {
           "address": "192.168.0.2",
           "netmask": "255.255.255.0",
@@ -28,7 +28,7 @@
     "eth1": {
       "mode": "gateway",
       "device": {
-        "inet": "static",
+        "inet": "dhcp",
         "inet_static": {
           "address": "192.168.1.2",
           "netmask": "255.255.255.0",
@@ -51,7 +51,7 @@
       }
     },
     "wlan0": {
-      "mode": "off",
+      "mode": "gateway",
       "station": {
         "ssid": "ssid-undefined",
         "psk": "password",
@@ -82,7 +82,7 @@
     "ppp0": {
       "mode": "off",
       "ppp": {
-        "devname": "/dev/ttyUSB3",
+        "devname": "/dev/ttyUSB2",
         "apn": "3gnet",
         "user": "user",
         "password": "passwd"

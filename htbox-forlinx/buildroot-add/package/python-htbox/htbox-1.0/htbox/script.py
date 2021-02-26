@@ -92,11 +92,13 @@ def start(conf):
                 iface.start()
                 if NetShell.wait_for_iface_up(iface.get_name()) != 0:
                     print(iface.get_name() + ' up ERROR!')
-                if NetShell.wait_for_defroute_up(iface.get_name()) != 0:
-                    print(iface.get_name() + ' default route ERROR!')
-
-                os.system(
-                    'echo ' + NetShell.get_gateway(iface.get_name()) + ' > /etc/network/defroute/' + iface.get_name())
+                    return exit_sys
+                if iface == eth0 or iface == eth1:
+                    os.system(
+                        'echo ' + iface.gateway_router + ' > /etc/network/defroute/' + iface.get_name())
+                elif iface == wlan0:
+                    os.system(
+                        'echo ' + iface.ap_router + ' > /etc/network/defroute/' + iface.get_name())
                 os.system('route del default')
         print("OK")
 
@@ -106,11 +108,15 @@ def start(conf):
                 iface.start()
                 if NetShell.wait_for_iface_up(iface.get_name()) != 0:
                     print(iface.get_name() + ' up ERROR!')
+                    return exit_sys
                 if NetShell.wait_for_defroute_up(iface.get_name()) != 0:
                     print(iface.get_name() + ' default route ERROR!')
-                os.system(
-                    'echo ' + NetShell.get_gateway(iface.get_name()) + ' > /etc/network/defroute/' + iface.get_name())
-                os.system('route del default')
+                    return exit_sys
+                else:
+                    os.system(
+                        'echo ' + NetShell.get_gateway(
+                            iface.get_name()) + ' > /etc/network/defroute/' + iface.get_name())
+                    os.system('route del default')
         print("OK")
 
         print("打开主出口: ", end="")
@@ -119,10 +125,14 @@ def start(conf):
                 iface.start()
                 if NetShell.wait_for_iface_up(iface.get_name()) != 0:
                     print(iface.get_name() + ' up ERROR!')
+                    return exit_sys
                 if NetShell.wait_for_defroute_up(iface.get_name()) != 0:
                     print(iface.get_name() + ' default route ERROR!')
-                os.system(
-                    'echo ' + NetShell.get_gateway(iface.get_name()) + ' > /etc/network/defroute/' + iface.get_name())
+                    return exit_sys
+                else:
+                    os.system(
+                        'echo ' + NetShell.get_gateway(
+                            iface.get_name()) + ' > /etc/network/defroute/' + iface.get_name())
 
                 print("配置路由转发与iptables: ", end="")
                 if conf['ip_forward'] == 1:
@@ -225,6 +235,7 @@ def stop(conf):
 
     print("关闭vpn: ", end="")
     JobShell.killjob('openvpn')
+    # TODO: VPN关闭方式需要修改
     os.system('/usr/local/bin/bridge-stop')
     print("OK")
 

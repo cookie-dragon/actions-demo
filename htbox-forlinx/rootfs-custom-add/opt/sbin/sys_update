@@ -26,13 +26,13 @@ if [[ -f /media/$MDEV/update ]]; then
 		cd /root/tmp_rootfs
 
 		chown -R root:root *
-		find . -type d | xargs chmod -f 777
+		find . -type d | xargs chmod -f 755
         find . -type f | xargs chmod -f 640
-        chmod -f -R 750 etc/init.d/*
-		chmod -f -R 750 opt/bin/*
-		chmod -f -R 750 opt/sbin/*
-		chmod -f -R 755 usr/local/bin/*
-		chmod -f -R 755 usr/local/sbin/*
+        chmod -f 750 etc/init.d/*
+		chmod -f 750 opt/bin/*
+		chmod -f 750 opt/sbin/*
+		chmod -f 755 usr/local/bin/*
+		chmod -f 755 usr/local/sbin/*
 
 		cp -rf * /
 

@@ -4,6 +4,8 @@ case "$1" in
 start)
     if [[ ! -f /etc/htbox/htbox.conf ]]; then
         printf "BOX配置初始化: "
+        hostname=`cat /etc/hostname`
+        sed -i "/htbox-undefined/c\"ssid\": \"${hostname}\"," /etc/htbox/htbox.conf.def
         cp -f /etc/htbox/htbox.conf.def /etc/htbox/htbox.conf
         echo "OK"
     fi

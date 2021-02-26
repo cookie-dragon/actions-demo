@@ -544,7 +544,7 @@ jobs:
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 644
 
-          sudo chmod +x etc/mdev/*
+          sudo chmod 755 etc/mdev/*
 
           tree -pug
         working-directory: ./rootfs
