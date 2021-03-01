@@ -169,7 +169,7 @@ class EthInterface(NetworkInterface):
         elif self.mode == "gateway":
             os.system('ifup ' + self.get_name())
             if self.gateway_inet == "dhcp":
-                os.system('/usr/sbin/udhcpd /etc/udhcpd_' + self.get_name() + '.conf >/dev/null &')
+                os.system('/usr/sbin/udhcpd /etc/udhcpd_' + self.get_name() + '.conf > /dev/null &')
             elif self.gateway_inet == "static":
                 pass
         elif self.mode == "off":

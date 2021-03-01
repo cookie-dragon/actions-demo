@@ -106,5 +106,6 @@
       }
     ]
   },
-  "ip_forward": 0
+  "ip_forward": 0,
+  "openvpn_iface": "eth1"
 }

@@ -86,7 +86,7 @@ class WlanInterface(NetworkInterface):
 
         if self.mode == "main" or self.mode == "vice":
             os.system(
-                'wpa_passphrase "' + self.station_ssid + '" "' + self.station_psk + '" > /etc/wpa_supplicant.conf')
+                '/usr/local/sbin/wpa_passphrase "' + self.station_ssid + '" "' + self.station_psk + '" > /etc/wpa_supplicant.conf')
             if self.station_inet == "static":
                 SedShell.replace_line(file=file_interfaces,
                                       index=25,
@@ -178,7 +178,7 @@ class WlanInterface(NetworkInterface):
             os.system('ifconfig ' + self.get_name() + ' up ' + self.ap_router)
             os.system('/usr/local/bin/hostapd /etc/hostapd_' + self.get_name() + '.conf -B')
             if self.ap_inet == "dhcp":
-                os.system('/usr/sbin/udhcpd /etc/udhcpd_' + self.get_name() + '.conf >/dev/null &')
+                os.system('/usr/sbin/udhcpd /etc/udhcpd_' + self.get_name() + '.conf > /dev/null &')
             elif self.ap_inet == "static":
                 pass
         elif self.mode == "off":
@@ -186,7 +186,7 @@ class WlanInterface(NetworkInterface):
 
     def stop(self):
         if self.mode == "main" or self.mode == "vice":
-            os.system('ifconfig ' + self.get_name() + ' down')
+            os.system('ifdown ' + self.get_name())
         elif self.mode == "gateway":
             if self.ap_inet == "dhcp":
                 JobShell.killjob('udhcpd /etc/udhcpd_' + self.get_name() + '.conf')

@@ -21,7 +21,7 @@ case "$1" in
     ifup br-vpn
     route del default
     cd /etc/openvpn
-    openvpn --config client.conf &
+    openvpn --config client.conf > /dev/null &
     echo "."
     ;;
   stop)
@@ -57,7 +57,7 @@ case "$1" in
     echo ""
     echo -n "Starting OpenVPN"
     cd /etc/openvpn
-    openvpn --config client.conf &
+    openvpn --config client.conf > /dev/null &
     echo "."
     ;;
   status)

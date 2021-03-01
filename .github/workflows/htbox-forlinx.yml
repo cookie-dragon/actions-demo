@@ -3,9 +3,9 @@ name: htbox-forlinx CI
 on:
   push:
     paths: 
-      # - 'common/**'
-      # - 'htbox-forlinx/version.json'
-      # - 'htbox-forlinx/**'
+      - 'common/**'
+      - 'htbox-forlinx/version.json'
+      - 'htbox-forlinx/**'
       - '.github/workflows/htbox-forlinx.yml'
   workflow_dispatch:
     inputs:
@@ -611,6 +611,8 @@ jobs:
           sudo chmod 750 opt/sbin/*
 
           sudo chmod 750 etc/init.d/*
+          sudo chmod 750 etc/network/if-pre-up.d/*
+          sudo chmod 750 etc/network/if-post-down.d/*
 
           sudo chmod 600 etc/cron/crontabs/*
 

@@ -23,6 +23,8 @@ def check(conf):
     wlan0 = WlanInterface(conf['interface']['wlan0'], index=0)
     ppp0 = PPPInterface(conf['interface']['ppp0'], index=0)
 
+    openvpn_iface = conf['openvpn_iface']
+
     print("检查主出口数量: ", end="")
     if check_main_mode_count(eth0, eth1, wlan0, ppp0) == 0:
         print("OK")
@@ -43,7 +45,22 @@ def check(conf):
                     if ppp0.check_conf() == 0:
                         print("OK")
 
-                        exit_sys = 0
+                        print("检查vpn配置: ", end="")
+                        tmp_iface = None
+                        if openvpn_iface == "eth0":
+                            tmp_iface = eth0
+                        elif openvpn_iface == "eth1":
+                            tmp_iface = eth1
+                        if tmp_iface \
+                                and (((tmp_iface.mode == "main" or tmp_iface.mode == "vice") \
+                                      and tmp_iface.device_inet == "static") \
+                                     or tmp_iface.mode == "gateway"):
+                            print("OK")
+                            exit_sys = 0
+                        elif not tmp_iface:
+                            print("Unset OK")
+                            exit_sys = 0
+
     return exit_sys
 
 
@@ -235,7 +252,6 @@ def stop(conf):
 
     print("关闭vpn: ", end="")
     JobShell.killjob('openvpn')
-    # TODO: VPN关闭方式需要修改
     os.system('/usr/local/bin/bridge-stop')
     print("OK")
 

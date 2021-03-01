@@ -15,9 +15,9 @@ iface eth0 inet dhcp
 
 # auto eth1
 iface eth1 inet static
-  address 192.168.1.1
-  netmask 255.255.255.0
-  gateway 192.168.1.1
+    address 192.168.1.1
+    netmask 255.255.255.0
+    gateway 192.168.1.1
 #   dns-nameservers 114.114.114.114 8.8.8.8
 
 allow-hotplug wlan0
@@ -27,3 +27,8 @@ iface wlan0 inet dhcp
 #   netmask 255.255.255.0
 #   gateway 192.168.2.1
 #   dns-nameservers 114.114.114.114 8.8.8.8
+
+iface br-vpn inet static
+    address 192.168.1.1
+    netmask 255.255.255.0
+    gateway 192.168.1.1

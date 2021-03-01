@@ -38,7 +38,7 @@ if __name__ == '__main__':
                 exit_sys = start(conf)
                 if exit_sys == 0:
                     print("开启默认路由监控: ", end="")
-                    os.system('/opt/bin/defroute_monitor >/dev/null &')
+                    os.system('/opt/bin/defroute_monitor > /dev/null &')
                     print("OK")
                 else:
                     print("启动失败，默认路由监控未开启！")

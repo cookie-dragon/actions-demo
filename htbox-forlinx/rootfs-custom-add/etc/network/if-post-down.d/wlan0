@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [[ ${IFACE} = wlan* ]]; then
+	kill -9 `ps | grep /usr/local/sbin/wpa_supplicant | head -1 | awk '{printf $1}'`
+fi
