@@ -41,6 +41,6 @@ if __name__ == '__main__':
                 else:
                     with open('/etc/network/defroute/' + main_iface_name, 'r', encoding='utf-8') as f:
                         gw = f.readline()
-                        os.system('route add default ' + gw)
+                        os.system('route add default gw ' + gw)
             else:
                 print("Default Route OK!")

@@ -9,6 +9,10 @@ reset_root() {
 }
 
 reset_user() {
+	s_line=`cat /proc/cpuinfo | grep Serial`
+	s=`echo ${s_line#*": "}`
+	s4=${s:0-4}
+
 	deluser user
 	deluser admin
 
@@ -20,7 +24,7 @@ reset_user() {
 	adduser -g NormalUser -G users -D user
 	echo -e "p@ssw0rd\np@ssw0rd" | passwd user >/dev/null
 
-	python /opt/sbin/sys_admin_totp_show
+	python /opt/sbin/sys_admin_totp_show "htbox-${s4}"
 }
 
 reset_host() {

@@ -4,6 +4,7 @@ import base64
 import os
 import pyotp
 import pyqrcode
+import sys
 
 
 def get_serial_b32():
@@ -30,9 +31,15 @@ def get_serial_b32():
 
 
 if __name__ == '__main__':
+    exit_sys = 1
+
+    show_name = "htbox-undefined"
+    if len(sys.argv) > 1:
+        show_name = sys.argv[1]
+
     serial_b32 = get_serial_b32()
     if serial_b32:
         totp = pyotp.TOTP(serial_b32)
-        google_url = totp.provisioning_uri(name='HTBOX Admin Password', issuer_name='Hilectro')
+        google_url = totp.provisioning_uri(name=show_name + ' Admin Password', issuer_name='Hilectro')
         print(pyqrcode.create(google_url).terminal(quiet_zone=1))
         print(serial_b32)
