@@ -39,18 +39,11 @@ reset_host() {
 }
 
 case "$1" in
-root)
-	reset_root
-	;;
-user)
-	reset_user
-	;;
-host)
-	reset_host
-	;;
 *)
 	reset_host
 	reset_root
 	reset_user
 	;;
 esac
+
+exit 0

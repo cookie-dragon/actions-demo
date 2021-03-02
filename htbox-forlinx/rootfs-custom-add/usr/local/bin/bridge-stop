@@ -21,5 +21,6 @@ for t in $tap; do
     openvpn --rmtun --dev $t
 done
 
-ifdown $eth
-ifup $eth
+ifdown ${eth}
+sleep 1
+ifup ${eth}

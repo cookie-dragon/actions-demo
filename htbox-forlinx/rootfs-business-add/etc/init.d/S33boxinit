@@ -1,0 +1,24 @@
+#!/bin/sh
+
+case "$1" in
+start)
+    echo -ne "\n\n[====BOX INIT] Starting BOX: "
+
+    /opt/bin/box_init start
+    
+    echo -e "OK\n"
+    ;;
+stop)
+    echo -ne "\n\n[====BOX INIT] Stopping BOX: "
+
+    /opt/bin/box_init stop
+
+    echo -e "OK\n"
+    ;;
+*)
+    echo "Usage: $0 {start} {stop}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0

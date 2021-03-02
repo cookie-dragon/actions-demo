@@ -2,12 +2,17 @@
 
 case "$1" in
 start)
-	printf "定时任务: "
+	echo -ne "\n\n[====SYS CRON]: "
+
 	crond -c /etc/cron/crontabs
-	echo "OK"
+
+	echo -e "OK\n"
+	;;
+stop)
+	echo ""
 	;;
 *)
-	echo "Usage: $0 {start}" >&2
+	echo "Usage: $0 {start} {stop}" >&2
 	exit 1
 	;;
 esac

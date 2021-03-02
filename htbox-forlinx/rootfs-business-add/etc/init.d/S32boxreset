@@ -1,0 +1,25 @@
+#!/bin/sh
+
+case "$1" in
+start)
+    if [[ ! -f /etc/htbox/htbox.conf ]]; then
+        echo -ne "\n\n[===BOX RESET]: "
+
+        /opt/bin/box_reset miss
+
+        echo -e "OK\n"
+    fi
+    ;;
+stop)
+    echo ""
+    ;;
+*)
+    echo "Usage: $0 {start} {stop}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0
+
+
+

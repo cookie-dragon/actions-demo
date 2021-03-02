@@ -4,13 +4,18 @@ case "$1" in
 start)
 	if [[ -f /etc/sysreset ]]; then
 		rm -rf /etc/sysreset
-		printf "系统初始化: "
+		echo -ne "\n\n[===SYS RESET]: "
+
 		/opt/sbin/sys_reset
-		echo "OK"
+
+		echo -e "OK\n"
 	fi
 	;;
+stop)
+	echo ""
+	;;
 *)
-	echo "Usage: $0 {start}" >&2
+	echo "Usage: $0 {start} {stop}" >&2
 	exit 1
 	;;
 esac

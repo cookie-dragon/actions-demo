@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2020/12/25 2:47 下午
 # @Author  : Cooky Long
-# @File    : S33boxstart.py
+# @File    : box_init.py
+import time
 import os
 import sys
 
@@ -38,27 +39,38 @@ if __name__ == '__main__':
                 exit_sys = start(conf)
                 if exit_sys == 0:
                     print("开启默认路由监控: ", end="")
-                    os.system('/opt/bin/defroute_monitor > /dev/null &')
+                    os.system('/opt/bin/defroute_monitor >/dev/null &')
                     print("OK")
                 else:
                     print("启动失败，默认路由监控未开启！")
             elif cmd_shell == 'stop':
                 print("关闭默认路由监控: ", end="")
                 JobShell.killjob('/opt/bin/defroute_monitor')
+                time.sleep(1)
                 print("OK")
                 exit_sys = stop(conf)
                 if exit_sys == 0:
                     check_new()
             elif cmd_shell == 'restart' or 'reload':
+                print("关闭默认路由监控: ", end="")
+                JobShell.killjob('/opt/bin/defroute_monitor')
+                time.sleep(1)
+                print("OK")
                 exit_sys = stop(conf)
                 if exit_sys == 0:
                     check_new()
                     conf = load_conf()
                     exit_sys = start(conf)
+                    if exit_sys == 0:
+                        print("开启默认路由监控: ", end="")
+                        os.system('/opt/bin/defroute_monitor >/dev/null &')
+                        print("OK")
+                    else:
+                        print("启动失败，默认路由监控未开启！")
             else:
                 print('Usage: ' + sys.argv[0] + ' {start|stop|restart}')
     else:
         print('Usage: ' + sys.argv[0] + ' {start|stop|restart}')
 
-    # print("系统Shell返回：" + str(exit_sys))
+    print("系统Shell返回：" + str(exit_sys))
     sys.exit(exit_sys)

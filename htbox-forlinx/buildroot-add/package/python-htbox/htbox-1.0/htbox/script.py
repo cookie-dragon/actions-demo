@@ -6,6 +6,7 @@
 import os
 
 from htbox.interface import check_main_mode_count
+from htbox.interface.brvpn import BrVpnInterface
 from htbox.interface.eth import EthInterface
 from htbox.interface.ppp import PPPInterface
 from htbox.interface.wlan import WlanInterface
@@ -23,7 +24,7 @@ def check(conf):
     wlan0 = WlanInterface(conf['interface']['wlan0'], index=0)
     ppp0 = PPPInterface(conf['interface']['ppp0'], index=0)
 
-    openvpn_iface = conf['openvpn_iface']
+    br_vpn = BrVpnInterface(conf['openvpn_iface'], eth0=eth0, eth1=eth1)
 
     print("检查主出口数量: ", end="")
     if check_main_mode_count(eth0, eth1, wlan0, ppp0) == 0:
@@ -46,21 +47,9 @@ def check(conf):
                         print("OK")
 
                         print("检查vpn配置: ", end="")
-                        tmp_iface = None
-                        if openvpn_iface == "eth0":
-                            tmp_iface = eth0
-                        elif openvpn_iface == "eth1":
-                            tmp_iface = eth1
-                        if tmp_iface \
-                                and (((tmp_iface.mode == "main" or tmp_iface.mode == "vice") \
-                                      and tmp_iface.device_inet == "static") \
-                                     or tmp_iface.mode == "gateway"):
+                        if br_vpn.check_conf() == 0:
                             print("OK")
                             exit_sys = 0
-                        elif not tmp_iface:
-                            print("Unset OK")
-                            exit_sys = 0
-
     return exit_sys
 
 
@@ -71,6 +60,8 @@ def config(conf):
     eth1 = EthInterface(conf['interface']['eth1'], index=1)
     wlan0 = WlanInterface(conf['interface']['wlan0'], index=0)
     ppp0 = PPPInterface(conf['interface']['ppp0'], index=0)
+
+    br_vpn = BrVpnInterface(conf['openvpn_iface'], eth0=eth0, eth1=eth1)
 
     if check(conf) == 0:
         exit_sys = 0
@@ -89,6 +80,10 @@ def config(conf):
 
         print("执行ppp0配置: ", end="")
         ppp0.config()
+        print("OK")
+
+        print("执行br-vpn配置: ", end="")
+        br_vpn.config()
         print("OK")
 
     return exit_sys
