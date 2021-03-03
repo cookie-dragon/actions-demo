@@ -3,11 +3,11 @@
 case "$1" in
 start)
     if [[ ! -f /etc/htbox/htbox.conf ]]; then
-        echo -ne "\n\n[===BOX RESET]: "
+        echo -e "\nBox Reset..."
 
-        /opt/bin/box_reset miss
+        /opt/bin/box_reset miss >/dev/null
 
-        echo -e "OK\n"
+        echo -e "\nBox Reset: OK"
     fi
     ;;
 stop)

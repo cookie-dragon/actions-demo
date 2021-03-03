@@ -2,13 +2,13 @@
 
 case "$1" in
 start)
-	echo -ne "\n\n[======SYS BT]: "
+	echo -e "\nStarting Bluetooth..."
 
 	bluetoothd
 	hciconfig hci0 up
 	sdptool add SP
 
-	echo -e "OK\n"
+	echo -e "\nStarting Bluetooth: OK"
 	;;
 stop)
 	echo ""

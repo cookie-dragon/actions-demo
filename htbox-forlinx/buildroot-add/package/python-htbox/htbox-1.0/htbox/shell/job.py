@@ -23,3 +23,5 @@ class JobShell:
         pid = JobShell.get_pid(text)
         if pid != -1:
             os.system('kill -9 ' + pid)
+            return 0
+        return 1

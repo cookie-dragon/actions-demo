@@ -21,6 +21,8 @@ for t in $tap; do
     openvpn --rmtun --dev $t
 done
 
+route del default
 ifdown ${eth}
 sleep 1
 ifup ${eth}
+route del default

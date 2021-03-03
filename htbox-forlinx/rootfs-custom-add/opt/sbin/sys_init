@@ -6,7 +6,6 @@ init_chpwd() {
 
 case "$1" in
 *)
-	init_chpwd
 	;;
 esac
 

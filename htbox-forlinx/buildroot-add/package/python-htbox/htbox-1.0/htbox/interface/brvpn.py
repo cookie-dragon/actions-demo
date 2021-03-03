@@ -14,7 +14,7 @@ class BrVpnInterface(NetInterface):
         self.eth1 = eth1
 
     def get_name(self):
-        return 'br-vpn0'
+        return 'br-vpn'
 
     def check_conf(self):
         rtn_sys = 1

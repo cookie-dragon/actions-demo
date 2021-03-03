@@ -3,6 +3,7 @@
 # @Time    : 2020/12/30 3:49 下午
 # @Author  : Cooky Long
 # @File    : script.py
+import time
 import os
 
 from htbox.interface import check_main_mode_count
@@ -246,8 +247,8 @@ def stop(conf):
     print("OK")
 
     print("关闭vpn: ", end="")
-    JobShell.killjob('openvpn')
-    os.system('/usr/local/bin/bridge-stop')
+    if JobShell.killjob('openvpn') == 0:
+        os.system('/usr/local/bin/bridge-stop')
     print("OK")
 
     print("关闭主出口: ", end="")

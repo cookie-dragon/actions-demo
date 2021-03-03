@@ -51,9 +51,9 @@ case "$1" in
     start
     ;;
   status)
-    statstr=`ps | grep openvpn | head -1 | awk '{printf $7}'`
+    statstr=`ps | grep openvpn | head -1 | awk '{printf $5}'`
     if [[ ${statstr} != "client.conf" ]]; then
-      echo "OpenVPN NOT started"
+      echo "OpenVPN is NOT started"
     else
       echo "OpenVPN is STARTED"
     fi

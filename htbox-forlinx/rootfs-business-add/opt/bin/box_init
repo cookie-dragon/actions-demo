@@ -72,5 +72,5 @@ if __name__ == '__main__':
     else:
         print('Usage: ' + sys.argv[0] + ' {start|stop|restart}')
 
-    print("系统Shell返回：" + str(exit_sys))
+    # print("系统Shell返回：" + str(exit_sys))
     sys.exit(exit_sys)

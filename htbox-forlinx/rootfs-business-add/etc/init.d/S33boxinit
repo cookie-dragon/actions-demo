@@ -2,18 +2,32 @@
 
 case "$1" in
 start)
-    echo -ne "\n\n[====BOX INIT] Starting BOX: "
+    echo -e "\nStarting Box..."
 
-    /opt/bin/box_init start
+    /opt/bin/box_init start >/dev/null
     
-    echo -e "OK\n"
+    rst=$?
+    if [[ ${rst} == 0 ]]; then
+        echo -e "\nStarting Box: SUCCESS"
+    elif [[ ${rst} == 1 ]]; then
+        echo -e "\nStarting Box: FAIL"
+    else
+        echo -e "\nStarting Box: ERROR"
+    fi
     ;;
 stop)
-    echo -ne "\n\n[====BOX INIT] Stopping BOX: "
+    echo -e "\nStopping Box..."
 
-    /opt/bin/box_init stop
+    /opt/bin/box_init stop >/dev/null
 
-    echo -e "OK\n"
+    rst=$?
+    if [[ ${rst} == 0 ]]; then
+        echo -e "\nStopping Box: SUCCESS"
+    elif [[ ${rst} == 1 ]]; then
+        echo -e "\nStopping Box: FAIL"
+    else
+        echo -e "\nStopping Box: ERROR"
+    fi
     ;;
 *)
     echo "Usage: $0 {start} {stop}" >&2
