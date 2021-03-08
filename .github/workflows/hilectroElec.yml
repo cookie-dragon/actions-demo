@@ -1,11 +1,11 @@
 name: hilectroElec CI
 
 on:
-  # push:
-  #   paths: 
-  #     # - 'common/**'
-  #     # - 'hilectroElec/version.json'
-  #     # - 'hilectroElec/**'
+  push:
+    paths: 
+      # - 'common/**'
+      # - 'hilectroElec/version.json'
+      # - 'hilectroElec/**'
       - '.github/workflows/hilectroElec.yml'
   workflow_dispatch:
     inputs:
@@ -64,20 +64,10 @@ jobs:
 
   job_rootfs_forlinx:
     name: Forlinx Root File System
-    needs: [job_toolchain]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Download Artifact toolchain
-        uses: actions/download-artifact@v2
-        with:
-          name: toolchain
-          path: ./
-      
-      - name: Untar Toolchain
-        run: tar zxf toolchain.tar.gz
 
       - name: Git Official Root File System
         run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-rootfs.git
