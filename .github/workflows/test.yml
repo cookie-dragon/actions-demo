@@ -1,10 +1,10 @@
 name: test CI
 
 on:
-  push:
-    paths: 
-      # - 'common/**'
-      - '.github/workflows/test.yml'
+  # push:
+  #   paths: 
+  #     - 'common/**'
+  #     - '.github/workflows/test.yml'
   workflow_dispatch:
     inputs:
       ssh:
@@ -13,25 +13,91 @@ on:
         default: 'false'
 
 jobs:
+
   job_env:
     name: ENV
     runs-on: ubuntu-18.04
     outputs:
-      KERNEL_VERSION: ${{steps.step_set_env.outputs.KERNEL_VERSION}}
-      FILE_SYS_VERSION: ${{steps.step_set_env.outputs.FILE_SYS_VERSION}}
-      DATE_VERSION: ${{steps.step_set_env.outputs.DATE_VERSION}}
-      SCREEN_RESOLUTION: ${{steps.step_set_env.outputs.SCREEN_RESOLUTION}}
+      KERNEL_VERSION: ${{steps.step_set_version.outputs.KERNEL_VERSION}}
+      FILE_SYS_VERSION: ${{steps.step_set_version.outputs.FILE_SYS_VERSION}}
+      DATE_VERSION: ${{steps.step_set_version.outputs.DATE_VERSION}}
+      SCREEN_RESOLUTION: ${{steps.step_set_version.outputs.SCREEN_RESOLUTION}}
+      S_FILENAME: ${{steps.step_set_filename.outputs.S_FILENAME}}
+      U_FILENAME: ${{steps.step_set_filename.outputs.U_FILENAME}}
+      K_FILENAME: ${{steps.step_set_filename.outputs.K_FILENAME}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - id: step_set_env
-        name: Set Env
+      - id: step_set_version
+        name: Set Version
         run: |
-          echo "::set-output name=KERNEL_VERSION::20.11.00"
-          echo "::set-output name=FILE_SYS_VERSION::01.01.00"
-          echo "::set-output name=DATE_VERSION::20201111"
-          echo "::set-output name=SCREEN_RESOLUTION::800x480"
+          KERNEL_VERSION=`cat hilectroElec/version.json | jq -r '.kernel_version'`
+          FILE_SYS_VERSION=`cat hilectroElec/version.json | jq -r '.FILE_SYS_VERSION'`
+          DATE_VERSION=`cat hilectroElec/version.json | jq -r '.date_version'`
+          SCREEN_RESOLUTION=`cat hilectroElec/version.json | jq -r '.screen_resolution'`
+
+          echo ${KERNEL_VERSION} ${FILE_SYS_VERSION} ${DATE_VERSION} ${SCREEN_RESOLUTION}
+
+          echo "::set-output name=KERNEL_VERSION::${KERNEL_VERSION}"
+          echo "::set-output name=FILE_SYS_VERSION::${FILE_SYS_VERSION}"
+          echo "::set-output name=DATE_VERSION::${DATE_VERSION}"
+          echo "::set-output name=SCREEN_RESOLUTION::${SCREEN_RESOLUTION}"
+
+      - id: step_set_filename
+        name: Set Filename
+        run: |
+          S_FILENAME=T2-Kernel-V${{steps.step_set_version.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step_set_version.outputs.FILE_SYS_VERSION}}-S-${{steps.step_set_version.outputs.DATE_VERSION}}
+          U_FILENAME=T2-Kernel-V${{steps.step_set_version.outputs.KERNEL_VERSION}}-Filesys-V${{steps.step_set_version.outputs.FILE_SYS_VERSION}}-U-${{steps.step_set_version.outputs.DATE_VERSION}}
+          K_FILENAME=kernel_${{steps.step_set_version.outputs.SCREEN_RESOLUTION}}_${{steps.step_set_version.outputs.DATE_VERSION}}
+
+          echo ${S_FILENAME} ${U_FILENAME} ${K_FILENAME}
+
+          echo "::set-output name=S_FILENAME::${S_FILENAME}"
+          echo "::set-output name=U_FILENAME::${U_FILENAME}"
+          echo "::set-output name=K_FILENAME::${K_FILENAME}"
+
+  job_test:
+    name: TEST
+    needs: [job_env]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Prepare Dir
+        run: |
+          mkdir -p ${{needs.job_env.outputs.S_FILENAME}}
+          sudo mkdir -p /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
+
+      - name: Prepare File
+        run: |
+          git clone -b 20161008 https://github.com/cookie-dragon/forlinx-335xS-II-uboot.git
+
+          cp forlinx-335xS-II-uboot/256M/MLO ${{needs.job_env.outputs.S_FILENAME}}/
+          cp forlinx-335xS-II-uboot/256M/u-boot.img ${{needs.job_env.outputs.S_FILENAME}}/
+          touch ${{needs.job_env.outputs.S_FILENAME}}/uImage
+          touch ${{needs.job_env.outputs.S_FILENAME}}/ubi.img
+
+          sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/MLO /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
+          sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/u-boot.img /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
+          sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/uImage /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
+
+      - name: Zip S
+        run: zip -q -r ${{needs.job_env.outputs.S_FILENAME}}.zip ${{needs.job_env.outputs.S_FILENAME}}
+
+
+      - name: Check MD5
+        run: |
+          DIR=/home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
+          sudo md5sum ${DIR}/MLO > ${DIR}/uplicence.txt
+          sudo md5sum ${DIR}/u-boot.img >> ${DIR}/uplicence.txt
+          sudo md5sum ${DIR}/uImage >> ${DIR}/uplicence.txt
+
+          sudo cat ${DIR}/uplicence.txt
+
+      - name: Zip U
+        run: sudo zip -q -r ${{needs.job_env.outputs.U_FILENAME}}.zip ${{needs.job_env.outputs.K_FILENAME}}
+        working-directory: /home/haitian/onekey_update
+
 
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
@@ -39,20 +105,3 @@ jobs:
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
-  job_test:
-    name: TEST
-    runs-on: ubuntu-18.04
-    steps:
-
-      - name: Prepare
-        run: |
-          git clone -b 20161008 https://github.com/cookie-dragon/forlinx-335xS-II-uboot.git
-          mkdir -p output
-          cp forlinx-335xS-II-uboot/256M/MLO output/
-          cp forlinx-335xS-II-uboot/256M/u-boot.img output/
-          touch output/uImage
-          touch output/ubi.img
-
-
-
