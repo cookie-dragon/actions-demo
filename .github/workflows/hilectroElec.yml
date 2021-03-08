@@ -1,23 +1,19 @@
 name: hilectroElec CI
 
 on:
-  # push:
-  #   paths: 
-  #     - 'common/**'
-  #     - 'hilectroElec/version.json'
-  #     - 'hilectroElec/**'
-  #     - '.github/workflows/hilectroElec.yml'
+  push:
+    paths: 
+      - 'common/**'
+      - 'hilectroElec/version.json'
+      - 'hilectroElec/**'
+      - '.github/workflows/hilectroElec.yml'
   workflow_dispatch:
     inputs:
       cross_compile:
         description: 'PREFIX'
         required: true
         default: 'arm-linux-gnueabihf'
-      ssh:
-        description: 'SSH connection to Actions'
-        required: false
-        default: 'false'
-
+        
 jobs:
 
   job_env:
@@ -248,13 +244,6 @@ jobs:
 
       - name: Fix version
         run: sudo sed -i "3c export FILE_SYS_VERSION=\"${{needs.job_env.outputs.FILE_SYS_VERSION}}\"" rootfs/etc/init.d/qt.sh
-
-      - name: SSH connection to Actions
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
       - name: Fix
         run: |
