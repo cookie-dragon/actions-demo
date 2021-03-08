@@ -88,7 +88,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{needs.job_env.outputs.S_FILENAME}}
-          path: ./${{needs.job_env.outputs.S_FILENAME}}
+          path: ./${{needs.job_env.outputs.S_FILENAME}}/
 
       - name: Check MD5
         run: |
@@ -107,7 +107,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{needs.job_env.outputs.U_FILENAME}}
-          path: /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
+          path: /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
 
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
