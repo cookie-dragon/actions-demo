@@ -8,27 +8,83 @@ on:
   #     # - 'hilectroElec/**'
   #     - '.github/workflows/hilectroElec.yml'
   workflow_dispatch:
+    inputs:
+      cross_compile:
+        description: 'PREFIX'
+        required: true
+        default: 'arm-linux-gnueabihf'
 
 jobs:
 
   job_toolchain:
     name: Toolchain
     runs-on: ubuntu-18.04
+    outputs:
+      TOOLCHAIN: ${{steps.step_set_toolchain.outputs.TOOLCHAIN}}
+      PREFIX: ${{steps.step_set_prefix_cross_compile.outputs.PREFIX}}
+      CROSS_COMPILE: ${{steps.step_set_prefix_cross_compile.outputs.CROSS_COMPILE}}
     steps:
-
+      
       - name: Wget Toolchain
         run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-      - name: Upload Artifact Toolchain
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      
+      - name: Rename Toolchain
+        run: mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
+        
+      - id: step_set_toolchain
+        name: Set TOOLCHAIN
+        run: |
+          TOOLCHAIN=`pwd`
+          echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
+        working-directory: ./toolchain
+        
+      - id: step_set_prefix_cross_compile
+        name: Set PREFIX and CROSS_COMPILE
+        run: |
+          if [ -z "${{github.event.inputs.cross_compile}}" ]; then
+            PREFIX=arm-linux-gnueabihf
+          else
+            PREFIX=${{github.event.inputs.cross_compile}}
+          fi
+          echo "::set-output name=PREFIX::${PREFIX}"
+          CROSS_COMPILE=${PREFIX}-
+          echo "::set-output name=CROSS_COMPILE::${CROSS_COMPILE}"
+
+      - name: Retar Toolchain
+        run: tar zcf toolchain.tar.gz toolchain
+
+      - name: Upload Artifact toolchain
         uses: actions/upload-artifact@v2
         with:
-          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-          path: ./gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          name: toolchain
+          path: ./toolchain.tar.gz
 
-  job_base_rootfs:
-    name: Base Root File System
+  job_rootfs_forlinx:
+    name: Forlinx Root File System
     runs-on: ubuntu-18.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install APT Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python-setuptools python3-setuptools
+
+      - name: Install PIP Packages
+        run: pip3 install setuptools_rust
+
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
 
       - name: Git Official Root File System
         run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-rootfs.git
@@ -36,29 +92,29 @@ jobs:
       - name: Untar Official Root File System
         run: |
           mkdir -p rootfs
-          tar xf forlinx-335xS-II-rootfs/qt/rootfs.tar.bz2 -C ./rootfs/
+          sudo tar xf forlinx-335xS-II-rootfs/qt/rootfs.tar.bz2 -C ./rootfs/
 
       - name: Fix Root File System
         run: |
-          rm -rf rootfs/forlinx/audio/
-          rm -rf rootfs/forlinx/bin/
-          rm -rf rootfs/forlinx/video/
-          rm -rf rootfs/forlinx/web/
-          rm -rf rootfs/forlinx/qt/bin/*
+          sudo rm -rf rootfs/forlinx/audio/
+          sudo rm -rf rootfs/forlinx/bin/
+          sudo rm -rf rootfs/forlinx/video/
+          sudo rm -rf rootfs/forlinx/web/
+          sudo rm -rf rootfs/forlinx/qt/bin/*
 
       - name: Tar Base Root File System
-        run: tar cf rootfs.tar *
+        run: sudo tar cf rootfs.tar * 
         working-directory: ./rootfs
 
-      - name: Upload Base Root File System
+      - name: Upload Artifact rootfs_forlinx
         uses: actions/upload-artifact@v2
         with:
-          name: rootfs.tar
+          name: rootfs_forlinx
           path: ./rootfs/rootfs.tar
 
   job_kernel:
     name: Kernel
-    needs: [job_toolchain, job_base_rootfs]
+    needs: [job_toolchain, job_rootfs_forlinx]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -69,24 +125,27 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y u-boot-tools
 
-      - name: Download Artifact Toolchain
+      - name: Download Artifact toolchain
         uses: actions/download-artifact@v2
         with:
-          name: gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+          name: toolchain
           path: ./
 
       - name: Untar Toolchain
-        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+        run: tar zxf toolchain.tar.gz
 
-      - name: Git Kernel
+      - name: Get Kernel
         run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
+
+      - name: Add Kernel File
+        run: cp -rf hilectroElec/kernel-add/* kernel/
 
       - name: Config Kernel
         env:
-            TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-            CROSS_COMPILE: arm-linux-gnueabihf-
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: |
-          export PATH=$TOOLCHAIN:$PATH
+          export PATH=${TOOLCHAIN}/bin:$PATH
           make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
           make ok335xs2_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
         working-directory: ./kernel
@@ -97,56 +156,89 @@ jobs:
           patch -p2 < ../hilectroElec/kernel-patch/diff.patch
         working-directory: ./kernel
 
-      - name: Add Kernel File
-        run: cp -rf hilectroElec/kernel-add/* kernel/
-
       - name: Build Kernel
         env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-          CROSS_COMPILE: arm-linux-gnueabihf-
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: |
-          export PATH=$TOOLCHAIN:$PATH
+          export PATH=${TOOLCHAIN}/bin:$PATH
           make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
           make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
           make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules
         working-directory: ./kernel
 
-      - name: Upload Artifact Kernel
+      - name: Upload Artifact uImage
         uses: actions/upload-artifact@v2
         with:
           name: uImage
           path: ./kernel/arch/arm/boot/uImage
 
-      - name: Download Artifact Base Root File System
+      - name: Download Artifact rootfs_forlinx
         uses: actions/download-artifact@v2
         with:
-          name: rootfs.tar
+          name: rootfs_forlinx
           path: ./
 
-      - name: Untar Base Root File System
+      - name: Untar Buildroot Root File System
         run: |
           mkdir -p rootfs
-          tar xf rootfs.tar -C ./rootfs/
+          sudo tar xf rootfs.tar -C ./rootfs/
           
       - name: Kernel Modules Install
         env:
-          TOOLCHAIN: /home/runner/work/actions-demo/actions-demo/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin
-          CROSS_COMPILE: arm-linux-gnueabihf-
-        run: make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
         working-directory: ./kernel
 
-      - name: Tar Root File System
-        run: tar zcf rootfs.tar.gz rootfs/
+      - name: Tar Buildroot Root File System With Modules
+        run: sudo tar zcf rootfs.tar.gz rootfs/
 
-      - name: Upload Root File System
+      - name: Upload Artifact rootfs_forlinx_with_modules
         uses: actions/upload-artifact@v2
         with:
-          name: rootfs.tar.gz
+          name: rootfs_forlinx_with_modules
           path: ./rootfs.tar.gz
+
+  job_rootfs_part_business:
+    name: Job - Rootfs Part - Business
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Make Rootfs Dir
+        run: |
+          sudo mkdir -p rootfs
+          sudo cp -rf hilectroElec/rootfs-add/* rootfs/
+          sudo chown -R root:root rootfs
+
+      - name: Fix version
+        run: echo "Fix version"
+
+      - name: Fix
+        run: |
+          sudo find . -type d | xargs sudo chmod 755
+          sudo find . -type f | xargs sudo chmod 640
+
+          sudo chmod 755 etc/init.d/*
+          sudo chmod 755 etc/rc5.d/*
+          sudo chmod 755 home/haitian/tpboard/tpView
+
+          tree -pug
+        working-directory: ./rootfs
+
+      - name: Tar
+        run: sudo tar zcf rootfs_part_business.tgz rootfs/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_part_business
+          path: ./rootfs_part_business.tgz
 
   job_final_rootfs:
     name: Final Root File System
-    needs: [job_kernel]
+    needs: [job_kernel, job_rootfs_part_business]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -157,42 +249,47 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mtd-utils
 
-      - name: Download Artifact Root File System
+      - name: Download Artifact rootfs_forlinx_with_modules
         uses: actions/download-artifact@v2
         with:
-          name: rootfs.tar.gz
+          name: rootfs_forlinx_with_modules
           path: ./
 
       - name: Untar Root File System
-        run: tar zxf rootfs.tar.gz
+        run: sudo tar zxf rootfs.tar.gz
 
-      - name: Fix Root File System
+# ########## # ########## # ########## # ########## # ########## #
+
+      - name: Fix Root File System (Base)
         run: |
-          rm -rf rootfs/lib/modules/*/source
-          cp -rf hilectroElec/rootfs-add/* rootfs/
-          chmod +x rootfs/etc/init.d/*
-          chmod +x rootfs/usr/local/bin/*
+          sudo rm -rf rootfs/lib/modules/*/build
+          sudo rm -rf rootfs/lib/modules/*/source
 
-      - name: Fix version
-        run: echo "Fix version"
+      - name: Download Artifact rootfs_part_business
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_part_business
+          path: ./
 
-      - name: Tar Final Root File System
-        run: tar zcf rootfs-final.tar.gz rootfs/
+      - name: Untar rootfs_part_business
+        run: sudo tar zxf rootfs_part_business.tgz
 
-      - name: Upload Final Root File System
+      - name: Tar Final Root File System (Business)
+        run: sudo tar zcf rootfs_final_business.tar.gz rootfs/
+
+      - name: Upload Artifact rootfs_final_business (Business)
         uses: actions/upload-artifact@v2
         with:
-          name: rootfs-final.tar.gz
-          path: ./rootfs-final.tar.gz
+          name: rootfs_final_business
+          path: ./rootfs_final_business.tar.gz
 
-      - name: Build UBI File System
+      - name: Build UBI File System (Business)
         run: |
-          mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
-          ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 hilectroElec/rootfs-config/ubinize-256M.cfg
+          sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+          sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 hilectroElec/rootfs-config/ubinize-256M.cfg
 
-      - name: Upload Artifact UBI File System
+      - name: Upload Artifact ubi_business (Business)
         uses: actions/upload-artifact@v2
         with:
-          name: ubi.img
+          name: ubi_business
           path: ./ubi.img
-
