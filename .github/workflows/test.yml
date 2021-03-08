@@ -81,9 +81,6 @@ jobs:
           sudo cp -f output/${{needs.job_env.outputs.S_FILENAME}}/u-boot.img /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
           sudo cp -f output/${{needs.job_env.outputs.S_FILENAME}}/uImage /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
 
-      # - name: Zip S
-      #   run: zip -q -r ${{needs.job_env.outputs.S_FILENAME}}.zip ${{needs.job_env.outputs.S_FILENAME}}
-
       - name: Upload S
         uses: actions/upload-artifact@v2
         with:
@@ -98,10 +95,6 @@ jobs:
           sudo md5sum ${DIR}/uImage >> ${DIR}/uplicence.txt
 
           sudo cat ${DIR}/uplicence.txt
-
-      # - name: Zip U
-      #   run: sudo zip -q -r ${{needs.job_env.outputs.U_FILENAME}}.zip ${{needs.job_env.outputs.K_FILENAME}}
-      #   working-directory: /home/haitian/onekey_update
 
       - name: Upload U
         uses: actions/upload-artifact@v2
