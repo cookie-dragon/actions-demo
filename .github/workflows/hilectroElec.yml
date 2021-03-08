@@ -186,15 +186,8 @@ jobs:
           patch -p2 < ../hilectroElec/kernel-patch/diff.patch
         working-directory: ./kernel
 
-      - name: SSH connection to Actions
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
       - name: Fix version
-        run: echo "Fix version"
+        run: sed -i "2194c ret = sprintf(buffer, \"${{needs.job_env.outputs.KERNEL_VERSION}}\");" kernel/arch/arm/mach-omap2/board-am335xevm-xs2.c
 
       - name: Build Kernel
         env:
@@ -253,15 +246,15 @@ jobs:
           sudo cp -rf hilectroElec/rootfs-add/* rootfs/
           sudo chown -R root:root rootfs
 
+      - name: Fix version
+        run: sed -i "3c export FILE_SYS_VERSION=\"${{needs.job_env.outputs.FILE_SYS_VERSION}}\");" rootfs/etc/init.d/qt.sh
+        
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
         if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
-      - name: Fix version
-        run: echo "Fix version"
 
       - name: Fix
         run: |
