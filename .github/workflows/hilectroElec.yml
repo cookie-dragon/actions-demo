@@ -247,7 +247,7 @@ jobs:
           sudo chown -R root:root rootfs
 
       - name: Fix version
-        run: sudo sed -i "3c export FILE_SYS_VERSION=\"${{needs.job_env.outputs.FILE_SYS_VERSION}}\");" rootfs/etc/init.d/qt.sh
+        run: sudo sed -i "3c export FILE_SYS_VERSION=\"${{needs.job_env.outputs.FILE_SYS_VERSION}}\"" rootfs/etc/init.d/qt.sh
 
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
