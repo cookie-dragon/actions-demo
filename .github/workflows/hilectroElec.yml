@@ -6,7 +6,7 @@ on:
   #     # - 'common/**'
   #     # - 'hilectroElec/version.json'
   #     # - 'hilectroElec/**'
-  #     - '.github/workflows/hilectroElec.yml'
+      - '.github/workflows/hilectroElec.yml'
   workflow_dispatch:
     inputs:
       cross_compile:
@@ -64,18 +64,11 @@ jobs:
 
   job_rootfs_forlinx:
     name: Forlinx Root File System
+    needs: [job_toolchain]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Install APT Packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python-setuptools python3-setuptools
-
-      - name: Install PIP Packages
-        run: pip3 install setuptools_rust
 
       - name: Download Artifact toolchain
         uses: actions/download-artifact@v2
