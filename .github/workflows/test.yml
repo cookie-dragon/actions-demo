@@ -65,21 +65,21 @@ jobs:
 
       - name: Prepare Dir
         run: |
-          mkdir -p ${{needs.job_env.outputs.S_FILENAME}}
+          mkdir -p output/${{needs.job_env.outputs.S_FILENAME}}
           sudo mkdir -p /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
 
       - name: Prepare File
         run: |
           git clone -b 20161008 https://github.com/cookie-dragon/forlinx-335xS-II-uboot.git
 
-          cp forlinx-335xS-II-uboot/256M/MLO ${{needs.job_env.outputs.S_FILENAME}}/
-          cp forlinx-335xS-II-uboot/256M/u-boot.img ${{needs.job_env.outputs.S_FILENAME}}/
-          touch ${{needs.job_env.outputs.S_FILENAME}}/uImage
-          touch ${{needs.job_env.outputs.S_FILENAME}}/ubi.img
+          cp forlinx-335xS-II-uboot/256M/MLO output/${{needs.job_env.outputs.S_FILENAME}}/
+          cp forlinx-335xS-II-uboot/256M/u-boot.img output/${{needs.job_env.outputs.S_FILENAME}}/
+          touch output/${{needs.job_env.outputs.S_FILENAME}}/uImage
+          touch output/${{needs.job_env.outputs.S_FILENAME}}/ubi.img
 
-          sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/MLO /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
-          sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/u-boot.img /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
-          sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/uImage /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
+          sudo cp -f output/${{needs.job_env.outputs.S_FILENAME}}/MLO /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
+          sudo cp -f output/${{needs.job_env.outputs.S_FILENAME}}/u-boot.img /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
+          sudo cp -f output/${{needs.job_env.outputs.S_FILENAME}}/uImage /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
 
       # - name: Zip S
       #   run: zip -q -r ${{needs.job_env.outputs.S_FILENAME}}.zip ${{needs.job_env.outputs.S_FILENAME}}
@@ -88,7 +88,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{needs.job_env.outputs.S_FILENAME}}
-          path: ./${{needs.job_env.outputs.S_FILENAME}}/
+          path: ./output
 
       - name: Check MD5
         run: |
@@ -107,7 +107,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{needs.job_env.outputs.U_FILENAME}}
-          path: /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
+          path: /home/haitian/onekey_update
 
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
