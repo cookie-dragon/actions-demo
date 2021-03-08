@@ -81,9 +81,14 @@ jobs:
           sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/u-boot.img /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
           sudo cp -f ${{needs.job_env.outputs.S_FILENAME}}/uImage /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
 
-      - name: Zip S
-        run: zip -q -r ${{needs.job_env.outputs.S_FILENAME}}.zip ${{needs.job_env.outputs.S_FILENAME}}
+      # - name: Zip S
+      #   run: zip -q -r ${{needs.job_env.outputs.S_FILENAME}}.zip ${{needs.job_env.outputs.S_FILENAME}}
 
+      - name: Upload S
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{needs.job_env.outputs.S_FILENAME}}
+          path: ./${{needs.job_env.outputs.S_FILENAME}}
 
       - name: Check MD5
         run: |
@@ -94,10 +99,15 @@ jobs:
 
           sudo cat ${DIR}/uplicence.txt
 
-      - name: Zip U
-        run: sudo zip -q -r ${{needs.job_env.outputs.U_FILENAME}}.zip ${{needs.job_env.outputs.K_FILENAME}}
-        working-directory: /home/haitian/onekey_update
+      # - name: Zip U
+      #   run: sudo zip -q -r ${{needs.job_env.outputs.U_FILENAME}}.zip ${{needs.job_env.outputs.K_FILENAME}}
+      #   working-directory: /home/haitian/onekey_update
 
+      - name: Upload U
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{needs.job_env.outputs.U_FILENAME}}
+          path: /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}
 
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
