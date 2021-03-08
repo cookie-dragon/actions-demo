@@ -4,7 +4,7 @@ on:
   push:
     paths: 
       # - 'common/**'
-      # - '.github/workflows/test.yml'
+      - '.github/workflows/test.yml'
   workflow_dispatch:
     inputs:
       ssh:
@@ -13,17 +13,25 @@ on:
         default: 'false'
 
 jobs:
-
-  job_toolchain:
-    name: Toolchain
+  job_env:
+    name: ENV
     runs-on: ubuntu-18.04
     outputs:
-      TOOLCHAIN: ${{steps.step_set_toolchain.outputs.TOOLCHAIN}}
-      PREFIX: ${{steps.step_set_prefix_cross_compile.outputs.PREFIX}}
-      CROSS_COMPILE: ${{steps.step_set_prefix_cross_compile.outputs.CROSS_COMPILE}}
+      KERNEL_VERSION: ${{steps.step_set_env.outputs.KERNEL_VERSION}}
+      FILE_SYS_VERSION: ${{steps.step_set_env.outputs.FILE_SYS_VERSION}}
+      DATE_VERSION: ${{steps.step_set_env.outputs.DATE_VERSION}}
+      SCREEN_RESOLUTION: ${{steps.step_set_env.outputs.SCREEN_RESOLUTION}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - id: step_set_env
+        name: Set Env
+        run: |
+          echo "::set-output name=KERNEL_VERSION::20.11.00"
+          echo "::set-output name=FILE_SYS_VERSION::01.01.00"
+          echo "::set-output name=DATE_VERSION::20201111"
+          echo "::set-output name=SCREEN_RESOLUTION::800x480"
 
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
@@ -31,3 +39,20 @@ jobs:
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+  job_test:
+    name: TEST
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Prepare
+        run: |
+          git clone -b 20161008 https://github.com/cookie-dragon/forlinx-335xS-II-uboot.git
+          mkdir -p output
+          cp forlinx-335xS-II-uboot/256M/MLO output/
+          cp forlinx-335xS-II-uboot/256M/u-boot.img output/
+          touch output/uImage
+          touch output/ubi.img
+
+
+
