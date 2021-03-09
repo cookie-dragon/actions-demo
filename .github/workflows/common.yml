@@ -42,17 +42,13 @@ jobs:
 
       - name: Prepare Dir
         run: |
-          mkdir -p upload_artifact
+          mkdir -p download_artifact
 
       - name: Download Artifact
         uses: actions/download-artifact@v2
         with:
           name: publish
-          path: ./upload_artifact/
-
-      - name: Zip
-        run: zip -qr publish.zip publish
-        working-directory: ./upload_artifact
+          path: ./download_artifact/
 
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
@@ -60,3 +56,28 @@ jobs:
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: tmp_tag
+          release_name: Release tmp_tag
+          draft: false
+          prerelease: false
+
+      - name: Zip
+        run: zip -qr publish.zip publish
+        working-directory: ./download_artifact
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./download_artifact/publish.zip
+          asset_name: publish.zip
+          asset_content_type: application/zip
