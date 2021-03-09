@@ -23,16 +23,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: SSH connection to Actions
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      - name: Prepare Dir and File
+        run: |
+          mkdir -p upload_artifact/publish
+          touch upload_artifact/publish/testfile.txt
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: publish
+          path: ./upload_artifact/publish
 
   job_test2:
     name: Job - Test 2
     runs-on: ubuntu-18.04
     steps:
 
-      
+      - name: Prepare Dir
+        run: |
+          mkdir -p upload_artifact
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: publish
+          path: ./upload_artifact/
+
+      - name: Zip
+        run: zip -qr publish.zip publish
+        working-directory: ./upload_artifact
+
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
