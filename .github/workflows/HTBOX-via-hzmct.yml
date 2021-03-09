@@ -1,0 +1,359 @@
+name: HTBOX-via-hzmct CI
+
+on:
+  push:
+    branches:
+      - main
+    paths: 
+      - 'HTBOX-via-hzmct/version.json'
+  workflow_dispatch:
+    inputs:
+      cross_compile:
+        description: 'PREFIX'
+        required: true
+        default: 'arm-linux-gnueabihf'
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+        
+jobs:
+
+  job_env:
+    name: ENV
+    runs-on: ubuntu-18.04
+    outputs:
+      KERNEL_VERSION: ${{steps.step_set_version.outputs.KERNEL_VERSION}}
+      KERNEL_SUBVERSION: ${{steps.step_set_version.outputs.KERNEL_SUBVERSION}}
+      FILE_SYS_VERSION: ${{steps.step_set_version.outputs.FILE_SYS_VERSION}}
+      DATE_VERSION: ${{steps.step_set_version.outputs.DATE_VERSION}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - id: step_set_version
+        name: Set Version
+        run: |
+          KERNEL_VERSION=`cat HTBOX-via-hzmct/version.json | jq -r '.kernel_version'`
+          KERNEL_SUBVERSION=`cat HTBOX-via-hzmct/version.json | jq -r '.kernel_subversion'`
+          FILE_SYS_VERSION=`cat HTBOX-via-hzmct/version.json | jq -r '.file_sys_version'`
+          DATE_VERSION=`cat HTBOX-via-hzmct/version.json | jq -r '.date_version'`
+          
+          echo ${KERNEL_VERSION} ${KERNEL_SUBVERSION} ${FILE_SYS_VERSION} ${DATE_VERSION}
+
+          echo "::set-output name=KERNEL_VERSION::${KERNEL_VERSION}"
+          echo "::set-output name=KERNEL_SUBVERSION::${KERNEL_SUBVERSION}"
+          echo "::set-output name=FILE_SYS_VERSION::${FILE_SYS_VERSION}"
+          echo "::set-output name=DATE_VERSION::${DATE_VERSION}"
+
+  job_toolchain:
+    name: Toolchain
+    runs-on: ubuntu-18.04
+    outputs:
+      TOOLCHAIN: ${{steps.step_set_toolchain.outputs.TOOLCHAIN}}
+      PREFIX: ${{steps.step_set_prefix_cross_compile.outputs.PREFIX}}
+      CROSS_COMPILE: ${{steps.step_set_prefix_cross_compile.outputs.CROSS_COMPILE}}
+    steps:
+      
+      - name: Wget Toolchain
+        run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      - name: Untar Toolchain
+        run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      
+      - name: Rename Toolchain
+        run: mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
+        
+      - id: step_set_toolchain
+        name: Set TOOLCHAIN
+        run: |
+          TOOLCHAIN=`pwd`
+          echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
+        working-directory: ./toolchain
+        
+      - id: step_set_prefix_cross_compile
+        name: Set PREFIX and CROSS_COMPILE
+        run: |
+          if [ -z "${{github.event.inputs.cross_compile}}" ]; then
+            PREFIX=arm-linux-gnueabihf
+          else
+            PREFIX=${{github.event.inputs.cross_compile}}
+          fi
+          echo "::set-output name=PREFIX::${PREFIX}"
+          CROSS_COMPILE=${PREFIX}-
+          echo "::set-output name=CROSS_COMPILE::${CROSS_COMPILE}"
+
+      - name: Retar Toolchain
+        run: tar zcf toolchain.tar.gz toolchain
+
+      - name: Upload Artifact toolchain
+        uses: actions/upload-artifact@v2
+        with:
+          name: toolchain
+          path: ./toolchain.tar.gz
+
+  job_rootfs_hzmct:
+    name: Hzmct Root File System
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Git Official Root File System
+        run: git clone -b 201710 https://github.com/cookie-dragon/hzmct-IOT-BOX-V6-rootfs.git
+
+      - name: Untar Official Root File System
+        run: |
+          sudo tar zxf hzmct-IOT-BOX-V6-rootfs/IOT-BOX-V6-rootfs.tar.gz
+
+      - name: Tar Base Root File System
+        run: sudo tar cf rootfs.tar * 
+        working-directory: ./rootfs/rootfs
+
+      - name: Upload Artifact rootfs_hzmct
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_hzmct
+          path: ./rootfs/rootfs/rootfs.tar
+
+  job_uboot:
+    name: Uboot
+    needs: [job_toolchain]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
+
+      - name: Get Uboot
+        run: git clone -b 20171011 https://github.com/cookie-dragon/hzmct-IOT-BOX-V6-uboot.git uboot
+
+      - name: Build Uboot
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=${TOOLCHAIN}/bin:$PATH
+          make distclean CROSS_COMPILE=$CROSS_COMPILE
+          make -j$(nproc) O=am335 CROSS_COMPILE=$CROSS_COMPILE am335x_evm
+        working-directory: ./uboot
+
+      - name: Upload Artifact MLO_u-boot
+        uses: actions/upload-artifact@v2
+        with:
+          name: MLO_u-boot
+          path: |
+            ./uboot/am335/MLO
+            ./uboot/am335/u-boot.img
+
+  job_kernel:
+    name: Kernel
+    needs: [job_toolchain, job_rootfs_hzmct]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install APT Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y u-boot-tools
+
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
+
+      - name: Get Kernel
+        run: git clone -b 20171101 https://github.com/cookie-dragon/hzmct-IOT-BOX-V6-kernel.git kernel
+
+      - name: Add Kernel File
+        run: cp -rf HTBOX-via-hzmct/kernel-add/* kernel/
+
+      - name: Config Kernel
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=${TOOLCHAIN}/bin:$PATH
+          touch .scmversion
+          make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+          make am335x_hzmct_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+        working-directory: ./kernel
+
+      - name: Patch Kernel
+        run : |
+          patch -p1 < ../common/kernel-patch/timeconst.pl.x64.patch
+        working-directory: ./kernel
+
+      - name: Build Kernel
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=${TOOLCHAIN}/bin:$PATH
+          make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+          make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
+          make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules
+        working-directory: ./kernel
+
+      - name: Upload Artifact uImage
+        uses: actions/upload-artifact@v2
+        with:
+          name: uImage
+          path: ./kernel/arch/arm/boot/uImage
+
+      - name: Download Artifact rootfs_hzmct
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_hzmct
+          path: ./
+
+      - name: Untar Buildroot Root File System
+        run: |
+          mkdir -p rootfs
+          sudo tar xf rootfs.tar -C ./rootfs/
+          
+      - name: Kernel Modules Install
+        env:
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
+        working-directory: ./kernel
+
+      - name: Tar Buildroot Root File System With Modules
+        run: sudo tar zcf rootfs.tar.gz rootfs/
+
+      - name: Upload Artifact rootfs_hzmct_with_modules
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_hzmct_with_modules
+          path: ./rootfs.tar.gz
+
+  job_final_rootfs:
+    name: Final Root File System
+    needs: [job_kernel]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install APT Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mtd-utils
+
+      - name: Download Artifact rootfs_hzmct_with_modules
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_hzmct_with_modules
+          path: ./
+
+      - name: Untar Root File System
+        run: sudo tar zxf rootfs.tar.gz
+
+      # ########## # ########## # ########## # ########## # ########## #
+
+      - name: Fix Root File System (Base)
+        run: |
+          sudo rm -rf rootfs/lib/modules/*/build
+          sudo rm -rf rootfs/lib/modules/*/source
+
+      - name: Tar Final Root File System (Business)
+        run: sudo tar zcf rootfs_final_business.tar.gz rootfs/
+
+      - name: Upload Artifact rootfs_final_business (Business)
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_final_business
+          path: ./rootfs_final_business.tar.gz
+
+      - name: Build UBI File System (Business)
+        run: |
+          sudo mkfs.ubifs -F -q -r rootfs -m 2048 -e 126976 -c 2047 -o ubifs.img
+          sudo ubinize -o ubi.img -m 2048 -p 128KiB HTBOX-via-hzmct/rootfs-config/ubinize.cfg
+
+      - name: Upload Artifact ubi_business (Business)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ubi_business
+          path: ./ubi.img
+
+  job_final_package:
+    name: Final Package
+    needs: [job_env, job_uboot, job_kernel, job_final_rootfs]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Download Artifact MLO_u-boot
+        uses: actions/download-artifact@v2
+        with:
+          name: MLO_u-boot
+          path: ./
+
+      - name: Download Artifact uImage
+        uses: actions/download-artifact@v2
+        with:
+          name: uImage
+          path: ./
+
+      - name: Download Artifact ubi_business (Business)
+        uses: actions/download-artifact@v2
+        with:
+          name: ubi_business
+          path: ./
+
+      - name: Prepare Dir
+        run: |
+          mkdir -p output/SD_Flash
+
+      - name: Prepare File
+        run: |
+          cp MLO output/SD_Flash/
+          cp u-boot.img output/SD_Flash/
+          cp uImage output/SD_Flash/
+          cp ubi.img output/SD_Flash/
+
+      - name: Upload Artifact
+        if: ${{ github.ref != 'refs/heads/main'}}
+        uses: actions/upload-artifact@v2
+        with:
+          name: SD_Flash
+          path: ./output
+
+      - name: Zip
+        if: ${{ github.ref == 'refs/heads/main'}}
+        run: zip -qr SD_Flash.zip SD_Flash
+        working-directory: ./output
+
+      - name: Create Release
+        id: create_release
+        if: ${{ github.ref == 'refs/heads/main'}}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{needs.job_env.outputs.DATE_VERSION}}
+          release_name: Release ${{needs.job_env.outputs.DATE_VERSION}}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        if: ${{ github.ref == 'refs/heads/main'}}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./output/SD_Flash.zip
+          asset_name: SD_Flash.zip
+          asset_content_type: application/zip
