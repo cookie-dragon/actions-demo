@@ -36,6 +36,7 @@ jobs:
 
   job_test2:
     name: Job - Test 2
+    needs: [job_test1]
     runs-on: ubuntu-18.04
     steps:
 
