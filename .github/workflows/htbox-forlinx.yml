@@ -1,12 +1,6 @@
 name: htbox-forlinx CI
 
 on:
-  push:
-    paths: 
-      - 'common/**'
-      - 'htbox-forlinx/version.json'
-      - 'htbox-forlinx/**'
-      - '.github/workflows/htbox-forlinx.yml'
   workflow_dispatch:
     inputs:
       cross_compile:

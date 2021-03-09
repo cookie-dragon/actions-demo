@@ -1,32 +1,38 @@
 name: common CI
 
 on:
-  # push:
-  #   paths: 
-  #     - 'common/**'
-  #     - '.github/workflows/common.yml'
+  push:
+    branches:
+      - main
   workflow_dispatch:
+    inputs:
+      cross_compile:
+        description: 'PREFIX'
+        required: true
+        default: 'arm-linux-gnueabihf'
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
 
 jobs:
-  job_test:
-    name: Job - Test
+  job_test1:
+    name: Job - Test 1
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Step - Test
-        run: |
-          mkdir -p rootfs
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-          sudo chown -R root:root htbox-forlinx/rootfs-add/*
-          sudo find ./htbox-forlinx/rootfs-add -type d | xargs sudo chmod 777
-          sudo find ./htbox-forlinx/rootfs-add -type f | xargs sudo chmod 640
-          
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/init.d/*
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/etc/mdev/*
-          sudo chmod -R 440 htbox-forlinx/rootfs-add/etc/sudoers.d/*
-          sudo chmod -R 750 htbox-forlinx/rootfs-add/opt/sbin/*
-          sudo chmod -R 755 htbox-forlinx/rootfs-add/usr/local/bin/*
+  job_test2:
+    name: Job - Test 2
+    runs-on: ubuntu-18.04
+    steps:
 
-          sudo cp -rf htbox-forlinx/rootfs-add/* rootfs/
+      

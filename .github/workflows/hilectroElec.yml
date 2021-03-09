@@ -1,12 +1,6 @@
 name: hilectroElec CI
 
 on:
-  push:
-    paths: 
-      - 'common/**'
-      - 'hilectroElec/version.json'
-      - 'hilectroElec/**'
-      - '.github/workflows/hilectroElec.yml'
   workflow_dispatch:
     inputs:
       cross_compile:
@@ -353,8 +347,8 @@ jobs:
 
           cp forlinx-335xS-II-uboot/256M/MLO output/${{needs.job_env.outputs.S_FILENAME}}/
           cp forlinx-335xS-II-uboot/256M/u-boot.img output/${{needs.job_env.outputs.S_FILENAME}}/
-          cp uImage output/${{needs.job_env.outputs.S_FILENAME}}
-          cp ubi.img output/${{needs.job_env.outputs.S_FILENAME}}
+          cp uImage output/${{needs.job_env.outputs.S_FILENAME}}/
+          cp ubi.img output/${{needs.job_env.outputs.S_FILENAME}}/
 
           sudo cp -f output/${{needs.job_env.outputs.S_FILENAME}}/MLO /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
           sudo cp -f output/${{needs.job_env.outputs.S_FILENAME}}/u-boot.img /home/haitian/onekey_update/${{needs.job_env.outputs.K_FILENAME}}/
