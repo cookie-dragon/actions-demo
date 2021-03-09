@@ -1,6 +1,0 @@
-config BR2_PACKAGE_PYTHON_PYOTP
-	bool "python-pyotp"
-	help
-	  Python One Time Password Library.
-
-	  https://github.com/pyotp/pyotp
