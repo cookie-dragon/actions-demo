@@ -432,6 +432,13 @@ jobs:
           name: rootfs_final_business
           path: ./rootfs_final_business.tar.gz
 
+      - name: Upload to CowTransfer rootfs_final_business (Business)
+        run: |
+          PWD=`pwd`
+          FIRMWARE=${PWD}/rootfs_final_business.tar.gz
+          curl -fsSL git.io/file-transfer | sh
+          ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
+
       - name: Build UBI File System (Business)
         run: |
           sudo mkfs.ubifs -F -q -r rootfs -m 2048 -e 126976 -c 2047 -o ubifs.img
@@ -486,9 +493,15 @@ jobs:
           path: ./output
 
       - name: Zip
-        if: ${{ github.ref == 'refs/heads/main'}}
         run: zip -qr SD_Flash.zip SD_Flash
         working-directory: ./output
+
+      - name: Upload to CowTransfer
+        run: |
+          PWD=`pwd`
+          FIRMWARE=${PWD}/output/SD_Flash.zip
+          curl -fsSL git.io/file-transfer | sh
+          ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
 
       - name: Create Release
         id: create_release
