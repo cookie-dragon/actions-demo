@@ -282,6 +282,8 @@ jobs:
 
       - name: Fix
         run: |
+          sudo mkdir etc/rc5.d
+
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 640
 
