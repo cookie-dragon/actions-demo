@@ -137,13 +137,25 @@ jobs:
           sudo rm -rf rootfs/rootfs/usr/lib/libcurl*
           sudo rm -rf rootfs/rootfs/usr/lib/libz*
 
+          sudo chmod 666 rootfs/rootfs/etc/group
+          sudo echo "sshd:*:74:" >> rootfs/rootfs/etc/group
+          sudo echo "htuser:x:1000:" >> rootfs/etc/group
+          sudo chmod 644 rootfs/rootfs/etc/group
+
+          sudo chmod 666 rootfs/etc/gshadow
+          sudo echo "htuser:!::" >> rootfs/etc/gshadow
+          sudo chmod 644 rootfs/etc/gshadow
+
           sudo chmod 666 rootfs/rootfs/etc/passwd
+          sudo sed -i "1c root:5vQYoRI7nPbz2:0:0:root:/home/root:/bin/sh" rootfs/rootfs/etc/passwd
           sudo echo "sshd:*:74:74:Privilege-separated SSH:/var/empty/sshd:/sbin/nologin" >> rootfs/rootfs/etc/passwd
           sudo chmod 644 rootfs/rootfs/etc/passwd
 
-          sudo chmod 666 rootfs/rootfs/etc/group
-          sudo echo "sshd:*:74:" >> rootfs/rootfs/etc/group
-          sudo chmod 644 rootfs/rootfs/etc/group
+          sudo chmod 666 rootfs/etc/shadow
+          echo "htuser:jW.GgY9ZZlPaA:18696:0:99999:7:::" >> rootfs/etc/shadow
+          sudo chmod 644 rootfs/etc/shadow
+
+          sudo chmod u+s rootfs/rootfs/usr/bin/su
 
       - name: Tar Base Root File System
         run: sudo tar cf rootfs.tar * 
