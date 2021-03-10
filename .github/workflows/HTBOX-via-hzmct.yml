@@ -314,7 +314,7 @@ jobs:
           sudo mkdir -p media/card
 
           sudo find . -type d | xargs sudo chmod 755
-          sudo find . -type f | xargs sudo chmod 644
+          sudo find . \( -path ./usr/lib/python3.6 -o -path ./usr/lib/python2.7 \) -prune -o -type f | xargs sudo chmod 644
 
           sudo chmod 755 etc/init.d/*
           sudo chmod 755 etc/quectel-CM
