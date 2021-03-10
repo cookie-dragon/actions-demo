@@ -106,13 +106,6 @@ jobs:
         run: |
           sudo tar zxf hzmct-IOT-BOX-V6-rootfs/IOT-BOX-V6-rootfs.tar.gz
 
-      - name: SSH connection to Actions
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
       - name: Fix Root File System
         run: |
           sudo rm -rf rootfs/rootfs/etc/rc5.d/S20boa
@@ -149,11 +142,14 @@ jobs:
           sudo chmod 666 rootfs/rootfs/etc/passwd
           sudo sed -i "1c root:5vQYoRI7nPbz2:0:0:root:/home/root:/bin/sh" rootfs/rootfs/etc/passwd
           sudo echo "sshd:*:74:74:Privilege-separated SSH:/var/empty/sshd:/sbin/nologin" >> rootfs/rootfs/etc/passwd
+          sudo echo "htuser:x:1000:1000::/home/htuser:/bin/sh" >> rootfs/rootfs/etc/passwd
           sudo chmod 644 rootfs/rootfs/etc/passwd
 
           sudo chmod 666 rootfs/rootfs/etc/shadow
           echo "htuser:jW.GgY9ZZlPaA:18696:0:99999:7:::" >> rootfs/rootfs/etc/shadow
           sudo chmod 400 rootfs/rootfs/etc/shadow
+
+          sudo sed -i "32c usr:2345:respawn:/bin/login -f root" rootfs/rootfs/etc/inittab
 
           sudo chmod u+s rootfs/rootfs/usr/bin/su
           sudo mkdir -p rootfs/rootfs/home/htuser
