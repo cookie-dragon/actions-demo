@@ -106,6 +106,33 @@ jobs:
         run: |
           sudo tar zxf hzmct-IOT-BOX-V6-rootfs/IOT-BOX-V6-rootfs.tar.gz
 
+      - name: Fix Root File System
+        run: |
+          sudo rm -rf rootfs/rootfs/etc/rc5.d/S20boa
+          sudo rm -rf rootfs/rootfs/etc/init.d/boa
+          sudo rm -rf rootfs/rootfs/etc/boa
+          sudo rm -rf rootfs/rootfs/etc/mime.types
+          sudo rm -rf rootfs/rootfs/usr/sbin/boa
+          sudo rm -rf rootfs/rootfs/usr/sbin/boa_indexer
+          sudo rm -rf rootfs/rootfs/usr/httproot
+          sudo rm -rf rootfs/rootfs/var/boa
+
+          sudo rm -rf rootfs/rootfs/etc/rc5.d/S99sztenv
+          sudo rm -rf rootfs/rootfs/etc/init.d/sztenv
+          sudo rm -rf rootfs/rootfs/etc/quectel-CM
+          sudo rm -rf rootfs/rootfs/etc/yiyuan_4g
+
+          sudo rm -rf rootfs/rootfs/usr/sbin/sqlite3
+          sudo rm -rf rootfs/rootfs/lib/libsqlite3*
+          sudo rm -rf rootfs/rootfs/lib/libcrypto*
+          sudo rm -rf rootfs/rootfs/usr/lib/libssl*
+          sudo rm -rf rootfs/rootfs/usr/bin/curl
+          sudo rm -rf rootfs/rootfs/usr/lib/libcurl*
+          sudo rm -rf rootfs/rootfs/usr/lib/libz*
+
+          sudo echo "sshd:*:74:74:Privilege-separated SSH:/var/empty/sshd:/sbin/nologin" >> rootfs/rootfs/etc/passwd
+          sudo echo "sshd:*:74:" >> rootfs/rootfs/etc/group
+
       - name: Tar Base Root File System
         run: sudo tar cf rootfs.tar * 
         working-directory: ./rootfs/rootfs
@@ -194,6 +221,7 @@ jobs:
       - name: Patch Kernel
         run : |
           patch -p1 < ../common/kernel-patch/timeconst.pl.x64.patch
+          patch -p1 < ../HTBOX-via-hzmct/kernel-patch/diff.patch
         working-directory: ./kernel
 
       - name: Build Kernel
@@ -239,9 +267,110 @@ jobs:
           name: rootfs_hzmct_with_modules
           path: ./rootfs.tar.gz
 
+  job_rootfs_part_business:
+    name: Job - Rootfs Part - Business
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Make Rootfs Dir
+        run: |
+          sudo mkdir -p rootfs
+          sudo cp -rf HTBOX-via-hzmct/rootfs-add/* rootfs/
+          sudo chown -R root:root rootfs
+
+      - name: Fix
+        run: |
+          sudo find . -type d | xargs sudo chmod 755
+          sudo find . -type f | xargs sudo chmod 640
+
+          sudo chmod 755 etc/init.d/*
+          sudo chmod 755 etc/quectel-CM
+          sudo chmod 755 usr/bin/*
+
+          tree -pug
+        working-directory: ./rootfs
+
+      - name: Untar Package
+        run: |
+          mkdir -p rootfs/usr
+
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openssl-1.0.2s.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/zlib-1.2.11.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/curl-7.65.1.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/sqlite-3.28.tar.gz -C rootfs/usr/
+
+          mkdir -p rootfs/usr/local
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openssh-8.0p1.tar.gz -C rootfs/usr/local/
+          mkdir -p rootfs/var/run
+          mkdir -p rootfs/var/empty
+
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openvpn-2.3.18.tar.gz -C rootfs/usr/
+
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/jq-1.5.tar.gz -C /usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/bridge-utils-1.5.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/ntp-4.2.8p13.tar.gz -C rootfs/usr/
+
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/bzip2-1.0.6.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/gdbm-1.18.1.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/readline-8.0.tar.gz -C rootfs/usr/
+
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/python-2.7.16.tar.gz -C rootfs/usr/
+          sudo rm -rf rootfs/usr/lib/python2.7/test
+          sudo find rootfs/usr/lib/python2.7 -name '__pycache__' -type d -exec sudo rm -rf {} \;
+
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/python-3.6.9.tar.gz -C rootfs/usr/
+          sudo rm -rf rootfs/usr/lib/python3.6/test
+          sudo find rootfs/usr/lib/python3.6 -name '__pycache__' -type d -exec sudo rm -rf {} \;
+
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/paho.mqtt.c-1.3.1.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-client.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-lib.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-src.tar.gz -C rootfs/usr/
+
+      - name: Link Init
+        run: |
+          sudo ln -s ../init.d/sshd.sh S99sshd.sh
+          sudo ln -s ../init.d/mosquitto.sh S99mosquitto.sh
+        working-directory: ./rootfs/etc/rc5.d
+
+      - name: Link user lib
+        run: |
+          sudo ln -s libcjson.so.1.7.12 libcjson.so.1
+          sudo ln -s libcjson.so.1 libcjson.so
+          sudo ln -s libcjson_utils.so.1.7.12 libcjson_utils.so.1
+          sudo ln -s libcjson_utils.so.1 libcjson_utils.so
+          sudo ln -s libmodbus.so.5.1.0 libmodbus.so.5
+          sudo ln -s libmodbus.so.5 libmodbus.so
+          sudo ln -s libstdc++.so.6.0.17 libstdc++.so.6
+        working-directory: ./rootfs/usr/lib/
+
+      - name: Link lib
+        run: |
+          sudo ln -s libcrypto.so.1.0.0 libcrypto.so
+        working-directory: ./rootfs/lib/
+
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      - name: Tar
+        run: sudo tar zcf rootfs_part_business.tgz rootfs/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_part_business
+          path: ./rootfs_part_business.tgz
+
+
   job_final_rootfs:
     name: Final Root File System
-    needs: [job_kernel]
+    needs: [job_kernel, job_rootfs_part_business]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -267,6 +396,15 @@ jobs:
         run: |
           sudo rm -rf rootfs/lib/modules/*/build
           sudo rm -rf rootfs/lib/modules/*/source
+
+      - name: Download Artifact rootfs_part_business
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_part_business
+          path: ./
+
+      - name: Untar rootfs_part_business
+        run: sudo tar zxf rootfs_part_business.tgz
 
       - name: Tar Final Root File System (Business)
         run: sudo tar zcf rootfs_final_business.tar.gz rootfs/
