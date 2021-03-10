@@ -313,7 +313,19 @@ jobs:
           sudo chmod 755 etc/quectel-CM
           sudo chmod 755 usr/bin/*
 
-          tree -pug
+          sudo chmod 750 ./home/WebOnBoard
+          sudo find ./home/WebOnBoard -type d | xargs sudo chmod 750
+          sudo find ./home/WebOnBoard -type f | xargs sudo chmod 640
+          sudo chmod 750 ./home/WebOnBoard/auto_start.sh
+          sudo chmod 750 ./home/WebOnBoard/autorun.sh
+          sudo chmod 750 ./home/WebOnBoard/HtBoxMain
+          sudo chmod 750 ./home/WebOnBoard/main_opc.py
+          sudo chmod 750 ./home/WebOnBoard/openvpn.sh
+          sudo chmod 750 ./home/WebOnBoard/setup.sh
+          sudo chmod 750 ./home/WebOnBoard/static_config2.py
+          sudo chmod 750 ./home/WebOnBoard/static_monitor.py
+          sudo chmod 750 ./home/WebOnBoard/static_start2.py
+
         working-directory: ./rootfs
 
       - name: Untar Package
@@ -357,6 +369,7 @@ jobs:
         run: |
           sudo ln -s ../init.d/sshd.sh S99sshd.sh
           sudo ln -s ../init.d/mosquitto.sh S99mosquitto.sh
+          sudo ln -s ../init.d/sztenv S99sztenv
         working-directory: ./rootfs/etc/rc5.d
 
       - name: Link user lib
