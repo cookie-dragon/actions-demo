@@ -149,7 +149,7 @@ jobs:
           echo "htuser:jW.GgY9ZZlPaA:18696:0:99999:7:::" >> rootfs/rootfs/etc/shadow
           sudo chmod 400 rootfs/rootfs/etc/shadow
 
-          sudo sed -i "32c usr:2345:respawn:/bin/login -f root" rootfs/rootfs/etc/inittab
+          sudo sed -i "32c usr:2345:respawn:/bin/login -f htuser" rootfs/rootfs/etc/inittab
 
           sudo chmod u+s rootfs/rootfs/usr/bin/su
           sudo mkdir -p rootfs/rootfs/home/htuser
@@ -307,7 +307,7 @@ jobs:
           sudo mkdir -p media/card
 
           sudo find . -type d | xargs sudo chmod 755
-          sudo find . -type f | xargs sudo chmod 640
+          sudo find . -type f | xargs sudo chmod 644
 
           sudo chmod 755 etc/init.d/*
           sudo chmod 755 etc/quectel-CM
