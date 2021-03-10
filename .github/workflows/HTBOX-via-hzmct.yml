@@ -137,13 +137,13 @@ jobs:
           sudo rm -rf rootfs/rootfs/usr/lib/libcurl*
           sudo rm -rf rootfs/rootfs/usr/lib/libz*
 
-          sudo chmod +w rootfs/rootfs/etc/passwd
+          sudo chmod 666 rootfs/rootfs/etc/passwd
           sudo echo "sshd:*:74:74:Privilege-separated SSH:/var/empty/sshd:/sbin/nologin" >> rootfs/rootfs/etc/passwd
-          sudo chmod -w rootfs/rootfs/etc/passwd
+          sudo chmod 644 rootfs/rootfs/etc/passwd
 
-          sudo chmod +w rrootfs/rootfs/etc/group
+          sudo chmod 666 rootfs/rootfs/etc/group
           sudo echo "sshd:*:74:" >> rootfs/rootfs/etc/group
-          sudo chmod -w rrootfs/rootfs/etc/group
+          sudo chmod 644 rootfs/rootfs/etc/group
 
       - name: Tar Base Root File System
         run: sudo tar cf rootfs.tar * 
@@ -294,8 +294,8 @@ jobs:
 
       - name: Fix
         run: |
-          sudo mkdir etc/rc5.d
-          sudo mkdir media/card
+          sudo mkdir -p etc/rc5.d
+          sudo mkdir -p media/card
 
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 640
