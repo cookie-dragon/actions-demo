@@ -294,17 +294,17 @@ jobs:
 
       - name: Untar Package
         run: |
-          mkdir -p rootfs/usr
+          sudo mkdir -p rootfs/usr
 
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openssl-1.0.2s.tar.gz -C rootfs/usr/
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/zlib-1.2.11.tar.gz -C rootfs/usr/
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/curl-7.65.1.tar.gz -C rootfs/usr/
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/sqlite-3.28.tar.gz -C rootfs/usr/
 
-          mkdir -p rootfs/usr/local
+          sudo mkdir -p rootfs/usr/local
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openssh-8.0p1.tar.gz -C rootfs/usr/local/
-          mkdir -p rootfs/var/run
-          mkdir -p rootfs/var/empty
+          sudo mkdir -p rootfs/var/run
+          sudo mkdir -p rootfs/var/empty
 
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openvpn-2.3.18.tar.gz -C rootfs/usr/
 
