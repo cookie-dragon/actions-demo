@@ -14,8 +14,12 @@ jobs:
     steps:
 
       - name: Action Test
+        id: action_test
         uses: cookie-dragon/action-pushmsg-wechatwork@dev
         with:
           corpid: ${{ secrets.WECHATWORK_CORPID }}
           corpsecret: ${{ secrets.WECHATWORK_APP_CORPSECRET }}
           agentid: ${{ secrets.WECHATWORK_APP_AGENTID }}
+
+      - name: ECHO
+        run: echo ${{ steps.action_test.outputs.RTN_message_send }}
