@@ -1,0 +1,21 @@
+name: action test CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  
+  job_test1:
+  	name: Job - Test 1
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Action Test
+        uses: cookie-dragon/action-pushmsg-wechatwork@dev
+        with:
+          corpid: ${{ secrets.WECHATWORK_CORPID }}
+          corpsecret: ${{ secrets.WECHATWORK_APP_CORPSECRET }}
+          agentid: ${{ secrets.WECHATWORK_APP_AGENTID }}
