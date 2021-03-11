@@ -125,7 +125,7 @@ jobs:
 
       - name: Create Release
         id: create_release
-        if: (steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()) || ${{ github.ref == 'refs/heads/main'}}
+        if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -136,7 +136,7 @@ jobs:
           prerelease: false
 
       - name: Upload Release Asset
-        if: (steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()) || ${{ github.ref == 'refs/heads/main'}}
+        if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
