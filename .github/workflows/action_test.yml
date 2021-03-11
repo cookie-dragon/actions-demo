@@ -13,17 +13,6 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
 
-      # - name: Action Test
-      #   id: action_test
-      #   uses: cookie-dragon/action-pushmsg-wechatwork@dev
-      #   with:
-      #     corpid: ${{ secrets.WECHATWORK_CORPID }}
-      #     corpsecret: ${{ secrets.WECHATWORK_APP_CORPSECRET }}
-      #     agentid: ${{ secrets.WECHATWORK_APP_AGENTID }}
-
-      # - name: ECHO
-      #   run: echo ${{ steps.action_test.outputs.RTN_message_send }}
-
       - name: Prepare Files
         run: |
           mkdir -p download_artifact/publish
@@ -48,3 +37,18 @@ jobs:
           echo ${{ steps.upload.outputs.cow_DownloadLink }}
           echo ${{ steps.upload.outputs.cow_DownloadCode }}
           echo ${{ steps.upload.outputs.wet_DownloadLink }}
+
+      - name: Push Message
+        id: push_msg
+        uses: cookie-dragon/action-pushmsg-wechatwork@dev
+        with:
+          corpid: ${{ secrets.WECHATWORK_CORPID }}
+          corpsecret: ${{ secrets.WECHATWORK_APP_CORPSECRET }}
+          agentid: ${{ secrets.WECHATWORK_APP_AGENTID }}
+          msgtype: "textcard"
+          textcard_title: "Github Action 生成固件"
+          textcard_description: "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>"
+          textcard_url: "'"${{ steps.upload.outputs.wet_DownloadLink }}"'"
+
+      - name: ECHO Push Message
+        run: echo ${{ steps.push_msg.outputs.RTN_message_send }}
