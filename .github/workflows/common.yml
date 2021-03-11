@@ -54,13 +54,6 @@ jobs:
         run: zip -qr publish.zip publish
         working-directory: ./download_artifact
 
-      - name: SSH connection to Actions
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
       - name: Upload to CowTransfer
         run: |
           PWD=`pwd`
@@ -72,6 +65,13 @@ jobs:
           DownloadLink=${L2#*: }
           DownloadCode=${L3#*: }
           echo ${DownloadLink} ${DownloadCode}
+
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
       - name: Notification to WechatWork
         run: |
@@ -87,6 +87,7 @@ jobs:
                  "content" : "你的快递已到，请携带工卡前往邮件中心领取。\n出发前可查看<a href=\"http://work.weixin.qq.com\">邮件中心视频实况</a>，聪明避开排队。"
              }
           }'
+
       - name: Delete workflow runs
         uses: GitRML/delete-workflow-runs@main
         with:
