@@ -40,7 +40,7 @@ jobs:
         id: upload
         uses: cookie-dragon/action-upload-transfer@dev
         with:
-          backends: cow|wet
+          backends: 'cow|wet'
           your_file: ${{ steps.organize.outputs.UPLOAD_FILE }}
 
       - name: ECHO Upload
