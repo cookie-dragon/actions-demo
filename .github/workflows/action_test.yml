@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
 
-      # - name: Prepare Files
-      #   run: |
-      #     mkdir -p download_artifact/publish
-      #     touch download_artifact/publish/testfile.txt
+      - name: Prepare Files
+        run: |
+          mkdir -p download_artifact/publish
+          touch download_artifact/publish/testfile.txt
 
       - name: Organize File
         id: organize
