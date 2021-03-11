@@ -13,27 +13,27 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
 
-      # - name: Prepare Files
-      #   run: |
-      #     mkdir -p download_artifact/publish
-      #     touch download_artifact/publish/testfile.txt
+      - name: Prepare Files
+        run: |
+          mkdir -p download_artifact/publish
+          touch download_artifact/publish/testfile.txt
 
-      # - name: Organize File
-      #   id: organize
-      #   run: |
-      #     zip -qr publish.zip publish
-      #     echo "::set-output name=UPLOAD_FILE::${PWD}/publish.zip"
+      - name: Organize File
+        id: organize
+        run: |
+          zip -qr publish.zip publish
+          echo "::set-output name=UPLOAD_FILE::${PWD}/publish.zip"
 
-      #     NOW_DATE=$(date "+%Y年%m月%d日 %H:%M:%S")
-      #     echo "::set-output name=NOW_DATE::${NOW_DATE}"
-      #   working-directory: ./download_artifact
+          NOW_DATE=$(date "+%Y年%m月%d日 %H:%M:%S")
+          echo "::set-output name=NOW_DATE::${NOW_DATE}"
+        working-directory: ./download_artifact
 
-      # - name: Upload
-      #   id: upload
-      #   uses: cookie-dragon/action-upload-transfer@dev
-      #   with:
-      #     backends: "cow,wet"
-      #     your_file: ${{ steps.organize.outputs.UPLOAD_FILE }}
+      - name: Upload
+        id: upload
+        uses: cookie-dragon/action-upload-transfer@dev
+        with:
+          backends: "cow,wet"
+          your_file: ${{ steps.organize.outputs.UPLOAD_FILE }}
 
       - name: Upload File
         id: nowdate
@@ -44,21 +44,21 @@ jobs:
       - name: ECHO Upload
         run: |
           echo ${{ steps.nowdate.outputs.NOW_DATE }}
-          # echo ${{ steps.upload.outputs.cow_DownloadLink }}
-          # echo ${{ steps.upload.outputs.cow_DownloadCode }}
-          # echo ${{ steps.upload.outputs.wet_DownloadLink }}
+          echo ${{ steps.upload.outputs.cow_DownloadLink }}
+          echo ${{ steps.upload.outputs.cow_DownloadCode }}
+          echo ${{ steps.upload.outputs.wet_DownloadLink }}
 
-      # - name: Push Message
-      #   id: push_msg
-      #   uses: cookie-dragon/action-pushmsg-wechatwork@dev
-      #   with:
-      #     corpid: ${{ secrets.WECHATWORK_CORPID }}
-      #     corpsecret: ${{ secrets.WECHATWORK_APP_CORPSECRET }}
-      #     agentid: ${{ secrets.WECHATWORK_APP_AGENTID }}
-      #     msgtype: "textcard"
-      #     textcard_title: "Github Action 生成固件"
-      #     textcard_description: "<div class=\"gray\">${{ steps.now_date.output.NOW_DATE }}</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>"
-      #     textcard_url: ${{ steps.upload.outputs.wet_DownloadLink }}
+      - name: Push Message
+        id: push_msg
+        uses: cookie-dragon/action-pushmsg-wechatwork@dev
+        with:
+          corpid: ${{ secrets.WECHATWORK_CORPID }}
+          corpsecret: ${{ secrets.WECHATWORK_APP_CORPSECRET }}
+          agentid: ${{ secrets.WECHATWORK_APP_AGENTID }}
+          msgtype: "textcard"
+          textcard_title: "Github Action 生成固件"
+          textcard_description: "<div class=\"gray\">${{ steps.nowdate.outputs.NOW_DATE }}</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>"
+          textcard_url: ${{ steps.upload.outputs.wet_DownloadLink }}
 
-      # - name: ECHO Push Message
-      #   run: echo ${{ steps.push_msg.outputs.RTN_message_send }}
+      - name: ECHO Push Message
+        run: echo ${{ steps.push_msg.outputs.RTN_message_send }}
