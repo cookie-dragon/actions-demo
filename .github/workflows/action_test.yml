@@ -19,6 +19,3 @@ jobs:
           corpid: ${{ secrets.WECHATWORK_CORPID }}
           corpsecret: ${{ secrets.WECHATWORK_APP_CORPSECRET }}
           agentid: ${{ secrets.WECHATWORK_APP_AGENTID }}
-
-      - name: Action Test 2
-        run: echo ${ACCESS_TOKEN}
