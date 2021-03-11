@@ -6,7 +6,7 @@
 import logging
 
 # TODO: 正式环境改为False
-debug = True
+debug = False
 
 
 def initLog():
