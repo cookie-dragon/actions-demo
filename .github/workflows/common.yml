@@ -15,6 +15,12 @@ on:
         required: false
         default: 'false'
 
+env:
+  UPLOAD_FIRMWARE: true
+  UPLOAD_COWTRANSFER: false
+  UPLOAD_WETRANSFER: false
+  UPLOAD_RELEASE: false
+
 jobs:
   job_test1:
     name: Job - Test 1
@@ -50,43 +56,54 @@ jobs:
           name: publish
           path: ./download_artifact/
 
-      - name: Zip
-        run: zip -qr publish.zip publish
+      - name: Organize files
+        id: organize
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        run: |
+          zip -qr publish.zip publish
+          echo "FIRMWARE=$PWD/download_artifact/publish.zip" >> $GITHUB_ENV
+          echo "::set-output name=status::success"
         working-directory: ./download_artifact
 
-      # - name: Upload to CowTransfer
-      #   run: |
-      #     PWD=`pwd`
-      #     FIRMWARE=${PWD}/download_artifact/publish.zip
-      #     curl -fsSL git.io/file-transfer | sh
-      #     ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
-      #     L2=`sed -n '2p' cowtransfer.log`
-      #     L3=`sed -n '3p' cowtransfer.log`
-      #     DownloadLink=${L2#*: }
-      #     DownloadCode=${L3#*: }
-
-      #     RTN_gettoken=`curl --location --request GET "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=${{ secrets.WECHATWORK_CORPID }}&corpsecret=${{ secrets.WECHATWORK_APP_CORPSECRET }}"`
-      #     access_token=`echo ${RTN_gettoken} | jq -r '.access_token'`
-
-      #     curl --location --request POST "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${access_token}" \
-      #     --header 'Content-Type: application/json' \
-      #     --data-raw '{
-      #       "touser" : "@all",
-      #       "msgtype" : "textcard",
-      #       "agentid" : '"${{ secrets.WECHATWORK_APP_AGENTID }}"',
-      #       "textcard" : {
-      #         "title" : "Github Action 生成固件",
-      #         "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">Github Action 生成固件已上传CowTransfer，领取码：'"${DownloadCode}"'</div><div class=\"highlight\">请于24小时内下载</div>",
-      #         "url" : "'"${DownloadLink}"'"
-      #       }
-      #     }'
-
-      - name: Upload to WeTransfer
+      - name: Upload firmware to cowtransfer
+        id: cowtransfer
+        if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
         run: |
-          PWD=`pwd`
-          FIRMWARE=${PWD}/download_artifact/publish.zip
+          curl -fsSL git.io/file-transfer | sh
+          ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
+          echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+          echo "::set-output name=url::$(cat cowtransfer.log | grep https | cut -f3 -d" ")"
+
+          L2=`sed -n '2p' cowtransfer.log`
+          L3=`sed -n '3p' cowtransfer.log`
+          DownloadLink=${L2#*: }
+          DownloadCode=${L3#*: }
+
+          RTN_gettoken=`curl --location --request GET "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=${{ secrets.WECHATWORK_CORPID }}&corpsecret=${{ secrets.WECHATWORK_APP_CORPSECRET }}"`
+          access_token=`echo ${RTN_gettoken} | jq -r '.access_token'`
+
+          curl --location --request POST "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${access_token}" \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+            "touser" : "@all",
+            "msgtype" : "textcard",
+            "agentid" : '"${{ secrets.WECHATWORK_APP_AGENTID }}"',
+            "textcard" : {
+              "title" : "Github Action 生成固件",
+              "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">固件已上传CowTransfer，取件码：'"${DownloadCode}"'</div><div class=\"highlight\">请于24小时内下载</div>",
+              "url" : "'"${DownloadLink}"'"
+            }
+          }'
+
+      - name: Upload firmware to WeTransfer
+        id: wetransfer
+        if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
+        run: |
           curl -fsSL git.io/file-transfer | sh
           ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
+          echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
+          echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
+
           L3=`sed -n '3p' wetransfer.log`
           DownloadLink=${L3#*: }
 
@@ -101,17 +118,33 @@ jobs:
             "agentid" : '"${{ secrets.WECHATWORK_APP_AGENTID }}"',
             "textcard" : {
               "title" : "Github Action 生成固件",
-              "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">Github Action 生成固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>",
+              "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>",
               "url" : "'"${DownloadLink}"'"
             }
           }'
 
-      - name: SSH connection to Actions
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+      - name: Create Release
+        id: create_release
+        if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true'  && !cancelled()
+        uses: actions/create-release@v1
         env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: tmp_tag
+          release_name: Release tmp_tag
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true'  && !cancelled()
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./download_artifact/publish.zip
+          asset_name: publish.zip
+          asset_content_type: application/zip
 
       - name: Delete workflow runs
         uses: GitRML/delete-workflow-runs@main
@@ -119,23 +152,9 @@ jobs:
           retain_days: 1
           keep_minimum_runs: 3
 
-      # - name: Create Release
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: tmp_tag
-      #     release_name: Release tmp_tag
-      #     draft: false
-      #     prerelease: false
-
-      # - name: Upload Release Asset
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: ./download_artifact/publish.zip
-      #     asset_name: publish.zip
-      #     asset_content_type: application/zip
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
