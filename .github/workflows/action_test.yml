@@ -44,7 +44,7 @@ jobs:
       - name: ECHO Upload
         run: |
           echo ${{ steps.organize.outputs.NOW_DATE }}
-          echo ${{ steps.organize.outputs.UPLOAD_FILE }}
+          # echo ${{ steps.organize.outputs.UPLOAD_FILE }}
           # echo ${{ steps.upload.outputs.cow_DownloadLink }}
           # echo ${{ steps.upload.outputs.cow_DownloadCode }}
           # echo ${{ steps.upload.outputs.wet_DownloadLink }}
