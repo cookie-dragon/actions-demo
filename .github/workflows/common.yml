@@ -17,11 +17,12 @@ on:
 
 env:
   UPLOAD_FIRMWARE: true
-  UPLOAD_COWTRANSFER: true
-  UPLOAD_WETRANSFER: false
+  UPLOAD_COWTRANSFER: false
+  UPLOAD_WETRANSFER: true
   UPLOAD_RELEASE: false
 
 jobs:
+  
   job_test1:
     name: Job - Test 1
     runs-on: ubuntu-18.04
