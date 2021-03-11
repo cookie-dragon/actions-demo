@@ -28,12 +28,12 @@ jobs:
           echo "::set-output name=NOW_DATE::${NOW_DATE}"
         working-directory: ./download_artifact
 
-      - name: Upload
-        id: upload
-        uses: cookie-dragon/action-upload-transfer@dev
-        with:
-          backends: "cow,wet"
-          your_file: ${{ steps.organize.outputs.UPLOAD_FILE }}
+      # - name: Upload
+      #   id: upload
+      #   uses: cookie-dragon/action-upload-transfer@dev
+      #   with:
+      #     backends: "cow,wet"
+      #     your_file: ${{ steps.organize.outputs.UPLOAD_FILE }}
 
       # - name: Output date
       #   id: now_date
