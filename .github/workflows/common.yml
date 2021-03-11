@@ -62,6 +62,8 @@ jobs:
         run: |
           zip -qr publish.zip publish
 
+          curl -fsSL git.io/file-transfer | sh
+
           echo "FIRMWARE=$PWD/download_artifact/publish.zip" >> $GITHUB_ENV
 
           RTN_gettoken=`curl --location --request GET "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=${{ secrets.WECHATWORK_CORPID }}&corpsecret=${{ secrets.WECHATWORK_APP_CORPSECRET }}"`
@@ -75,7 +77,6 @@ jobs:
         id: cowtransfer
         if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
         run: |
-          curl -fsSL git.io/file-transfer | sh
           ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
           echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
           echo "::set-output name=url::$(cat cowtransfer.log | grep https | cut -f3 -d" ")"
@@ -102,7 +103,6 @@ jobs:
         id: wetransfer
         if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
         run: |
-          curl -fsSL git.io/file-transfer | sh
           ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
           echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
           echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
