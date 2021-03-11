@@ -62,9 +62,7 @@ jobs:
         run: |
           zip -qr publish.zip publish
 
-          curl -fsSL git.io/file-transfer | sh
-
-          echo "FIRMWARE=$PWD/download_artifact/publish.zip" >> $GITHUB_ENV
+          echo "FIRMWARE=$PWD/publish.zip" >> $GITHUB_ENV
 
           RTN_gettoken=`curl --location --request GET "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=${{ secrets.WECHATWORK_CORPID }}&corpsecret=${{ secrets.WECHATWORK_APP_CORPSECRET }}"`
           access_token=`echo ${RTN_gettoken} | jq -r '.access_token'`
@@ -72,6 +70,11 @@ jobs:
 
           echo "::set-output name=status::success"
         working-directory: ./download_artifact
+
+      - name: Upload firmware to outside of Github
+        id: transfer
+        run: |
+          curl -fsSL git.io/file-transfer | sh
 
       - name: Upload firmware to Cowtransfer
         id: cowtransfer
