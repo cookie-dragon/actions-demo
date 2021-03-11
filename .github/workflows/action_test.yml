@@ -5,11 +5,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      ssh:
-        description: 'SSH connection to Actions'
-        required: false
-        default: 'false'
 
 jobs:
   
@@ -38,21 +33,14 @@ jobs:
           your_file: ${{ steps.organize.outputs.UPLOAD_FILE }}
 
       - name: Output date
-        id: date
+        id: now_date
         run: |
           NOW_DATE=$(date "+%Y年%m月%d日 %H:%M:%S")
           echo "::set-output name=NOW_DATE::${NOW_DATE}"
 
-      - name: SSH connection to Actions
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh != 'false') || contains(github.event.action, 'ssh')
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
       - name: ECHO Upload
         run: |
-          echo ${{ steps.date.output.NOW_DATE }}
+          echo ${{ steps.now_date.output.NOW_DATE }}
           echo ${{ steps.upload.outputs.cow_DownloadLink }}
           echo ${{ steps.upload.outputs.cow_DownloadCode }}
           echo ${{ steps.upload.outputs.wet_DownloadLink }}
@@ -66,7 +54,7 @@ jobs:
           agentid: ${{ secrets.WECHATWORK_APP_AGENTID }}
           msgtype: "textcard"
           textcard_title: "Github Action 生成固件"
-          textcard_description: "<div class=\"gray\">${{ steps.date.output.NOW_DATE }}</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>"
+          textcard_description: "<div class=\"gray\">${{ steps.now_date.output.NOW_DATE }}</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>"
           textcard_url: ${{ steps.upload.outputs.wet_DownloadLink }}
 
       - name: ECHO Push Message
