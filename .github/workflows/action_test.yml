@@ -13,20 +13,20 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
 
-      - name: Prepare Files
-        run: |
-          mkdir -p download_artifact/publish
-          touch download_artifact/publish/testfile.txt
+      # - name: Prepare Files
+      #   run: |
+      #     mkdir -p download_artifact/publish
+      #     touch download_artifact/publish/testfile.txt
 
-      - name: Organize File
-        id: organize
-        run: |
-          zip -qr publish.zip publish
-          echo "::set-output name=UPLOAD_FILE::${PWD}/publish.zip"
+      # - name: Organize File
+      #   id: organize
+      #   run: |
+      #     zip -qr publish.zip publish
+      #     echo "::set-output name=UPLOAD_FILE::${PWD}/publish.zip"
 
-          NOW_DATE=$(date "+%Y年%m月%d日 %H:%M:%S")
-          echo "::set-output name=NOW_DATE::${NOW_DATE}"
-        working-directory: ./download_artifact
+      #     NOW_DATE=$(date "+%Y年%m月%d日 %H:%M:%S")
+      #     echo "::set-output name=NOW_DATE::${NOW_DATE}"
+      #   working-directory: ./download_artifact
 
       # - name: Upload
       #   id: upload
@@ -35,16 +35,15 @@ jobs:
       #     backends: "cow,wet"
       #     your_file: ${{ steps.organize.outputs.UPLOAD_FILE }}
 
-      # - name: Output date
-      #   id: now_date
-      #   run: |
-      #     NOW_DATE=$(date "+%Y年%m月%d日 %H:%M:%S")
-      #     echo "::set-output name=NOW_DATE::${NOW_DATE}"
+      - name: Organize File
+        id: organize
+        run: |
+          NOW_DATE=$(date "+%Y年%m月%d日 %H:%M:%S")
+          echo "::set-output name=NOW_DATE::${NOW_DATE}"
 
       - name: ECHO Upload
         run: |
           echo ${{ steps.organize.outputs.NOW_DATE }}
-          # echo ${{ steps.organize.outputs.UPLOAD_FILE }}
           # echo ${{ steps.upload.outputs.cow_DownloadLink }}
           # echo ${{ steps.upload.outputs.cow_DownloadCode }}
           # echo ${{ steps.upload.outputs.wet_DownloadLink }}
