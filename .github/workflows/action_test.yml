@@ -35,7 +35,7 @@ jobs:
       - name: Output date
         id: now_date
         run: |
-          NOW_DATE=$(date "+%Y年%m月%d日%H:%M:%S")
+          NOW_DATE=$(date "+%Y年%m月%d日 %H:%M:%S")
           echo "::set-output name=NOW_DATE::${NOW_DATE}"
           echo ${NOW_DATE}
 
