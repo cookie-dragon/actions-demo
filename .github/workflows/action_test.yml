@@ -46,5 +46,5 @@ jobs:
       - name: ECHO Upload
         run: |
           echo ${{ steps.upload.outputs.cow_DownloadLink }}
-          echo ${{ steps.upload.outputs.cow_DownloadLink }}
-          echo ${{ steps.upload.outputs.cow_DownloadLink }}
+          echo ${{ steps.upload.outputs.cow_DownloadCode }}
+          echo ${{ steps.upload.outputs.wet_DownloadLink }}
