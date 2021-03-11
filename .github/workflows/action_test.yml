@@ -9,7 +9,7 @@ on:
 jobs:
   
   job_test1:
-  	name: Job - Test 1
+    name: Job - Test 1
     runs-on: ubuntu-18.04
     steps:
 
