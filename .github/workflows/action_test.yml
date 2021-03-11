@@ -33,15 +33,15 @@ jobs:
       #     your_file: ${{ steps.organize.outputs.UPLOAD_FILE }}
 
       - name: Output date
-        id: organize
+        id: now_date
         run: |
-          NOW_DATE=$(date "+%Y年%m月%d日 %H:%M:%S")
-          echo "::set-output name=NOW_DATE::${NOW_DATE}"
-          echo ${NOW_DATE}
+          now_date=$(date "+%Y年%m月%d日 %H:%M:%S")
+          echo "::set-output name=now_date::${now_date}"
+          echo ${now_date}
 
       - name: ECHO Upload
         run: |
-          echo ${{ steps.organize.output.NOW_DATE }}
+          echo ${{ steps.now_date.output.now_date }}
           # echo ${{ steps.upload.outputs.cow_DownloadLink }}
           # echo ${{ steps.upload.outputs.cow_DownloadCode }}
           # echo ${{ steps.upload.outputs.wet_DownloadLink }}
