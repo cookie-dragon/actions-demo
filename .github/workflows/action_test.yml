@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
 
-      - name: Prepare Files
-        run: |
-          mkdir -p download_artifact/publish
-          touch download_artifact/publish/testfile.txt
+      # - name: Prepare Files
+      #   run: |
+      #     mkdir -p download_artifact/publish
+      #     touch download_artifact/publish/testfile.txt
 
       - name: Organize File
         id: organize
@@ -43,22 +43,23 @@ jobs:
 
       - name: ECHO Upload
         run: |
-          echo ${{ steps.organize.output.NOW_DATE }}
+          echo ${{ steps.organize.outputs.NOW_DATE }}
+          echo ${{ steps.organize.outputs.UPLOAD_FILE }}
           # echo ${{ steps.upload.outputs.cow_DownloadLink }}
           # echo ${{ steps.upload.outputs.cow_DownloadCode }}
           # echo ${{ steps.upload.outputs.wet_DownloadLink }}
 
-      - name: Push Message
-        id: push_msg
-        uses: cookie-dragon/action-pushmsg-wechatwork@dev
-        with:
-          corpid: ${{ secrets.WECHATWORK_CORPID }}
-          corpsecret: ${{ secrets.WECHATWORK_APP_CORPSECRET }}
-          agentid: ${{ secrets.WECHATWORK_APP_AGENTID }}
-          msgtype: "textcard"
-          textcard_title: "Github Action 生成固件"
-          textcard_description: "<div class=\"gray\">${{ steps.now_date.output.NOW_DATE }}</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>"
-          textcard_url: ${{ steps.upload.outputs.wet_DownloadLink }}
+      # - name: Push Message
+      #   id: push_msg
+      #   uses: cookie-dragon/action-pushmsg-wechatwork@dev
+      #   with:
+      #     corpid: ${{ secrets.WECHATWORK_CORPID }}
+      #     corpsecret: ${{ secrets.WECHATWORK_APP_CORPSECRET }}
+      #     agentid: ${{ secrets.WECHATWORK_APP_AGENTID }}
+      #     msgtype: "textcard"
+      #     textcard_title: "Github Action 生成固件"
+      #     textcard_description: "<div class=\"gray\">${{ steps.now_date.output.NOW_DATE }}</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>"
+      #     textcard_url: ${{ steps.upload.outputs.wet_DownloadLink }}
 
-      - name: ECHO Push Message
-        run: echo ${{ steps.push_msg.outputs.RTN_message_send }}
+      # - name: ECHO Push Message
+      #   run: echo ${{ steps.push_msg.outputs.RTN_message_send }}
