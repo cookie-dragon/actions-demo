@@ -54,22 +54,42 @@ jobs:
         run: zip -qr publish.zip publish
         working-directory: ./download_artifact
 
-      - name: Upload to CowTransfer
-        id: upload_to_cowtransfer
+      # - name: Upload to CowTransfer
+      #   run: |
+      #     PWD=`pwd`
+      #     FIRMWARE=${PWD}/download_artifact/publish.zip
+      #     curl -fsSL git.io/file-transfer | sh
+      #     ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
+      #     L2=`sed -n '2p' cowtransfer.log`
+      #     L3=`sed -n '3p' cowtransfer.log`
+      #     DownloadLink=${L2#*: }
+      #     DownloadCode=${L3#*: }
+
+      #     RTN_gettoken=`curl --location --request GET "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=${{ secrets.WECHATWORK_CORPID }}&corpsecret=${{ secrets.WECHATWORK_APP_CORPSECRET }}"`
+      #     access_token=`echo ${RTN_gettoken} | jq -r '.access_token'`
+
+      #     curl --location --request POST "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${access_token}" \
+      #     --header 'Content-Type: application/json' \
+      #     --data-raw '{
+      #       "touser" : "@all",
+      #       "msgtype" : "textcard",
+      #       "agentid" : '"${{ secrets.WECHATWORK_APP_AGENTID }}"',
+      #       "textcard" : {
+      #         "title" : "Github Action 生成固件",
+      #         "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">Github Action 生成固件已上传CowTransfer，领取码：'"${DownloadCode}"'</div><div class=\"highlight\">请于24小时内下载</div>",
+      #         "url" : "'"${DownloadLink}"'"
+      #       }
+      #     }'
+
+      - name: Upload to WeTransfer
         run: |
           PWD=`pwd`
           FIRMWARE=${PWD}/download_artifact/publish.zip
           curl -fsSL git.io/file-transfer | sh
-          ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
-          L2=`sed -n '2p' cowtransfer.log`
-          L3=`sed -n '3p' cowtransfer.log`
-          DownloadLink=${L2#*: }
-          DownloadCode=${L3#*: }
-          echo "::set-output name=DownloadLink::${DownloadLink}"
-          echo "::set-output name=DownloadCode::${DownloadCode}"
+          ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
+          L3=`sed -n '3p' wetransfer.log`
+          DownloadLink=${L3#*: }
 
-      - name: Notification to WechatWork
-        run: |
           RTN_gettoken=`curl --location --request GET "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=${{ secrets.WECHATWORK_CORPID }}&corpsecret=${{ secrets.WECHATWORK_APP_CORPSECRET }}"`
           access_token=`echo ${RTN_gettoken} | jq -r '.access_token'`
 
@@ -81,8 +101,8 @@ jobs:
             "agentid" : '"${{ secrets.WECHATWORK_APP_AGENTID }}"',
             "textcard" : {
               "title" : "Github Action 生成固件",
-              "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">Github Action 生成固件已上传CowTransfer，领取码：'"${{ steps.upload_to_cowtransfer.outputs.DownloadCode }}"'</div><div class=\"highlight\">请于24小时内下载</div>",
-              "url" : "'"${{ steps.upload_to_cowtransfer.outputs.DownloadLink }}"'"
+              "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">Github Action 生成固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>",
+              "url" : "'"${DownloadLink}"'"
             }
           }'
 
