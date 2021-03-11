@@ -32,8 +32,15 @@ jobs:
           backends: "cow,wet"
           your_file: ${{ steps.organize.outputs.UPLOAD_FILE }}
 
+      - name: Output date
+        id: date
+        run: |
+          NOW_DATE=$(date "+%Y年%m月%d日 %H:%M:%S")
+          echo "::set-output name=NOW_DATE::${NOW_DATE}"
+
       - name: ECHO Upload
         run: |
+          echo ${{ steps.date.output.NOW_DATE }}
           echo ${{ steps.upload.outputs.cow_DownloadLink }}
           echo ${{ steps.upload.outputs.cow_DownloadCode }}
           echo ${{ steps.upload.outputs.wet_DownloadLink }}
@@ -47,8 +54,8 @@ jobs:
           agentid: ${{ secrets.WECHATWORK_APP_AGENTID }}
           msgtype: "textcard"
           textcard_title: "Github Action 生成固件"
-          textcard_description: "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>"
-          textcard_url: "'"${{ steps.upload.outputs.wet_DownloadLink }}"'"
+          textcard_description: "<div class=\"gray\">${{ steps.date.output.NOW_DATE }}</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>"
+          textcard_url: ${{ steps.upload.outputs.wet_DownloadLink }}
 
       - name: ECHO Push Message
         run: echo ${{ steps.push_msg.outputs.RTN_message_send }}
