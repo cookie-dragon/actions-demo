@@ -19,7 +19,7 @@ on:
 
 env:
   UPLOAD_FIRMWARE: true
-  UPLOAD_COWTRANSFER: true
+  UPLOAD_COWTRANSFER: false
   UPLOAD_WETRANSFER: true
   UPLOAD_RELEASE: false
 
@@ -305,6 +305,8 @@ jobs:
         run: |
           sudo mkdir -p rootfs
           sudo cp -rf HTBOX-via-hzmct/rootfs-add/* rootfs/
+          sudo cp -rf rootfs/home/WebOnBoard/shell/pyconfig.sh rootfs/etc/init.d/
+          sudo cp -rf rootfs/home/WebOnBoard/shell/pynet.sh rootfs/etc/init.d/
           sudo chown -R root:root rootfs
 
       - name: Fix
@@ -376,6 +378,7 @@ jobs:
           sudo ln -s ../init.d/sshd.sh S99sshd.sh
           sudo ln -s ../init.d/mosquitto.sh S99mosquitto.sh
           sudo ln -s ../init.d/sztenv S99sztenv
+          sudo ln -s ../init.d/pynet.sh S99pynet.sh
         working-directory: ./rootfs/etc/rc5.d
 
       - name: Link user lib
