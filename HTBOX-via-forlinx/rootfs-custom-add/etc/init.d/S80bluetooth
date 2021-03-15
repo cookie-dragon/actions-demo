@@ -1,0 +1,22 @@
+#!/bin/sh
+
+case "$1" in
+start)
+	echo -e "\nStarting Bluetooth..."
+
+	bluetoothd
+	hciconfig hci0 up
+	sdptool add SP
+
+	echo -e "\nStarting Bluetooth: OK"
+	;;
+stop)
+	echo ""
+	;;
+*)
+	echo "Usage: $0 {start} {stop}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
