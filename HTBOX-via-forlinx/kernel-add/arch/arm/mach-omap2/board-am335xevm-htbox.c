@@ -2192,7 +2192,6 @@ static struct gpio_keys_button am335x_evm_gpio_buttons_forlinx[] = {
 				.code                   = BTN_0,
 				.gpio                   = GPIO_TO_PIN(1, 30),
 				.desc                   = "USER_KEY",
-				.wakeup                 = 1,
 		},
 		{
 				.code                   = BTN_1,
@@ -2288,10 +2287,12 @@ static struct gpio_led gpio_leds[] = {
 		{
 				.name                   = "user_led",
 				.gpio                   = GPIO_TO_PIN(0, 19),
+				.active_low     = 1,
 		},
 		{
 				.name                   = "led_wifi",
 				.gpio                   = GPIO_TO_PIN(1, 31),
+				.active_low     = 1,
 		},
 		{
 				.name                   = "do",
@@ -2300,6 +2301,7 @@ static struct gpio_led gpio_leds[] = {
 		{
 				.name                   = "led_4g",
 				.gpio                   = GPIO_TO_PIN(3, 15),
+				.active_low     = 1,
 		},
 		{
 				.name                   = "heartbeat",
