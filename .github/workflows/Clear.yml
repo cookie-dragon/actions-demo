@@ -1,22 +1,18 @@
 name: Clear CI
-
 on:
   workflow_dispatch:
-
 jobs:
-  
   job_clear:
     name: Clear
     runs-on: ubuntu-18.04
     steps:
-
-      - name: Delete workflow runs
-        uses: GitRML/delete-workflow-runs@main
-        with:
-          retain_days: 1
-          keep_minimum_runs: 1
-
       - name: Remove old artifacts
         uses: c-hive/gha-remove-artifacts@v1
         with:
           age: '1 day'
+
+      - name: Delete workflow runs
+        uses: GitRML/delete-workflow-runs@main
+        with:
+          retain_days: 2
+          keep_minimum_runs: 3
