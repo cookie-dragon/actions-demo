@@ -2469,11 +2469,11 @@ static struct evm_dev_cfg ad_dev_cfg[] = {
 
 /* ok335x*/
 static struct evm_dev_cfg ok335x_dev_cfg[] = {
-	{mmc1_rtl8189eus_init,DEV_ON_BASEBOARD,PROFILE_ALL},
+	// {mmc1_rtl8189eus_init,DEV_ON_BASEBOARD,PROFILE_ALL},
 	{mmc_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
-	#if defined(CONFIG_ANDROID)
-	{tscadc_init,DEV_ON_BASEBOARD, PROFILE_ALL},
-	#endif
+	// #if defined(CONFIG_ANDROID)
+	// {tscadc_init,DEV_ON_BASEBOARD, PROFILE_ALL},
+	// #endif
 	{net_init , DEV_ON_BASEBOARD, PROFILE_ALL},
 	{lcd_init , DEV_ON_BASEBOARD, PROFILE_ALL},
 	{i2c_init , DEV_ON_BASEBOARD, PROFILE_ALL},
