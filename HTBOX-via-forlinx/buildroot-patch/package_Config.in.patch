@@ -1,0 +1,14 @@
+--- buildroot-2019.02.11.orgi/package/Config.in	2021-02-23 21:47:59.057801000 +0800
++++ buildroot-2019.02.11/package/Config.in	2021-02-23 21:48:43.293223000 +0800
+@@ -798,6 +798,11 @@
+ 	source "package/python3/Config.in"
+ if BR2_PACKAGE_PYTHON || BR2_PACKAGE_PYTHON3
+ menu "External python modules"
++	source "package/python-htbox/Config.in"
++	source "package/python-pyotp/Config.in"
++	source "package/python-asyncua/Config.in"
++	source "package/python-aiofiles/Config.in"
++	source "package/python-aiosqlite/Config.in"
+ 	source "package/python-aiocoap/Config.in"
+ 	source "package/python-aiodns/Config.in"
+ 	source "package/python-aiohttp/Config.in"

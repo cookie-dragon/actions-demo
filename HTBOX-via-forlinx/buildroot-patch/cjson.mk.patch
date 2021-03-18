@@ -1,0 +1,10 @@
+--- buildroot-2019.02.11.orgi/package/cjson/cjson.mk	2021-03-16 14:41:17.506780000 +0800
++++ buildroot-2019.02.11/package/cjson/cjson.mk	2021-03-16 14:41:50.617022000 +0800
+@@ -12,6 +12,7 @@
+ # Set ENABLE_CUSTOM_COMPILER_FLAGS to OFF in particular to disable
+ # -fstack-protector-strong which depends on BR2_TOOLCHAIN_HAS_SSP
+ CJSON_CONF_OPTS += \
++	-DENABLE_CJSON_UTILS=ON \
+ 	-DENABLE_CJSON_TEST=OFF \
+ 	-DENABLE_CUSTOM_COMPILER_FLAGS=OFF
+ 

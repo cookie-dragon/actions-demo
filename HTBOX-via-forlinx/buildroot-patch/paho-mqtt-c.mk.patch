@@ -1,0 +1,11 @@
+--- buildroot-2019.02.11.orgi/package/paho-mqtt-c/paho-mqtt-c.mk	2021-03-18 19:38:17.284969000 +0800
++++ buildroot-2019.02.11/package/paho-mqtt-c/paho-mqtt-c.mk	2021-03-18 19:38:33.305969000 +0800
+@@ -10,6 +10,8 @@
+ PAHO_MQTT_C_LICENSE_FILES = epl-v10 edl-v10
+ PAHO_MQTT_C_INSTALL_STAGING = YES
+ 
++PAHO_MQTT_C_CONF_OPTS += -DCMAKE_EXE_LINKER_FLAGS=-lrt
++
+ ifeq ($(BR2_PACKAGE_OPENSSL),y)
+ PAHO_MQTT_C_DEPENDENCIES += openssl
+ PAHO_MQTT_C_CONF_OPTS += -DPAHO_WITH_SSL=TRUE
