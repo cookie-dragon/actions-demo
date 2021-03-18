@@ -91,7 +91,7 @@ def config(conf):
 
 
 def start(conf):
-    exit_sys = 1
+    exit_sys = 0
 
     eth0 = EthInterface(conf['interface']['eth0'], index=0)
     eth1 = EthInterface(conf['interface']['eth1'], index=1)
@@ -105,7 +105,7 @@ def start(conf):
                 iface.start()
                 if NetShell.wait_for_iface_up(iface.get_name()) != 0:
                     print(iface.get_name() + ' up ERROR!')
-                    return exit_sys
+                    exit_sys = 1
                 if iface == eth0 or iface == eth1:
                     os.system(
                         'echo ' + iface.gateway_router + ' > /etc/network/defroute/' + iface.get_name())
@@ -121,10 +121,10 @@ def start(conf):
                 iface.start()
                 if NetShell.wait_for_iface_up(iface.get_name()) != 0:
                     print(iface.get_name() + ' up ERROR!')
-                    return exit_sys
+                    exit_sys = 1
                 if NetShell.wait_for_defroute_up(iface.get_name()) != 0:
                     print(iface.get_name() + ' default route ERROR!')
-                    return exit_sys
+                    exit_sys = 1
                 else:
                     os.system(
                         'echo ' + NetShell.get_gateway(
@@ -138,10 +138,10 @@ def start(conf):
                 iface.start()
                 if NetShell.wait_for_iface_up(iface.get_name()) != 0:
                     print(iface.get_name() + ' up ERROR!')
-                    return exit_sys
+                    exit_sys = 1
                 if NetShell.wait_for_defroute_up(iface.get_name()) != 0:
                     print(iface.get_name() + ' default route ERROR!')
-                    return exit_sys
+                    exit_sys = 1
                 else:
                     os.system(
                         'echo ' + NetShell.get_gateway(
@@ -202,8 +202,6 @@ def start(conf):
         for net in rt_nets:
             net.add()
         print("OK")
-
-        exit_sys = 0
 
     return exit_sys
 
