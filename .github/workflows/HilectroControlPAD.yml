@@ -353,8 +353,8 @@ jobs:
         run: |
           git clone -b 20161008 https://github.com/cookie-dragon/forlinx-335xS-II-uboot.git
 
-          cp forlinx-335xS-II-uboot/256M/MLO output/${{needs.job_env.outputs.S_FILENAME}}/
-          cp forlinx-335xS-II-uboot/256M/u-boot.img output/${{needs.job_env.outputs.S_FILENAME}}/
+          cp forlinx-335xS-II-uboot/256M/batch/MLO output/${{needs.job_env.outputs.S_FILENAME}}/
+          cp forlinx-335xS-II-uboot/256M/batch/u-boot.img output/${{needs.job_env.outputs.S_FILENAME}}/
           cp uImage output/${{needs.job_env.outputs.S_FILENAME}}/
           cp ubi.img output/${{needs.job_env.outputs.S_FILENAME}}/
 
