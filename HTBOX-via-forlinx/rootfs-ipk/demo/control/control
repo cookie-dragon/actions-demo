@@ -1,0 +1,4 @@
+Package: demo
+Version: 0.1
+Architecture: arm
+Description: This is a demo for ipk

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+chmod 755 /opt/bin/HtBoxMain
+chmod 755 /opt/bin/auto_start.sh
+chmod 755 /opt/sbin/box_led_ctrl
+
+chmod 755 /etc/init.d/S99HtBoxMainAutoStart

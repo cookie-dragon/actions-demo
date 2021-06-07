@@ -1,0 +1,10 @@
+* * * * * /sbin/hwclock -w
+* * * * * sleep 30; /sbin/hwclock -w
+* * * * * sleep 1; /opt/sbin/sys_admin_totp_chpwd
+* * * * * sleep 31; /opt/sbin/sys_admin_totp_chpwd
+* * * * * /opt/sbin/sys_update
+* * * * * sleep 10; /opt/sbin/sys_update
+* * * * * sleep 20; /opt/sbin/sys_update
+* * * * * sleep 30; /opt/sbin/sys_update
+* * * * * sleep 40; /opt/sbin/sys_update
+* * * * * sleep 50; /opt/sbin/sys_update

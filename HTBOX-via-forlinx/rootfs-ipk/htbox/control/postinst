@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd /root/python_pkg/htbox
+python setup.py install
+/opt/bin/defroute_monitor >/dev/null &
