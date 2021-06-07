@@ -38,7 +38,6 @@ if [[ -f /media/$MDEV/update ]]; then
 	echo "OK"
 
 	if [[ ! -f /media/$MDEV/factory_card ]]; then
-		rm -rf /media/$MDEV/*.ipk
 
 		if [[ -f /media/$MDEV/MLO ]]; then
 			printf "Update MLO: "
@@ -104,6 +103,11 @@ if [[ -f /media/$MDEV/update ]]; then
 			nandwrite -p /dev/${kernel_mtdindex} /media/$MDEV/uImage
 
 			echo "OK - "${kernel_mtdindex}" blockcnt: "${kernel_blockcnt}
+		fi
+
+		if [[ ! -f /media/$MDEV/reset ]]; then
+			rm -rf /media/$MDEV/*.ipk
+			rm -rf /media/$MDEV/MLO /media/$MDEV/u-boot.img /media/$MDEV/uImage
 		fi
 	fi
 

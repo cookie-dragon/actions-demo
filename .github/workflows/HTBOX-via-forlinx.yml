@@ -594,8 +594,7 @@ jobs:
       - name: Make Rootfs Dir
         run: |
           sudo mkdir -p rootfs
-          # sudo cp -rf HTBOX-via-forlinx/rootfs-advance-add/* rootfs/
-          sudo touch rootfs/placeholder
+          sudo cp -rf HTBOX-via-forlinx/rootfs-advance-add/* rootfs/
           sudo chown -R root:root rootfs
 
       - name: Fix
@@ -632,6 +631,7 @@ jobs:
       - name: Pack htbox.ipk
         run: |
           cp -rf ../../buildroot-add/package/python-htbox/htbox-1.0/* ./data/root/python_pkg/htbox/
+          chmod +x build.sh control/preinst control/postinst control/prerm control/postrm
           sh build.sh
         working-directory: ./HTBOX-via-forlinx/rootfs-ipk/htbox
 
@@ -684,6 +684,7 @@ jobs:
 
       - name: Pack HtBoxMain.ipk
         run: |
+          chmod +x build.sh control/preinst control/postinst control/prerm control/postrm
           sh build.sh
         working-directory: ./HTBOX-via-forlinx/rootfs-ipk/HtBoxMain
 

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+chmod +x /etc/init.d/S32boxreset /etc/init.d/S33boxinit
+chmod +x /opt/bin/box_init /opt/bin/box_openvpn /opt/bin/box_reset /opt/bin/defroute_monitor
+
 cd /root/python_pkg/htbox
 python setup.py install
 /opt/bin/defroute_monitor >/dev/null &
