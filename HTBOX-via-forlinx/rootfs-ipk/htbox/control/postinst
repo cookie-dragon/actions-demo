@@ -6,3 +6,13 @@ chmod +x /opt/bin/box_init /opt/bin/box_openvpn /opt/bin/box_reset /opt/bin/defr
 cd /root/python_pkg/htbox
 python setup.py install
 /opt/bin/defroute_monitor >/dev/null &
+
+# 从/tmp/htbox/backup恢复配置文件
+# 若为重置包则不恢复
+: '
+mkdir -p /etc/htbox
+
+if [[ -f /tmp/htbox/backup/htbox.conf ]]; then
+	mv -f /tmp/htbox/backup/htbox.conf /etc/htbox/
+fi
+'

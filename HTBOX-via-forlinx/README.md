@@ -115,7 +115,7 @@ Device Drivers  --->
 				[*] python3
 					  core python3 modules  --->
 					External python modules  --->
-						[*] python-htbox
+						[ ] python-htbox
 						[*] python-pyotp
 						[*] python-can
 						[*] python-cffi
