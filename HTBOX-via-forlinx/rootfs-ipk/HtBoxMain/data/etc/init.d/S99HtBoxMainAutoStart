@@ -1,6 +1,0 @@
-#!/bin/sh
-
-if [ -f "/opt/bin/auto_start.sh" ]; then
-  cd /opt/bin
-  sh auto_start.sh &
-fi
