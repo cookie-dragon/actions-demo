@@ -1,0 +1,20 @@
+#!/bin/sh
+
+case "$1" in
+start)
+	echo -e "\nStarting Corn..."
+
+	crond -c /etc/cron/crontabs
+
+	echo -e "\nStarting Corn: OK"
+	;;
+stop)
+	echo ""
+	;;
+*)
+	echo "Usage: $0 {start} {stop}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

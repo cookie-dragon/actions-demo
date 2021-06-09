@@ -1,0 +1,14 @@
+--- 1/etc/profile	2021-02-21 22:28:59.000000000 -0800
++++ 2/etc/profile	2021-02-18 17:24:50.924237000 -0800
+@@ -2,9 +2,9 @@
+ 
+ if [ "$PS1" ]; then
+ 	if [ "`id -u`" -eq 0 ]; then
+-		export PS1='# '
++		export PS1='[\u@\h \W]# '
+ 	else
+-		export PS1='$ '
++		export PS1='[\u@\h \W]$ '
+ 	fi
+ fi
+ 
