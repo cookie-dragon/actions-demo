@@ -133,9 +133,17 @@ jobs:
           sudo pip3.7 install IPy
           sudo pip3.7 install cython
 
-      - name: Install CC Python
+      - name: Untar Python Again
         run: |
-          make distclean
+          rm -rf Python-3.7.7
+          tar zxf Python-3.7.7.tgz
+
+      - name: Install CC Python
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=${TOOLCHAIN}/bin:$PATH
           ./configure \
           CC=arm-linux-gnueabihf-gcc \
           CXX=arm-linux-gnueabihf-g++ \
