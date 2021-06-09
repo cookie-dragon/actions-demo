@@ -122,7 +122,6 @@ jobs:
 
       - name: Install Host Python
         run: |
-          make distclean
           ./configure
           make 
           sudo make install
