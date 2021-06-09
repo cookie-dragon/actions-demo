@@ -184,7 +184,7 @@ jobs:
         run: |
           export PATH=${TOOLCHAIN}/bin:$PATH
           chmod +x executable-cython-build.sh
-          ./executable-cython-build.sh executable/
+          sh executable-cython-build.sh executable/
          working-directory: ./HTBOX-via-forlinx/dev/python_public_executable
 
       - name: Tar
