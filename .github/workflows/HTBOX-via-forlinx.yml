@@ -135,7 +135,7 @@ jobs:
 
       - name: Untar Python Again
         run: |
-          rm -rf Python-3.7.7
+          sudo rm -rf Python-3.7.7
           tar zxf Python-3.7.7.tgz
 
       - name: Install CC Python
