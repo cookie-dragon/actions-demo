@@ -1,6 +1,6 @@
 #!/bin/bash
 
-executable_filenames=("box_init.py" "defroute_monitor.py")
+executable_filenames=("sys_admin_totp_chpwd.py" "sys_admin_totp_show.py")
 
 do_cython_executable() {
 	local path=$1

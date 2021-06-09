@@ -12,10 +12,7 @@ on:
         description: 'PREFIX'
         required: true
         default: 'arm-linux-gnueabihf'
-      ssh:
-        description: 'SSH connection to Actions'
-        required: false
-        default: 'false'
+
 jobs:
 
   job_env:
@@ -163,7 +160,7 @@ jobs:
           sudo make install
         working-directory: ./Python-3.7.7
 
-      - name: Cython
+      - name: Cython htbox-dev
         env:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
@@ -179,6 +176,30 @@ jobs:
         with:
           name: htbox-dev
           path: ./HTBOX-via-forlinx/dev/python_pkg/htbox-dev.tar.gz
+
+      - name: Cython executable
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=${TOOLCHAIN}/bin:$PATH
+          chmod +x executable-cython-build.sh
+          ./executable-cython-build.sh executable/
+         working-directory: ./HTBOX-via-forlinx/dev/python_public_executable
+
+      - name: Tar
+        run: |
+          sudo mkdir -p rootfs/opt/sbin
+          sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_chpwd rootfs/opt/sbin
+          sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_show rootfs/opt/sbin
+          tree -pug rootfs
+          sudo tar zcf rootfs-python_public_executable.tgz rootfs/
+
+      - name: Upload Artifact python_public_executable
+        uses: actions/upload-artifact@v2
+        with:
+          name: python_public_executable
+          path: ./rootfs-python_public_executable.tgz
 
   job_rootfs_buildroot:
     name: Buildroot Root File System
@@ -275,13 +296,6 @@ jobs:
           # sed -i '/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH="$(TOPDIR)/../toolchain"' buildroot-2019.02.11/.config
           # sed -i '/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX="$(ARCH)-linux-gnueabihf"' buildroot-2019.02.11/.config
           # sed -i '/BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-linux-gnueabihf"' buildroot-2019.02.11/.config
-
-      - name: SSH connection to Actions
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh != 'false') || contains(github.event.action, 'ssh')
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
       - name: Build Buildroot
         run: make -j$(nproc)
@@ -614,9 +628,18 @@ jobs:
 
   job_rootfs_part_cc:
     name: Job - Rootfs Part - Cross Compile
-    needs: [job_cc_stress, job_cc_rt-tests, job_cc_wireless, job_cc_snap7]
+    needs: [job_cc_via_python, job_cc_stress, job_cc_rt-tests, job_cc_wireless, job_cc_snap7]
     runs-on: ubuntu-18.04
     steps:
+      - name: Download Artifact python_public_executable
+        uses: actions/download-artifact@v2
+        with:
+          name: python_public_executable
+          path: ./
+
+      - name: Untar python_public_executable
+        run: sudo tar zxf rootfs-python_public_executable.tgz
+
       - name: Download Artifact stress
         uses: actions/download-artifact@v2
         with:
@@ -745,6 +768,8 @@ jobs:
       - name: Pack htbox.ipk
         run: |
           cp -rf ../../buildroot-add/package/python-htbox/htbox-1.0/* ./data/root/python_pkg/htbox/
+          mv -f ./data/root/python_pkg/htbox/box_init ./data/opt/bin/
+          mv -f ./data/root/python_pkg/htbox/defroute_monitor ./data/opt/bin/
           chmod +x build.sh control/preinst control/postinst control/prerm control/postrm
           sh build.sh
         working-directory: ./HTBOX-via-forlinx/rootfs-ipk/htbox
