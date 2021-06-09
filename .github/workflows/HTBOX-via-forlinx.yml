@@ -97,6 +97,8 @@ jobs:
     needs: [job_toolchain]
     runs-on: ubuntu-18.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Download Artifact toolchain
         uses: actions/download-artifact@v2
@@ -107,6 +109,54 @@ jobs:
       - name: Untar Toolchain
         run: tar zxf toolchain.tar.gz
 
+      - name: Apt
+        run: |
+          sudo apt-get update
+          sudo apt-get remove python2.7 python2.7-minimal python3.6 python3.6-minimal python-pip-whl
+          sudo apt-get install -y build-essential libffi-dev libssl-dev libsqlite3-dev libbz2-dev libgdbm-dev libreadline-dev zlib1g-dev
+
+      - name: Download Python
+        run: |
+          wget https://www.python.org/ftp/python/3.7.7/Python-3.7.7.tgz
+          tar zxf Python-3.7.7.tgz
+
+      - name: Install Host Python
+        run: |
+          make distclean
+          ./configure
+          make 
+          sudo make install
+        working-directory: ./Python-3.7.7
+
+      - name: Pip
+        run: |
+          sudo pip3.7 install --upgrade pip
+          sudo pip3.7 install IPy
+          sudo pip3.7 install cython
+
+      - name: Install CC Python
+        run: |
+          make distclean
+          ./configure \
+          CC=arm-linux-gnueabihf-gcc \
+          CXX=arm-linux-gnueabihf-g++ \
+          AR=arm-linux-gnueabihf-ar \
+          RANLIB=arm-linux-gnueabihf-ranlib \
+          LD=arm-linux-gnueabihf-ld \
+          STRIP=arm-linux-gnueabihf-strip \
+          STRINGS=arm-linux-gnueabihf-strings \
+          READELF=arm-linux-gnueabihf-readelf \
+          --host=arm-linux-gnueabihf \
+          --build=arm \
+          --enable-ipv6 \
+          --enable-shared \
+          --prefix=/opt/Python-3.7.7 \
+          ac_cv_file__dev_ptmx=yes \
+          ac_cv_file__dev_ptc=yes
+          make 
+          sudo make install
+        working-directory: ./Python-3.7.7
+
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
         if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh != 'false') || contains(github.event.action, 'ssh')
@@ -116,12 +166,12 @@ jobs:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
 
-
-
-
-
-
-
+      - name: Cython
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=${TOOLCHAIN}/bin:$PATH
 
 
 
