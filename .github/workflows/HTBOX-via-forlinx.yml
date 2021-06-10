@@ -270,7 +270,6 @@ jobs:
       - name: Add Buildroot Files
         run: cp -rf HTBOX-via-forlinx/buildroot-add/* buildroot-2019.02.11/
 
-
       # - name: Install Buildroot Package by Scanpypi
       #   run: |
       #     python3 support/scripts/scanpypi3 pyotp -o package
@@ -782,8 +781,10 @@ jobs:
       - name: Pack htbox.ipk
         run: |
           cp -rf ../../buildroot-add/package/python-htbox/htbox/* ./data/root/python_pkg/htbox/
-          mv -f ./data/root/python_pkg/htbox/box_init ./data/opt/bin/
-          mv -f ./data/root/python_pkg/htbox/defroute_monitor ./data/opt/bin/
+
+          cp -rf ../../../so_htbox-dev/box_init ./data/opt/bin/
+          cp -rf ../../../so_htbox-dev/defroute_monitor ./data/opt/bin/
+
           chmod +x build.sh control/preinst control/postinst control/prerm control/postrm
           sh build.sh
         working-directory: ./HTBOX-via-forlinx/rootfs-ipk/htbox
@@ -798,6 +799,7 @@ jobs:
           sudo cp -rf forlinx-335xS-II-uboot/256M/MLO rootfs/media/factory/
           sudo cp -rf forlinx-335xS-II-uboot/256M/u-boot.img rootfs/media/factory/
           sudo cp -rf uImage rootfs/media/factory/
+          
           sudo cp -rf HTBOX-via-forlinx/rootfs-ipk/htbox/htbox.ipk rootfs/media/factory/
 
           sudo chown -R root:root rootfs
