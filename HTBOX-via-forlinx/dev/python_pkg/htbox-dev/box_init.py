@@ -40,13 +40,13 @@ if __name__ == '__main__':
                 exit_sys = start(conf)
                 if exit_sys == 0:
                     print("开启默认路由监控: ", end="")
-                    os.system('/opt/bin/defroute_monitor.py >/dev/null &')
+                    os.system('/opt/bin/defroute_monitor >/dev/null &')
                     print("OK")
                 else:
                     print("启动失败，默认路由监控未开启！")
             elif cmd_shell == 'stop':
                 print("关闭默认路由监控: ", end="")
-                JobShell.killjob('/opt/bin/defroute_monitor.py')
+                JobShell.killjob('/opt/bin/defroute_monitor')
                 time.sleep(1)
                 print("OK")
                 exit_sys = stop(conf)
@@ -54,7 +54,7 @@ if __name__ == '__main__':
                     check_new()
             elif cmd_shell == ('restart' or 'reload'):
                 print("关闭默认路由监控: ", end="")
-                JobShell.killjob('/opt/bin/defroute_monitor.py')
+                JobShell.killjob('/opt/bin/defroute_monitor')
                 time.sleep(1)
                 print("OK")
                 exit_sys = stop(conf)
@@ -64,7 +64,7 @@ if __name__ == '__main__':
                     exit_sys = start(conf)
                     if exit_sys == 0:
                         print("开启默认路由监控: ", end="")
-                        os.system('/opt/bin/defroute_monitor.py >/dev/null &')
+                        os.system('/opt/bin/defroute_monitor >/dev/null &')
                         print("OK")
                     else:
                         print("启动失败，默认路由监控未开启！")

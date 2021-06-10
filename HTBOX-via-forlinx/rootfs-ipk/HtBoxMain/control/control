@@ -1,4 +1,5 @@
 Package: HtBoxMain
 Version: 1.0
 Architecture: arm
-Description: This is HtBoxMain
+Maintainer: wxb13360@mail.haitian.com
+Description: This is HtBoxMain on htbox

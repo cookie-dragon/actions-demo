@@ -24,7 +24,7 @@ reset_user() {
 	adduser -g NormalUser -G users -D user
 	echo -e "p@ssw0rd\np@ssw0rd" | passwd user >/dev/null
 
-	python /opt/sbin/sys_admin_totp_show "htbox-${s4}"
+	/opt/sbin/sys_admin_totp_show "htbox-${s4}"
 }
 
 reset_host() {
