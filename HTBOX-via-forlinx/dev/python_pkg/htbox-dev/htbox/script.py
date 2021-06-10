@@ -7,7 +7,7 @@
 import time
 import os
 
-from htbox.interface import check_main_mode_count
+from htbox.interface.check_utils import check_main_mode_count
 from htbox.interface.brvpn import BrVpnInterface
 from htbox.interface.eth import EthInterface
 from htbox.interface.ppp import PPPInterface

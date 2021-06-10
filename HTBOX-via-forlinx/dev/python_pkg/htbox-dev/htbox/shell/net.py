@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2020/12/30 2:55 下午
 # @Author  : Cooky Long
-# @File    : neti.py
+# @File    : net.py
 import os
 import time
 

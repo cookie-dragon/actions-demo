@@ -7,7 +7,7 @@
 import time
 
 import os
-from htbox import load_conf
+from htbox.config_utils import load_conf
 from htbox.interface.eth import EthInterface
 from htbox.interface.ppp import PPPInterface
 from htbox.interface.wlan import WlanInterface

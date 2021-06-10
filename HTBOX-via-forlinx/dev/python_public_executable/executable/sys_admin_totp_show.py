@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # cython: language_level=3
 # -*- coding: utf-8 -*-
+# @Time    : 2020/12/30 2:57 下午
+# @Author  : Cooky Long
+# @File    : sys_admin_totp_show.py
 import base64
 import os
 import pyotp

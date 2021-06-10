@@ -8,7 +8,7 @@ import time
 import os
 import sys
 
-from htbox import load_conf
+from htbox.config_utils import load_conf
 from htbox.script import check, config, start, stop
 from htbox.shell.job import JobShell
 from pathlib import Path
