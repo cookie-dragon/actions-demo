@@ -1,5 +1,28 @@
 # htbox-forlinx
 
+## 软件版本更新操作
+
+### htbox
+* 更新dev/python_pkg/htbox-dev内的文件，包括htbox包内文件以及包外的依赖htbox的可执行文件
+* 更新dev/python_pkg/htbox-dev-cython-build.sh内的可执行文件数组
+* 修改buildroot-add/package/python-htbox/htbox/setup.py的版本号
+* 修改buildroot-add/package/python-htbox/python-htbox.mk内的版本号及路径
+* 更新rootfs-ipk/htbox/data内的文件
+* 根据功能修改rootfs-ipk/htbox/control/prerm内备份配置文件代码
+* 根据重置包/更新包修改rootfs-ipk/htbox/control/postinst内的恢复配置文件代码
+* 修改rootfs-ipk/htbox/control/control内的版本信息
+
+### executable
+* 更新dev/python_public_executable/executable内的文件（可执行文件）
+* 更新dev/python_public_executable/executable-cython-build.sh内的可执行文件数组
+* 修改action内压缩模块的代码
+
+### HtBoxMain
+* 更新rootfs-ipk/HtBoxMain/data内的文件
+* 根据功能修改rootfs-ipk/HtBoxMain/control/prerm内备份配置文件代码
+* 根据重置包/更新包修改rootfs-ipk/HtBoxMain/control/postinst内的恢复配置文件代码
+* 修改rootfs-ipk/HtBoxMain/control/control内的版本信息
+
 ## kernel
 ```
 Networking support  --->

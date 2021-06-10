@@ -262,9 +262,9 @@ jobs:
       - name: Untar htbox-dev
         run: tar zxf htbox-dev.tar.gz
 
-      - name: 
+      - name: Copy To Buildroot Package
         run: |
-          cp -rf htbox/* ../HTBOX-via-forlinx/buildroot-add/package/python-htbox/htbox-1.0/htbox/
+          cp -rf htbox/* ../HTBOX-via-forlinx/buildroot-add/package/python-htbox/htbox/htbox/
         working-directory: ./so_htbox-dev
 
       - name: Add Buildroot Files
@@ -753,7 +753,7 @@ jobs:
 
   job_rootfs_part_custom:
     name: Job - Rootfs Part - Custom
-    needs: [job_kernel]
+    needs: [job_kernel, job_cc_via_python]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -765,9 +765,23 @@ jobs:
           name: uImage
           path: ./
 
+      - name: Download Artifact htbox-dev
+        uses: actions/download-artifact@v2
+        with:
+          name: htbox-dev
+          path: ./
+      
+      - name: Untar htbox-dev
+        run: tar zxf htbox-dev.tar.gz
+
+      - name: Copy To Buildroot Package
+        run: |
+          cp -rf htbox/* ../HTBOX-via-forlinx/buildroot-add/package/python-htbox/htbox/htbox/
+        working-directory: ./so_htbox-dev
+
       - name: Pack htbox.ipk
         run: |
-          cp -rf ../../buildroot-add/package/python-htbox/htbox-1.0/* ./data/root/python_pkg/htbox/
+          cp -rf ../../buildroot-add/package/python-htbox/htbox/* ./data/root/python_pkg/htbox/
           mv -f ./data/root/python_pkg/htbox/box_init ./data/opt/bin/
           mv -f ./data/root/python_pkg/htbox/defroute_monitor ./data/opt/bin/
           chmod +x build.sh control/preinst control/postinst control/prerm control/postrm

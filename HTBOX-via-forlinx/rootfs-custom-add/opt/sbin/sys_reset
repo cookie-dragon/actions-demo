@@ -48,7 +48,7 @@ case "$1" in
 	reset_host
 	reset_root
 	reset_user
-	reset_factory
+	# reset_factory
 	;;
 esac
 
