@@ -167,7 +167,7 @@ jobs:
         run: |
           export PATH=${TOOLCHAIN}/bin:$PATH
           chmod +x htbox-dev-cython-build.sh
-          sh htbox-dev-cython-build.sh htbox-dev/
+          bash htbox-dev-cython-build.sh htbox-dev/
           tar zcf htbox-dev.tar.gz so_htbox-dev
         working-directory: ./HTBOX-via-forlinx/dev/python_pkg
 
@@ -184,7 +184,7 @@ jobs:
         run: |
           export PATH=${TOOLCHAIN}/bin:$PATH
           chmod +x executable-cython-build.sh
-          sh executable-cython-build.sh executable/
+          bash executable-cython-build.sh executable/
         working-directory: ./HTBOX-via-forlinx/dev/python_public_executable
 
       - name: Tar
