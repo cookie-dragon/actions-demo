@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# 备份配置文件到/tmp/htbox/backup
+mkdir -p /tmp/htbox/backup
+
+if [[ -f /etc/htbox/config.json ]]; then
+	mv -f /etc/htbox/config.json /tmp/htbox/backup/
+fi
+
+if [[ -f /etc/htbox/nodes_config.json ]]; then
+	mv -f /etc/htbox/nodes_config.json /tmp/htbox/backup/
+fi

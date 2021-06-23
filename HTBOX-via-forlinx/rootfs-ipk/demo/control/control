@@ -1,0 +1,5 @@
+Package: demo
+Version: 0.1
+Architecture: arm
+Maintainer: lj12875@mail.haitian.com
+Description: This is a demo for ipk
