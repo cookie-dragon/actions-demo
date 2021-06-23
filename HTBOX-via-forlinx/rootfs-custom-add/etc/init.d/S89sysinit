@@ -1,0 +1,21 @@
+#!/bin/sh
+
+case "$1" in
+start)
+	echo -e "\nStarting Sys..."
+
+	/opt/sbin/sys_init
+	/opt/sbin/dev_bt boot >/dev/null &
+
+	echo -e "\nStarting Sys: OK"
+	;;
+stop)
+	echo ""
+	;;
+*)
+	echo "Usage: $0 {start} {stop}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
