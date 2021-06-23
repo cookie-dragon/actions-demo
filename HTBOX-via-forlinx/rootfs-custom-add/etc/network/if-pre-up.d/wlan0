@@ -1,5 +1,0 @@
-#!/bin/sh
-
-if [[ ${IFACE} = wlan* ]]; then
-	/usr/local/sbin/wpa_supplicant -B -Dwext -i${IFACE} -c/etc/wpa_supplicant.conf
-fi

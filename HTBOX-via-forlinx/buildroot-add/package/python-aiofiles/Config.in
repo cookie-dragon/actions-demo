@@ -1,6 +1,0 @@
-config BR2_PACKAGE_PYTHON_AIOFILES
-	bool "python-aiofiles"
-	help
-	  File support for asyncio.
-
-	  https://github.com/Tinche/aiofiles
