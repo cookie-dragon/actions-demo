@@ -41,10 +41,10 @@ class BrVpnInterface(NetInterface):
     def config(self):
         rtn_sys = 1
 
-        SedShell.replace_line(file="/usr/local/bin/bridge-start",
+        SedShell.replace_line(file="/usr/local/bin/bridge-start.sh",
                               index=9,
                               text='br="' + self.get_name() + '"')
-        SedShell.replace_line(file="/usr/local/bin/bridge-stop",
+        SedShell.replace_line(file="/usr/local/bin/bridge-stop.sh",
                               index=8,
                               text='br="' + self.get_name() + '"')
 
@@ -54,31 +54,31 @@ class BrVpnInterface(NetInterface):
         elif self.jsondict_iface == "eth1":
             tmp_iface = self.eth1
         if tmp_iface:
-            SedShell.replace_line(file="/usr/local/bin/bridge-start",
+            SedShell.replace_line(file="/usr/local/bin/bridge-start.sh",
                                   index=17,
                                   text='eth="' + tmp_iface.get_name() + '"')
-            SedShell.replace_line(file="/usr/local/bin/bridge-stop",
+            SedShell.replace_line(file="/usr/local/bin/bridge-stop.sh",
                                   index=15,
                                   text='eth="' + tmp_iface.get_name() + '"')
             if (tmp_iface.mode == "main" or tmp_iface.mode == "vice") and tmp_iface.device_inet == "static":
-                SedShell.replace_line(file="/usr/local/bin/bridge-start",
+                SedShell.replace_line(file="/usr/local/bin/bridge-start.sh",
                                       index=18,
                                       text='eth_ip="' + tmp_iface.device_address + '"')
-                SedShell.replace_line(file="/usr/local/bin/bridge-start",
+                SedShell.replace_line(file="/usr/local/bin/bridge-start.sh",
                                       index=19,
                                       text='eth_netmask="' + tmp_iface.device_netmask + '"')
-                SedShell.replace_line(file="/usr/local/bin/bridge-start",
+                SedShell.replace_line(file="/usr/local/bin/bridge-start.sh",
                                       index=20,
                                       text='eth_broadcast="' + str(IP(tmp_iface.device_gateway).make_net(
                                           tmp_iface.device_netmask).broadcast()) + '"')
             elif tmp_iface.mode == "gateway":
-                SedShell.replace_line(file="/usr/local/bin/bridge-start",
+                SedShell.replace_line(file="/usr/local/bin/bridge-start.sh",
                                       index=18,
                                       text='eth_ip="' + tmp_iface.gateway_router + '"')
-                SedShell.replace_line(file="/usr/local/bin/bridge-start",
+                SedShell.replace_line(file="/usr/local/bin/bridge-start.sh",
                                       index=19,
                                       text='eth_netmask="' + tmp_iface.gateway_subnet + '"')
-                SedShell.replace_line(file="/usr/local/bin/bridge-start",
+                SedShell.replace_line(file="/usr/local/bin/bridge-start.sh",
                                       index=20,
                                       text='eth_broadcast="' + str(IP(tmp_iface.gateway_router).make_net(
                                           tmp_iface.gateway_subnet).broadcast()) + '"')

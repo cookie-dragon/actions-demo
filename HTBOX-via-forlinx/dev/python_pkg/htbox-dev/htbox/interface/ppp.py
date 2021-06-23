@@ -34,7 +34,7 @@ class PPPInterface(NetworkInterface):
     def start(self):
         if self.mode == "main":
             os.system(
-                '/usr/local/bin/quectel-pppd.sh ' + self.devname + ' ' + self.apn + ' ' + self.user + ' ' + self.password)
+                '/usr/local/bin/quectel-pppd ' + self.devname + ' ' + self.apn + ' ' + self.user + ' ' + self.password)
         elif self.mode == "off":
             pass
 

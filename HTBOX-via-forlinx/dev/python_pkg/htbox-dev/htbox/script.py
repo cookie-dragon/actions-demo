@@ -247,7 +247,7 @@ def stop(conf):
 
     print("关闭vpn: ", end="")
     if JobShell.killjob('openvpn') == 0:
-        os.system('/usr/local/bin/bridge-stop')
+        os.system('/usr/local/bin/bridge-stop.sh')
     print("OK")
 
     print("关闭主出口: ", end="")

@@ -752,11 +752,90 @@ jobs:
 
   job_rootfs_part_custom:
     name: Job - Rootfs Part - Custom
-    needs: [job_kernel, job_cc_via_python]
+    needs: [job_toolchain, job_kernel, job_cc_via_python]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
+
+      - name: Apt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shc
+
+      - name: encrypt shell 1
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=${TOOLCHAIN}/bin:$PATH
+          
+          shc -r -f box_openvpn.sh
+          arm-linux-gnueabihf-gcc box_openvpn.sh.x.c -o box_openvpn
+          rm -rf box_openvpn.sh box_openvpn.sh.x.c box_openvpn.sh.x
+
+          shc -r -f box_reset.sh
+          arm-linux-gnueabihf-gcc box_reset.sh.x.c -o box_reset
+          rm -rf box_reset.sh box_reset.sh.x.c box_reset.sh.x
+        working-directory: ./HTBOX-via-forlinx/rootfs-ipk/htbox/data/opt/bin
+
+      - name: encrypt shell 2
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=${TOOLCHAIN}/bin:$PATH
+
+          shc -r -f dev_bt.sh
+          arm-linux-gnueabihf-gcc dev_bt.sh.x.c -o dev_bt
+          rm -rf dev_bt.sh dev_bt.sh.x.c dev_bt.sh.x
+
+          shc -r -f dev_can.sh
+          arm-linux-gnueabihf-gcc dev_can.sh.x.c -o dev_can
+          rm -rf dev_can.sh dev_can.sh.x.c dev_can.sh.x
+
+          shc -r -f sys_init.sh
+          arm-linux-gnueabihf-gcc sys_init.sh.x.c -o sys_init
+          rm -rf sys_init.sh sys_init.sh.x.c sys_init.sh.x
+
+          shc -r -f sys_reset.sh
+          arm-linux-gnueabihf-gcc sys_reset.sh.x.c -o sys_reset
+          rm -rf sys_reset.sh sys_reset.sh.x.c sys_reset.sh.x
+
+          shc -r -f sys_update.sh
+          arm-linux-gnueabihf-gcc sys_update.sh.x.c -o sys_update
+          rm -rf sys_update.sh sys_update.sh.x.c sys_update.sh.x
+
+        working-directory: ./HTBOX-via-forlinx/rootfs-custom-add/opt/sbin
+
+      - name: encrypt shell 3
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=${TOOLCHAIN}/bin:$PATH
+
+          shc -r -f ip-up.sh
+          arm-linux-gnueabihf-gcc ip-up.sh.x.c -o ip-up
+          rm -rf ip-up.sh ip-up.sh.x.c ip-up.sh.x
+
+          shc -r -f quectel-ppp-kill.sh
+          arm-linux-gnueabihf-gcc quectel-ppp-kill.sh.x.c -o quectel-ppp-kill
+          rm -rf quectel-ppp-kill.sh quectel-ppp-kill.sh.x.c quectel-ppp-kill.sh.x
+
+          shc -r -f quectel-pppd.sh
+          arm-linux-gnueabihf-gcc quectel-pppd.sh.x.c -o quectel-pppd
+          rm -rf quectel-pppd.sh quectel-pppd.sh.x.c quectel-pppd.sh.x
+        working-directory: ./HTBOX-via-forlinx/rootfs-custom-add/usr/local/bin
 
       - name: Download Artifact uImage
         uses: actions/download-artifact@v2
