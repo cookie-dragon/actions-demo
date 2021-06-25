@@ -1,0 +1,23 @@
+#!/bin/sh
+
+case "$1" in
+start)
+	if [[ -f /etc/sysreset ]]; then
+		rm -rf /etc/sysreset
+		echo -e "\nSys Reset..."
+
+		/opt/sbin/sys_reset
+
+		echo -e "\nSys Reset: OK"
+	fi
+	;;
+stop)
+	echo ""
+	;;
+*)
+	echo "Usage: $0 {start} {stop}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

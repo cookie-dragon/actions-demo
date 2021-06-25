@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# 备份配置文件到/tmp/htbox/backup
+mkdir -p /tmp/htbox/backup
+
+if [[ -f /etc/htbox/htbox.conf ]]; then
+	mv -f /etc/htbox/htbox.conf /tmp/htbox/backup/
+fi
