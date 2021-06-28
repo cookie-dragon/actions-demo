@@ -189,7 +189,10 @@ jobs:
 
       - name: Tar
         run: |
+          sudo mkdir -p rootfs/opt/bin
           sudo mkdir -p rootfs/opt/sbin
+
+          sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/box_set_vpn_cert rootfs/opt/bin
           sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/dev_led rootfs/opt/sbin
           sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_chpwd rootfs/opt/sbin
           sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_show rootfs/opt/sbin

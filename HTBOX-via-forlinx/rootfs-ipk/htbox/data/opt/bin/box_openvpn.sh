@@ -76,34 +76,39 @@ case "$1" in
       -H "Authorization: ${opt_token}"
     )
 
-    result=$(echo ${curlresult} | jq '.result' | sed 's/^"//g' | sed 's/"$//g')
-    if [[ ${result} != "true" ]]
-    then
-        exit 1
-    fi
+    # result=$(echo ${curlresult} | jq '.result' | sed 's/^"//g' | sed 's/"$//g')
+    # if [[ ${result} != "true" ]]
+    # then
+    #     exit 1
+    # fi
 
     mkdir -p /etc/openvpn
+    
+    /opt/bin/box_set_vpn_cert "${curlresult}"
+    if [[ $? -ne 0 ]]; then
+      exit 1
+    fi
 
-    client_conf=$(echo ${curlresult} | jq '.data.client_conf' | sed 's/^"//g' | sed 's/"$//g')
-    echo -e ${client_conf} > /etc/openvpn/client.conf
+    # client_conf=$(echo ${curlresult} | jq '.data.client_conf' | sed 's/^"//g' | sed 's/"$//g')
+    # echo -e ${client_conf} > /etc/openvpn/client.conf
 
-    ca_crt=$(echo ${curlresult} | jq '.data.ca_crt' | sed 's/^"//g' | sed 's/"$//g')
-    echo -e ${ca_crt} > /etc/openvpn/ca.crt
+    # ca_crt=$(echo ${curlresult} | jq '.data.ca_crt' | sed 's/^"//g' | sed 's/"$//g')
+    # echo -e ${ca_crt} > /etc/openvpn/ca.crt
 
-    crl_pem=$(echo ${curlresult} | jq '.data.crl_pem' | sed 's/^"//g' | sed 's/"$//g')
-    echo -e ${crl_pem} > /etc/openvpn/crl.pem
+    # crl_pem=$(echo ${curlresult} | jq '.data.crl_pem' | sed 's/^"//g' | sed 's/"$//g')
+    # echo -e ${crl_pem} > /etc/openvpn/crl.pem
 
-    dh_pem=$(echo ${curlresult} | jq '.data.dh_pem' | sed 's/^"//g' | sed 's/"$//g')
-    echo -e ${dh_pem} > /etc/openvpn/dh.pem
+    # dh_pem=$(echo ${curlresult} | jq '.data.dh_pem' | sed 's/^"//g' | sed 's/"$//g')
+    # echo -e ${dh_pem} > /etc/openvpn/dh.pem
 
-    ta_key=$(echo ${curlresult} | jq '.data.ta_key' | sed 's/^"//g' | sed 's/"$//g')
-    echo -e ${ta_key} > /etc/openvpn/ta.key
+    # ta_key=$(echo ${curlresult} | jq '.data.ta_key' | sed 's/^"//g' | sed 's/"$//g')
+    # echo -e ${ta_key} > /etc/openvpn/ta.key
 
-    client_crt=$(echo ${curlresult} | jq '.data.client_crt' | sed 's/^"//g' | sed 's/"$//g')
-    echo -e ${client_crt} > /etc/openvpn/client.crt
+    # client_crt=$(echo ${curlresult} | jq '.data.client_crt' | sed 's/^"//g' | sed 's/"$//g')
+    # echo -e ${client_crt} > /etc/openvpn/client.crt
 
-    client_key=$(echo ${curlresult} | jq '.data.client_key' | sed 's/^"//g' | sed 's/"$//g')
-    echo -e ${client_key} > /etc/openvpn/client.key
+    # client_key=$(echo ${curlresult} | jq '.data.client_key' | sed 's/^"//g' | sed 's/"$//g')
+    # echo -e ${client_key} > /etc/openvpn/client.key
 
     echo "."
     ;;
