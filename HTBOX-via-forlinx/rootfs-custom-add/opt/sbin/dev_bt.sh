@@ -23,7 +23,7 @@ start() {
 }
 stop() {
   printf "Stopping BT ${dev} Channel ${channel}: "
-  kill -9 `ps | grep "rfcomm watch ${dev} ${channel}" | head -1 | awk '{printf $1}'`
+  kill -9 `ps | grep "rfcomm watch ${dev} ${channel}" | grep -v "grep" | head -1 | awk '{printf $1}'`
   echo "OK"
 }
 pscan() {

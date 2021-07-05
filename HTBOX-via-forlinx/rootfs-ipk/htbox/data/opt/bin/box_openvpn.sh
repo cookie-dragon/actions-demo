@@ -4,7 +4,7 @@ openvpn=/usr/sbin/openvpn
 test -x "$openvpn" || exit 0
 
 start() {
-  kill -9 `ps | grep "/opt/bin/defroute_monitor" | head -1 | awk '{printf $1}'`
+  kill -9 `ps | grep "/opt/bin/defroute_monitor" | grep -v "grep" | head -1 | awk '{printf $1}'`
   sleep 1
   route del default
 
@@ -17,7 +17,7 @@ start() {
 }
 
 stop() {
-  kill -9 `ps | grep "/opt/bin/defroute_monitor" | head -1 | awk '{printf $1}'`
+  kill -9 `ps | grep "/opt/bin/defroute_monitor" | grep -v "grep" | head -1 | awk '{printf $1}'`
   sleep 1
   route del default
 
