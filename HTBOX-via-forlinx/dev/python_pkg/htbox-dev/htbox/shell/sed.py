@@ -20,6 +20,7 @@ class SedShell:
     @staticmethod
     def replace_line(file, index, text):
         os.system("sed -i '" + str(index) + "c " + text + "' " + file)
+        os.system("sync")
 
     @staticmethod
     def annotate_well(file, index):

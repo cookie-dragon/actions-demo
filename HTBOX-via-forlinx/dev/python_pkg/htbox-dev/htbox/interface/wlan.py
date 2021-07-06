@@ -93,6 +93,7 @@ class WlanInterface(NetworkInterface):
                 os.system(
                     '/usr/local/sbin/wpa_passphrase "' + self.station_ssid + '" "password" > /etc/wpa_supplicant.conf')
                 os.system('sed -i "4c key_mgmt=NONE" /etc/wpa_supplicant.conf')
+                os.system("sync")
             if self.station_inet == "static":
                 SedShell.replace_line(file=file_interfaces,
                                       index=25,

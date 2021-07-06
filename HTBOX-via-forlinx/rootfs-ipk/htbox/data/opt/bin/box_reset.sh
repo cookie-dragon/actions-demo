@@ -3,6 +3,7 @@
 reset_when_miss() {
 	hostname=`cat /etc/hostname`
     sed -i "/htbox-undefined/c\"ssid\": \"${hostname}\"," /etc/htbox/htbox.conf.def
+    sync
 	cp -f /etc/htbox/htbox.conf.def /etc/htbox/htbox.conf
 }
 

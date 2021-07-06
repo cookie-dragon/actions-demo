@@ -11,8 +11,8 @@ s=`echo ${s_line#*": "}`
 if [[ -f /media/$MDEV/update ]]; then
 
 	# 停止HtBoxMain主程序
-	if [[ -f /etc/init.d/S99HtBoxMainAutoStart ]]; then
-		/etc/init.d/S99HtBoxMainAutoStart stop
+	if [[ -f /etc/init.d/S99HtBoxMainApp ]]; then
+		/etc/init.d/S99HtBoxMainApp stop
 	fi
 
 	# 开启LED

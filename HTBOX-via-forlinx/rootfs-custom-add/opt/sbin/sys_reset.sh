@@ -35,6 +35,7 @@ reset_host() {
 	sed -i "2c 127.0.1.1	htbox-${s4}" /etc/hosts
 	sed -i "9c Name = htbox-${s4}" /etc/bluetooth/main.conf
 	sed -i "5c ssid=htbox-${s4}" /etc/hostapd_wlan0.conf
+	sync
 }
 
 reset_factory() {

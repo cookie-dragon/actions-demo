@@ -695,7 +695,10 @@ jobs:
         run: sudo tar zxf rootfs-snap7.tgz
 
       - name: Fix
-        run: tree -pug
+        run: |
+          sudo chown -R root:root *
+
+          tree -pug
         working-directory: ./rootfs
 
       - name: Tar
@@ -718,10 +721,11 @@ jobs:
         run: |
           sudo mkdir -p rootfs
           sudo cp -rf HTBOX-via-forlinx/rootfs-base-add/* rootfs/
-          sudo chown -R root:root rootfs
 
       - name: Fix
         run: |
+          sudo chown -R root:root *
+
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 644
 
@@ -750,10 +754,11 @@ jobs:
         run: |
           sudo mkdir -p rootfs
           sudo cp -rf HTBOX-via-forlinx/rootfs-advance-add/* rootfs/
-          sudo chown -R root:root rootfs
 
       - name: Fix
         run: |
+          sudo chown -R root:root *
+
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 644
 
@@ -889,6 +894,8 @@ jobs:
           cp -rf ../../../data/* ./data/
           rm -rf ../../../data/
 
+          sudo chown -R root:root ./data/*
+
           chmod +x build.sh control/preinst control/postinst control/prerm control/postrm
           sh build.sh
         working-directory: ./HTBOX-via-forlinx/rootfs-ipk/htbox
@@ -918,10 +925,10 @@ jobs:
           
           sudo cp -rf HTBOX-via-forlinx/rootfs-ipk/htbox/htbox.ipk rootfs/media/factory/
 
-          sudo chown -R root:root rootfs
-
       - name: Fix
         run: |
+          sudo chown -R root:root *
+
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 640
 
@@ -955,6 +962,7 @@ jobs:
 
       - name: Pack HtBoxMain.ipk
         run: |
+          sudo chown -R root:root ./data/*
           chmod +x build.sh control/preinst control/postinst control/prerm control/postrm
           sh build.sh
         working-directory: ./HTBOX-via-forlinx/rootfs-ipk/HtBoxMain
@@ -973,10 +981,10 @@ jobs:
           sudo mkdir -p rootfs/media/factory
           sudo cp -rf HTBOX-via-forlinx/rootfs-ipk/HtBoxMain/HtBoxMain.ipk rootfs/media/factory/
 
-          sudo chown -R root:root rootfs
-
       - name: Fix
         run: |
+          sudo chown -R root:root *
+
           sudo find . -type d | xargs sudo chmod 755
           sudo find . -type f | xargs sudo chmod 640
 
