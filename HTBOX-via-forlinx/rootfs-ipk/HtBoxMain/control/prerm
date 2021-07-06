@@ -1,6 +1,13 @@
 #!/bin/sh
 
 # 备份配置文件到/tmp/htbox/backup
+
+
+if [[ -f /etc/init.d/S99HtBoxMainApp ]]; then
+    cd /etc/init.d
+	./S99HtBoxMainApp stop
+fi
+
 mkdir -p /tmp/htbox/backup
 
 if [[ -f /etc/htbox/config.json ]]; then

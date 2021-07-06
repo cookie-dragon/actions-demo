@@ -3,11 +3,11 @@
 chmod 755 /opt/bin/HtBoxMain
 chmod 755 /opt/bin/auto_start.sh
 
-chmod 755 /etc/init.d/S99HtBoxMainAutoStart
+chmod 755 /etc/init.d/S99HtBoxMainApp
 
 # 从/tmp/htbox/backup恢复配置文件
 # 若为重置包则不恢复
-: '
+
 mkdir -p /etc/htbox
 
 if [[ -f /tmp/htbox/backup/config.json ]]; then
@@ -17,4 +17,10 @@ fi
 if [[ -f /tmp/htbox/backup/nodes_config.json ]]; then
 	mv -f /tmp/htbox/backup/nodes_config.json /etc/htbox/
 fi
-'
+
+
+if [[ -f /etc/init.d/S99HtBoxMainApp ]]; then
+    cd /etc/init.d
+	./S99HtBoxMainApp start
+fi
+
