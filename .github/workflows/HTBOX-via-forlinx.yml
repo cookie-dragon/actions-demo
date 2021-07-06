@@ -205,20 +205,20 @@ jobs:
 
       - name: Tar 2  # 可执行python二进制程序（做进htbox.ipk）
         run: |
-          sudo mkdir -p rootfs/opt/bin
-          sudo mkdir -p rootfs/opt/sbin
+          mkdir -p data/opt/bin
+          mkdir -p data/opt/sbin
 
-          sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/box_set_vpn_cert rootfs/opt/bin
-          sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/dev_led rootfs/opt/sbin
+          cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/box_set_vpn_cert data/opt/bin
+          cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/dev_led data/opt/sbin
 
-          sudo tar zcf rootfs_python_public_executable_ipk_htbox.tgz rootfs/
-          sudo rm -rf rootfs/
+          tar zcf data_python_public_executable_ipk_htbox.tgz data/
+          rm -rf data/
 
       - name: Upload Artifact python_public_executable_ipk_htbox  # 可执行python二进制程序（做进htbox.ipk）
         uses: actions/upload-artifact@v2
         with:
           name: python_public_executable_ipk_htbox
-          path: ./rootfs_python_public_executable_ipk_htbox.tgz
+          path: ./data_python_public_executable_ipk_htbox.tgz
 
   job_rootfs_buildroot:
     name: Buildroot Root File System
@@ -877,7 +877,7 @@ jobs:
           path: ./
 
       - name: Untar python_public_executable_ipk_htbox  # 可执行python二进制程序（做进htbox.ipk）
-        run: sudo tar zxf rootfs_python_public_executable_ipk_htbox.tgz
+        run: sudo tar zxf data_python_public_executable_ipk_htbox.tgz
 
       - name: Pack htbox.ipk
         run: |
@@ -886,8 +886,8 @@ jobs:
           cp -rf ../../../so_htbox-dev/box_init ./data/opt/bin/
           cp -rf ../../../so_htbox-dev/defroute_monitor ./data/opt/bin/
 
-          cp -rf ../../../rootfs/* ./data/
-          rm -rf ../../../rootfs/
+          cp -rf ../../../data/* ./data/
+          rm -rf ../../../data/
 
           chmod +x build.sh control/preinst control/postinst control/prerm control/postrm
           sh build.sh
