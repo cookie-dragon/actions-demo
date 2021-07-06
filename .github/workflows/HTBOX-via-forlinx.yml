@@ -82,7 +82,7 @@ jobs:
       - name: Retar Toolchain
         run: tar zcf toolchain.tar.gz toolchain
 
-      - name: Upload Artifact toolchain
+      - name: Upload Artifact toolchain  # 交叉编译工具链
         uses: actions/upload-artifact@v2
         with:
           name: toolchain
@@ -160,7 +160,7 @@ jobs:
           sudo make install
         working-directory: ./Python-3.7.7
 
-      - name: Cython htbox-dev
+      - name: Cython htbox-dev  
         env:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
@@ -171,7 +171,7 @@ jobs:
           tar zcf htbox-dev.tar.gz so_htbox-dev
         working-directory: ./HTBOX-via-forlinx/dev/python_pkg
 
-      - name: Upload Artifact htbox-dev
+      - name: Upload Artifact htbox-dev  # 自制python包htbox-dev
         uses: actions/upload-artifact@v2
         with:
           name: htbox-dev
@@ -187,23 +187,38 @@ jobs:
           bash executable-cython-build.sh executable/
         working-directory: ./HTBOX-via-forlinx/dev/python_public_executable
 
-      - name: Tar
+      - name: Tar 1  # 可执行python二进制程序（直接做进文件系统）
+        run: |
+          sudo mkdir -p rootfs/opt/sbin
+
+          sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_chpwd rootfs/opt/sbin
+          sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_show rootfs/opt/sbin
+
+          sudo tar zcf rootfs_python_public_executable_rfs.tgz rootfs/
+          sudo rm -rf rootfs/
+
+      - name: Upload Artifact python_public_executable_rfs  # 可执行python二进制程序（直接做进文件系统）
+        uses: actions/upload-artifact@v2
+        with:
+          name: python_public_executable_rfs
+          path: ./rootfs_python_public_executable_rfs.tgz
+
+      - name: Tar 2  # 可执行python二进制程序（做进htbox.ipk）
         run: |
           sudo mkdir -p rootfs/opt/bin
           sudo mkdir -p rootfs/opt/sbin
 
           sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/box_set_vpn_cert rootfs/opt/bin
           sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/dev_led rootfs/opt/sbin
-          sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_chpwd rootfs/opt/sbin
-          sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_show rootfs/opt/sbin
-          tree -pug rootfs
-          sudo tar zcf rootfs-python_public_executable.tgz rootfs/
 
-      - name: Upload Artifact python_public_executable
+          sudo tar zcf rootfs_python_public_executable_ipk_htbox.tgz rootfs/
+          sudo rm -rf rootfs/
+
+      - name: Upload Artifact python_public_executable_ipk_htbox  # 可执行python二进制程序（做进htbox.ipk）
         uses: actions/upload-artifact@v2
         with:
-          name: python_public_executable
-          path: ./rootfs-python_public_executable.tgz
+          name: python_public_executable_ipk_htbox
+          path: ./rootfs_python_public_executable_ipk_htbox.tgz
 
   job_rootfs_buildroot:
     name: Buildroot Root File System
@@ -257,16 +272,16 @@ jobs:
           rm -rf buildroot-2019.02.11/package/iproute2
           cp -rf buildroot-2017.02.11/package/iproute2 buildroot-2019.02.11/package/
 
-      - name: Download Artifact htbox-dev
+      - name: Download Artifact htbox-dev  # 自制python包htbox-dev
         uses: actions/download-artifact@v2
         with:
           name: htbox-dev
           path: ./
       
-      - name: Untar htbox-dev
+      - name: Untar htbox-dev  # 自制python包htbox-dev
         run: tar zxf htbox-dev.tar.gz
 
-      - name: Copy To Buildroot Package
+      - name: Copy To Buildroot Package  # 自制python包htbox-dev放入buildroot的package，做文件系统的时候直接做进去（包信息setup.py不复制）
         run: |
           cp -rf htbox/* ../HTBOX-via-forlinx/buildroot-add/package/python-htbox/htbox/htbox/
         working-directory: ./so_htbox-dev
@@ -288,9 +303,9 @@ jobs:
           patch -p1 < ../HTBOX-via-forlinx/buildroot-patch/package_Config.in.patch
         working-directory: ./buildroot-2019.02.11
 
-      - name: Config Buildroot
+      - name: Config Buildroot  # config.advance.new config.base.new
         run: |
-          cp -f HTBOX-via-forlinx/buildroot-config/config.advance.new buildroot-2019.02.11/.config
+          cp -f HTBOX-via-forlinx/buildroot-config/config.base.new buildroot-2019.02.11/.config
 
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH=\"${{needs.job_toolchain.outputs.TOOLCHAIN}}\"" buildroot-2019.02.11/.config
           sed -i "/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}\"" buildroot-2019.02.11/.config
@@ -315,7 +330,7 @@ jobs:
         run: make -j$(nproc)
         working-directory: ./buildroot-2019.02.11
 
-      - name: Upload Artifact rootfs_buildroot
+      - name: Upload Artifact rootfs_buildroot  # 文件系统buildroot版
         uses: actions/upload-artifact@v2
         with:
           name: rootfs_buildroot
@@ -367,24 +382,24 @@ jobs:
           make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules
         working-directory: ./kernel
 
-      - name: Upload Artifact uImage
+      - name: Upload Artifact uImage  # 内核
         uses: actions/upload-artifact@v2
         with:
           name: uImage
           path: ./kernel/arch/arm/boot/uImage
 
-      - name: Download Artifact rootfs_buildroot
+      - name: Download Artifact rootfs_buildroot  # 文件系统buildroot版
         uses: actions/download-artifact@v2
         with:
           name: rootfs_buildroot
           path: ./
 
-      - name: Untar Buildroot Root File System
+      - name: Untar Buildroot Root File System  # 文件系统buildroot版
         run: |
           mkdir -p rootfs
           sudo tar xf rootfs.tar -C ./rootfs/
           
-      - name: Kernel Modules Install
+      - name: Kernel Modules Install  # 文件系统安装内核M包
         env:
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
@@ -393,7 +408,7 @@ jobs:
       - name: Tar Buildroot Root File System With Modules
         run: sudo tar zcf rootfs.tar.gz rootfs/
 
-      - name: Upload Artifact rootfs_buildroot_with_modules
+      - name: Upload Artifact rootfs_buildroot_with_modules  # 文件系统内核版
         uses: actions/upload-artifact@v2
         with:
           name: rootfs_buildroot_with_modules
@@ -433,10 +448,10 @@ jobs:
         run: |
           sudo mkdir -p rootfs/usr/local/bin
           sudo cp -rf stress-1.0.4/src/stress rootfs/usr/local/bin
-          tree -pug rootfs
+
           sudo tar zcf rootfs-stress.tgz rootfs/
 
-      - name: Upload Artifact stress
+      - name: Upload Artifact stress  # 独立交叉编译stress包
         uses: actions/upload-artifact@v2
         with:
           name: stress
@@ -482,10 +497,10 @@ jobs:
         run: |
           sudo mkdir -p rootfs/usr/local/bin
           sudo cp -rf rt-tests/cyclictest rootfs/usr/local/bin
-          tree -pug rootfs
+
           sudo tar zcf rootfs-rt-tests.tgz rootfs/
 
-      - name: Upload Artifact rt-tests
+      - name: Upload Artifact rt-tests  # 独立交叉编译rt-tests包
         uses: actions/upload-artifact@v2
         with:
           name: rt-tests
@@ -568,10 +583,10 @@ jobs:
           sudo cp -rf /usr/local/sbin/wpa_cli rootfs/usr/local/sbin
           sudo cp -rf /usr/local/sbin/wpa_passphrase rootfs/usr/local/sbin
           sudo cp -rf /usr/local/sbin/wpa_supplicant rootfs/usr/local/sbin
-          tree -pug rootfs
+
           sudo tar zcf rootfs-wireless.tgz rootfs/
 
-      - name: Upload Artifact wireless
+      - name: Upload Artifact wireless  # 独立交叉编译wireless包
         uses: actions/upload-artifact@v2
         with:
           name: wireless
@@ -620,10 +635,10 @@ jobs:
         run: |
           sudo mkdir -p rootfs/usr/lib
           sudo cp -rf /usr/lib/libsnap7.so rootfs/usr/lib
-          tree -pug rootfs
+
           sudo tar zcf rootfs-snap7.tgz rootfs/
 
-      - name: Upload Artifact snap7
+      - name: Upload Artifact snap7  # 独立交叉编译snap7包
         uses: actions/upload-artifact@v2
         with:
           name: snap7
@@ -634,49 +649,49 @@ jobs:
     needs: [job_cc_via_python, job_cc_stress, job_cc_rt-tests, job_cc_wireless, job_cc_snap7]
     runs-on: ubuntu-18.04
     steps:
-      - name: Download Artifact python_public_executable
+      - name: Download Artifact python_public_executable_rfs  # 可执行python二进制程序（直接做进文件系统）
         uses: actions/download-artifact@v2
         with:
-          name: python_public_executable
+          name: python_public_executable_rfs
           path: ./
 
-      - name: Untar python_public_executable
-        run: sudo tar zxf rootfs-python_public_executable.tgz
+      - name: Untar python_public_executable_rfs  # 可执行python二进制程序（直接做进文件系统）
+        run: sudo tar zxf rootfs_python_public_executable_rfs.tgz
 
-      - name: Download Artifact stress
+      - name: Download Artifact stress  # 独立交叉编译stress包
         uses: actions/download-artifact@v2
         with:
           name: stress
           path: ./
 
-      - name: Untar stress
+      - name: Untar stress  # 独立交叉编译stress包
         run: sudo tar zxf rootfs-stress.tgz
 
-      - name: Download Artifact rt-tests
+      - name: Download Artifact rt-tests  # 独立交叉编译rt-tests包
         uses: actions/download-artifact@v2
         with:
           name: rt-tests
           path: ./ 
 
-      - name: Untar rt-tests
+      - name: Untar rt-tests  # 独立交叉编译rt-tests包
         run: sudo tar zxf rootfs-rt-tests.tgz
 
-      - name: Download Artifact wireless
+      - name: Download Artifact wireless  # 独立交叉编译wireless包
         uses: actions/download-artifact@v2
         with:
           name: wireless
           path: ./
 
-      - name: Untar wireless
+      - name: Untar wireless  # 独立交叉编译wireless包
         run: sudo tar zxf rootfs-wireless.tgz
 
-      - name: Download Artifact snap7
+      - name: Download Artifact snap7  # 独立交叉编译snap7包
         uses: actions/download-artifact@v2
         with:
           name: snap7
           path: ./
 
-      - name: Untar snap7
+      - name: Untar snap7  # 独立交叉编译snap7包
         run: sudo tar zxf rootfs-snap7.tgz
 
       - name: Fix
@@ -686,7 +701,7 @@ jobs:
       - name: Tar
         run: sudo tar zcf rootfs_part_cc.tgz rootfs/
 
-      - name: Upload Artifact
+      - name: Upload Artifact  # 独立交叉编译包（包含直接做进文件系统的可执行python二进制程序）
         uses: actions/upload-artifact@v2
         with:
           name: rootfs_part_cc
@@ -718,7 +733,7 @@ jobs:
       - name: Tar
         run: sudo tar zcf rootfs_part_base.tgz rootfs/
 
-      - name: Upload Artifact
+      - name: Upload Artifact  # 文件系统base包
         uses: actions/upload-artifact@v2
         with:
           name: rootfs_part_base
@@ -748,7 +763,7 @@ jobs:
       - name: Tar
         run: sudo tar zcf rootfs_part_advance.tgz rootfs/
 
-      - name: Upload Artifact
+      - name: Upload Artifact  # 文件系统advance包
         uses: actions/upload-artifact@v2
         with:
           name: rootfs_part_advance
@@ -776,7 +791,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y shc
 
-      - name: encrypt shell 1
+      - name: encrypt shell 1  # shell脚本转换成可执行二进制程序（ipk_htbox:/opt/bin）
         env:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
@@ -792,7 +807,7 @@ jobs:
           rm -rf box_reset.sh box_reset.sh.x.c box_reset.sh.x
         working-directory: ./HTBOX-via-forlinx/rootfs-ipk/htbox/data/opt/bin
 
-      - name: encrypt shell 2
+      - name: encrypt shell 2  # shell脚本转换成可执行二进制程序（rfs:/opt/sbin）
         env:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
@@ -821,7 +836,7 @@ jobs:
 
         working-directory: ./HTBOX-via-forlinx/rootfs-custom-add/opt/sbin
 
-      - name: encrypt shell 3
+      - name: encrypt shell 3  # shell脚本转换成可执行二进制程序（rfs:/usr/local/bin）
         env:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
@@ -841,25 +856,28 @@ jobs:
           rm -rf quectel-pppd.sh quectel-pppd.sh.x.c quectel-pppd.sh.x
         working-directory: ./HTBOX-via-forlinx/rootfs-custom-add/usr/local/bin
 
-      - name: Download Artifact uImage
-        uses: actions/download-artifact@v2
-        with:
-          name: uImage
-          path: ./
-
-      - name: Download Artifact htbox-dev
+      - name: Download Artifact htbox-dev  # 自制python包htbox-dev
         uses: actions/download-artifact@v2
         with:
           name: htbox-dev
           path: ./
       
-      - name: Untar htbox-dev
+      - name: Untar htbox-dev  # 自制python包htbox-dev
         run: tar zxf htbox-dev.tar.gz
 
-      - name: Copy To Buildroot Package
+      - name: Copy To Buildroot Package  # 自制python包htbox-dev放入buildroot的package，做文件系统的时候直接做进去（包信息setup.py不复制）
         run: |
           cp -rf htbox/* ../HTBOX-via-forlinx/buildroot-add/package/python-htbox/htbox/htbox/
         working-directory: ./so_htbox-dev
+
+      - name: Download Artifact python_public_executable_ipk_htbox  # 可执行python二进制程序（做进htbox.ipk）
+        uses: actions/download-artifact@v2
+        with:
+          name: python_public_executable_ipk_htbox
+          path: ./
+
+      - name: Untar python_public_executable_ipk_htbox  # 可执行python二进制程序（做进htbox.ipk）
+        run: sudo tar zxf rootfs_python_public_executable_ipk_htbox.tgz
 
       - name: Pack htbox.ipk
         run: |
@@ -868,9 +886,24 @@ jobs:
           cp -rf ../../../so_htbox-dev/box_init ./data/opt/bin/
           cp -rf ../../../so_htbox-dev/defroute_monitor ./data/opt/bin/
 
+          cp -rf ../../../rootfs/* ./data/
+          rm -rf ../../../rootfs/
+
           chmod +x build.sh control/preinst control/postinst control/prerm control/postrm
           sh build.sh
         working-directory: ./HTBOX-via-forlinx/rootfs-ipk/htbox
+
+      - name: Upload Artifact  # htbox.ipk
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipk_htbox
+          path: ./HTBOX-via-forlinx/rootfs-ipk/htbox/htbox.ipk
+
+      - name: Download Artifact uImage
+        uses: actions/download-artifact@v2
+        with:
+          name: uImage
+          path: ./
 
       - name: Make Rootfs Dir
         run: |
@@ -907,7 +940,7 @@ jobs:
       - name: Tar
         run: sudo tar zcf rootfs_part_custom.tgz rootfs/
 
-      - name: Upload Artifact
+      - name: Upload Artifact  # 文件系统custom包
         uses: actions/upload-artifact@v2
         with:
           name: rootfs_part_custom
@@ -925,6 +958,12 @@ jobs:
           chmod +x build.sh control/preinst control/postinst control/prerm control/postrm
           sh build.sh
         working-directory: ./HTBOX-via-forlinx/rootfs-ipk/HtBoxMain
+
+      - name: Upload Artifact  # HtBoxMain.ipk
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipk_HtBoxMain
+          path: ./HTBOX-via-forlinx/rootfs-ipk/HtBoxMain/HtBoxMain.ipk
 
       - name: Make Rootfs Dir
         run: |
@@ -947,7 +986,7 @@ jobs:
       - name: Tar
         run: sudo tar zcf rootfs_part_business.tgz rootfs/
 
-      - name: Upload Artifact
+      - name: Upload Artifact  # 文件系统business包
         uses: actions/upload-artifact@v2
         with:
           name: rootfs_part_business
@@ -966,13 +1005,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mtd-utils
 
-      - name: Download Artifact rootfs_buildroot_with_modules
+      - name: Download Artifact rootfs_buildroot_with_modules  # 文件系统内核版
         uses: actions/download-artifact@v2
         with:
           name: rootfs_buildroot_with_modules
           path: ./
 
-      - name: Untar Root File System
+      - name: Untar Root File System  # 文件系统内核版
         run: sudo tar zxf rootfs.tar.gz
 
       # ########## # ########## # ########## # ########## # ########## #
@@ -982,13 +1021,13 @@ jobs:
           sudo rm -rf rootfs/lib/modules/*/build
           sudo rm -rf rootfs/lib/modules/*/source
 
-      - name: Download Artifact rootfs_part_base
+      - name: Download Artifact rootfs_part_base  # 文件系统base包
         uses: actions/download-artifact@v2
         with:
           name: rootfs_part_base
           path: ./
 
-      - name: Untar rootfs_part_base
+      - name: Untar rootfs_part_base  # 文件系统base包
         run: sudo tar zxf rootfs_part_base.tgz
 
       - name: Patch Root File System (Base)
@@ -997,44 +1036,44 @@ jobs:
           sudo patch -p1 < ../HTBOX-via-forlinx/rootfs-patch/etc_profile.patch
         working-directory: ./rootfs
 
-      - name: Tar Final Root File System (Base)
-        run: sudo tar zcf rootfs_final_base.tar.gz rootfs/
+      # - name: Tar Final Root File System (Base)
+      #   run: sudo tar zcf rootfs_final_base.tar.gz rootfs/
 
-      - name: Upload Artifact rootfs_final_base (Base)
-        uses: actions/upload-artifact@v2
-        with:
-          name: rootfs_final_base
-          path: ./rootfs_final_base.tar.gz
+      # - name: Upload Artifact rootfs_final_base (Base)
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: rootfs_final_base
+      #     path: ./rootfs_final_base.tar.gz
 
-      - name: Build UBI File System (Base)
-        run: |
-          sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
-          sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 HTBOX-via-forlinx/rootfs-config/ubinize-256M.cfg
+      # - name: Build UBI File System (Base)
+      #   run: |
+      #     sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+      #     sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 HTBOX-via-forlinx/rootfs-config/ubinize-256M.cfg
 
-      - name: Upload Artifact ubi_base (Base)
-        uses: actions/upload-artifact@v2
-        with:
-          name: ubi_base
-          path: ./ubi.img
+      # - name: Upload Artifact ubi_base (Base)
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ubi_base
+      #     path: ./ubi.img
 
       # ########## # ########## # ########## # ########## # ########## #
 
-      - name: Download Artifact rootfs_part_cc
+      - name: Download Artifact rootfs_part_cc  # 独立交叉编译包（包含直接做进文件系统的可执行python二进制程序）
         uses: actions/download-artifact@v2
         with:
           name: rootfs_part_cc
           path: ./
 
-      - name: Untar rootfs_part_cc
+      - name: Untar rootfs_part_cc  # 独立交叉编译包（包含直接做进文件系统的可执行python二进制程序）
         run: sudo tar zxf rootfs_part_cc.tgz
 
-      - name: Download Artifact rootfs_part_advance
+      - name: Download Artifact rootfs_part_advance  # 文件系统advance包
         uses: actions/download-artifact@v2
         with:
           name: rootfs_part_advance
           path: ./
 
-      - name: Untar rootfs_part_advance
+      - name: Untar rootfs_part_advance  # 文件系统advance包
         run: sudo tar zxf rootfs_part_advance.tgz
 
       - name: Patch Root File System (Advance)
@@ -1042,35 +1081,35 @@ jobs:
           sudo patch -p1 < ../HTBOX-via-forlinx/rootfs-patch/etc_bluetooth_main.conf.patch
         working-directory: ./rootfs
 
-      - name: Tar Final Root File System (Advance)
-        run: sudo tar zcf rootfs_final_advance.tar.gz rootfs/
+      # - name: Tar Final Root File System (Advance)
+      #   run: sudo tar zcf rootfs_final_advance.tar.gz rootfs/
 
-      - name: Upload Artifact rootfs_final_advance (Advance)
-        uses: actions/upload-artifact@v2
-        with:
-          name: rootfs_final_advance
-          path: ./rootfs_final_advance.tar.gz
+      # - name: Upload Artifact rootfs_final_advance (Advance)
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: rootfs_final_advance
+      #     path: ./rootfs_final_advance.tar.gz
 
-      - name: Build UBI File System (Advance)
-        run: |
-          sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
-          sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 HTBOX-via-forlinx/rootfs-config/ubinize-256M.cfg
+      # - name: Build UBI File System (Advance)
+      #   run: |
+      #     sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+      #     sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 HTBOX-via-forlinx/rootfs-config/ubinize-256M.cfg
 
-      - name: Upload Artifact ubi_advance (Advance)
-        uses: actions/upload-artifact@v2
-        with:
-          name: ubi_advance
-          path: ./ubi.img
+      # - name: Upload Artifact ubi_advance (Advance)
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ubi_advance
+      #     path: ./ubi.img
 
       # ########## # ########## # ########## # ########## # ########## #
 
-      - name: Download Artifact rootfs_part_custom
+      - name: Download Artifact rootfs_part_custom  # 文件系统custom包
         uses: actions/download-artifact@v2
         with:
           name: rootfs_part_custom
           path: ./
 
-      - name: Untar rootfs_part_custom
+      - name: Untar rootfs_part_custom  # 文件系统custom包
         run: sudo tar zxf rootfs_part_custom.tgz
 
       - name: Patch Root File System (Custom)
@@ -1078,25 +1117,25 @@ jobs:
           sudo patch -p1 < ../HTBOX-via-forlinx/rootfs-patch/etc_inittab.patch
         working-directory: ./rootfs
 
-      - name: Tar Final Root File System (Custom)
-        run: sudo tar zcf rootfs_final_custom.tar.gz rootfs/
+      # - name: Tar Final Root File System (Custom)
+      #   run: sudo tar zcf rootfs_final_custom.tar.gz rootfs/
 
-      - name: Upload Artifact rootfs_final_custom (Custom)
-        uses: actions/upload-artifact@v2
-        with:
-          name: rootfs_final_custom
-          path: ./rootfs_final_custom.tar.gz
+      # - name: Upload Artifact rootfs_final_custom (Custom)
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: rootfs_final_custom
+      #     path: ./rootfs_final_custom.tar.gz
 
-      - name: Build UBI File System (Custom)
-        run: |
-          sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
-          sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 HTBOX-via-forlinx/rootfs-config/ubinize-256M.cfg
+      # - name: Build UBI File System (Custom)
+      #   run: |
+      #     sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+      #     sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 HTBOX-via-forlinx/rootfs-config/ubinize-256M.cfg
 
-      - name: Upload Artifact ubi_custom (Custom)
-        uses: actions/upload-artifact@v2
-        with:
-          name: ubi_custom
-          path: ./ubi.img
+      # - name: Upload Artifact ubi_custom (Custom)
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ubi_custom
+      #     path: ./ubi.img
 
       # ########## # ########## # ########## # ########## # ########## #
 
@@ -1104,23 +1143,23 @@ jobs:
         run: |
           sudo rm -rf rootfs/etc/init.d/S60openvpn
 
-      - name: Download Artifact rootfs_part_business
+      - name: Download Artifact rootfs_part_business  # 文件系统business包
         uses: actions/download-artifact@v2
         with:
           name: rootfs_part_business
           path: ./
 
-      - name: Untar rootfs_part_business
+      - name: Untar rootfs_part_business  # 文件系统business包
         run: sudo tar zxf rootfs_part_business.tgz
 
       - name: Tar Final Root File System (Business)
         run: sudo tar zcf rootfs_final_business.tar.gz rootfs/
 
-      - name: Upload Artifact rootfs_final_business (Business)
-        uses: actions/upload-artifact@v2
-        with:
-          name: rootfs_final_business
-          path: ./rootfs_final_business.tar.gz
+      # - name: Upload Artifact rootfs_final_business (Business)
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: rootfs_final_business
+      #     path: ./rootfs_final_business.tar.gz
 
       - name: Build UBI File System (Business)
         run: |
@@ -1198,23 +1237,3 @@ jobs:
           asset_path: ./output/SD_Flash.zip
           asset_name: SD_Flash.zip
           asset_content_type: application/zip
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
