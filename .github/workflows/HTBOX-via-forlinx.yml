@@ -191,6 +191,7 @@ jobs:
         run: |
           sudo mkdir -p rootfs/opt/sbin
 
+          sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/dev_led rootfs/opt/sbin
           sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_chpwd rootfs/opt/sbin
           sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_show rootfs/opt/sbin
 
@@ -206,10 +207,8 @@ jobs:
       - name: Tar 2  # 可执行python二进制程序（做进htbox.ipk）
         run: |
           mkdir -p data/opt/bin
-          mkdir -p data/opt/sbin
 
           cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/box_set_vpn_cert data/opt/bin
-          cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/dev_led data/opt/sbin
 
           tar zcf data_python_public_executable_ipk_htbox.tgz data/
           rm -rf data/

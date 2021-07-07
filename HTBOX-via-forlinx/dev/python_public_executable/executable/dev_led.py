@@ -27,14 +27,17 @@ class DevLed(Thread):
         value.close()
 
     def led_twinkle(self, led_name: str, delay: float, times: int, interval: float, reverse: bool):
+        if reverse:
+            self.led_on(led_name)
+        else:
+            self.led_off(led_name)
+
         for i in range(times):
             if reverse:
-                self.led_on(led_name)
                 self.led_off(led_name)
                 time.sleep(delay)
                 self.led_on(led_name)
             else:
-                self.led_off(led_name)
                 self.led_on(led_name)
                 time.sleep(delay)
                 self.led_off(led_name)
