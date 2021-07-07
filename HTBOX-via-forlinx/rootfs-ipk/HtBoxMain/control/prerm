@@ -1,13 +1,12 @@
 #!/bin/sh
 
-# 备份配置文件到/tmp/htbox/backup
-
-
+# 停止服务
 if [[ -f /etc/init.d/S99HtBoxMainApp ]]; then
     cd /etc/init.d
 	./S99HtBoxMainApp stop
 fi
 
+# 备份配置文件到/tmp/htbox/backup
 mkdir -p /tmp/htbox/backup
 
 if [[ -f /etc/htbox/config.json ]]; then
