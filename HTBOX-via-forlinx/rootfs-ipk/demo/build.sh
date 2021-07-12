@@ -6,6 +6,7 @@ pwd=`pwd`
 cd $pwd
 rm -rf $pwd/control.tar.gz
 cd $pwd/control
+chmod +x postinst postrm preinst prerm
 tar zcvf ../control.tar.gz ./*
 
 cd $pwd

@@ -1,7 +1,7 @@
 {
   "interface": {
     "eth0": {
-      "mode": "vice",
+      "mode": "main",
       "device": {
         "inet": "static",
         "inet_static": {
@@ -80,7 +80,7 @@
       }
     },
     "ppp0": {
-      "mode": "main",
+      "mode": "off",
       "ppp": {
         "devname": "/dev/ttyUSB2",
         "apn": "3gnet",

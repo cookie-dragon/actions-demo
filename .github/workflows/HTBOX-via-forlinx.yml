@@ -895,7 +895,7 @@ jobs:
 
           sudo chown -R root:root ./data/*
 
-          chmod +x build.sh control/preinst control/postinst control/prerm control/postrm
+          chmod +x build.sh
           sh build.sh
         working-directory: ./HTBOX-via-forlinx/rootfs-ipk/htbox
 
@@ -962,7 +962,7 @@ jobs:
       - name: Pack HtBoxMain.ipk
         run: |
           sudo chown -R root:root ./data/*
-          chmod +x build.sh control/preinst control/postinst control/prerm control/postrm
+          chmod +x build.sh
           sh build.sh
         working-directory: ./HTBOX-via-forlinx/rootfs-ipk/HtBoxMain
 
