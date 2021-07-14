@@ -8,10 +8,6 @@ reset_root() {
 }
 
 reset_user() {
-	s_line=`cat /proc/cpuinfo | grep Serial`
-	s=`echo ${s_line#*": "}`
-	s4=${s:0-4}
-
 	deluser user
 	deluser admin
 

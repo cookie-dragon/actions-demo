@@ -1,5 +1,0 @@
-#!/bin/sh
-if [ -d /sys/block/*/$MDEV ]  ; then
-  mkdir -p /media/$MDEV
-  mount /dev/$MDEV /media/$MDEV 
-fi

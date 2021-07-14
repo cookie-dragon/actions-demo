@@ -194,6 +194,7 @@ jobs:
           sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/dev_led rootfs/opt/sbin
           sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_chpwd rootfs/opt/sbin
           sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_show rootfs/opt/sbin
+          sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_mount_tools rootfs/opt/sbin
 
           sudo tar zcf rootfs_python_public_executable_rfs.tgz rootfs/
           sudo rm -rf rootfs/
@@ -795,6 +796,23 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y shc
 
+      - name: encrypt shell 0  # shell脚本转换成可执行二进制程序（rfs:/etc/mdev）
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          export PATH=${TOOLCHAIN}/bin:$PATH
+
+          shc -r -f insert.sh
+          arm-linux-gnueabihf-gcc insert.sh.x.c -o insert
+          rm -rf insert.sh insert.sh.x.c insert.sh.x
+
+          shc -r -f remove.sh
+          arm-linux-gnueabihf-gcc remove.sh.x.c -o remove
+          rm -rf remove.sh remove.sh.x.c remove.sh.x
+
+        working-directory: ./HTBOX-via-forlinx/rootfs-base-add/etc/mdev
+
       - name: encrypt shell 1  # shell脚本转换成可执行二进制程序（ipk_htbox:/opt/bin）
         env:
           TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
@@ -1039,7 +1057,6 @@ jobs:
 
       - name: Patch Root File System (Base)
         run: |
-          sudo patch -p1 < ../HTBOX-via-forlinx/rootfs-patch/etc_mdev.conf.patch
           sudo patch -p1 < ../HTBOX-via-forlinx/rootfs-patch/etc_profile.patch
         working-directory: ./rootfs
 
@@ -1121,6 +1138,7 @@ jobs:
 
       - name: Patch Root File System (Custom)
         run: |
+          sudo patch -p1 < ../HTBOX-via-forlinx/rootfs-patch/etc_mdev.conf.patch
           sudo patch -p1 < ../HTBOX-via-forlinx/rootfs-patch/etc_inittab.patch
         working-directory: ./rootfs
 

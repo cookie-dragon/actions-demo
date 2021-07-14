@@ -1,6 +1,6 @@
 #!/bin/bash
 
-executable_filenames=("box_set_vpn_cert.py" "dev_led.py" "sys_admin_totp_chpwd.py" "sys_admin_totp_show.py")
+executable_filenames=("box_set_vpn_cert.py" "dev_led.py" "sys_admin_totp_chpwd.py" "sys_admin_totp_show.py" "sys_mount_tools.py")
 
 do_cython_executable() {
 	local path=$1
