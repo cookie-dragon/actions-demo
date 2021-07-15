@@ -373,7 +373,7 @@ jobs:
       - name: Link Init
         run: |
           sudo ln -s ../init.d/sshd.sh S99sshd.sh
-          sudo ln -s ../init.d/mosquitto.sh S99mosquitto.sh
+          sudo ln -s ../init.d/mosquitto.sh S98mosquitto.sh
           sudo ln -s ../init.d/sztenv S99sztenv
           sudo ln -s ../init.d/pynet.sh S99pynet.sh
         working-directory: ./rootfs/etc/rc5.d
