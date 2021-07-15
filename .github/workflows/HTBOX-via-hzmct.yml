@@ -502,92 +502,92 @@ jobs:
           name: SD_Flash
           path: ./output
 
-      - name: Organize files
-        id: organize
-        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
-        run: |
-          zip -qr SD_Flash.zip SD_Flash
+      # - name: Organize files
+      #   id: organize
+      #   if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      #   run: |
+      #     zip -qr SD_Flash.zip SD_Flash
 
-          echo "FIRMWARE=$PWD/SD_Flash.zip" >> $GITHUB_ENV
+      #     echo "FIRMWARE=$PWD/SD_Flash.zip" >> $GITHUB_ENV
 
-          RTN_gettoken=`curl --location --request GET "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=${{ secrets.WECHATWORK_CORPID }}&corpsecret=${{ secrets.WECHATWORK_APP_CORPSECRET }}"`
-          access_token=`echo ${RTN_gettoken} | jq -r '.access_token'`
-          echo "ACCESS_TOKEN=${access_token}" >> $GITHUB_ENV
+      #     RTN_gettoken=`curl --location --request GET "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=${{ secrets.WECHATWORK_CORPID }}&corpsecret=${{ secrets.WECHATWORK_APP_CORPSECRET }}"`
+      #     access_token=`echo ${RTN_gettoken} | jq -r '.access_token'`
+      #     echo "ACCESS_TOKEN=${access_token}" >> $GITHUB_ENV
 
-          echo "::set-output name=status::success"
-        working-directory: ./output
+      #     echo "::set-output name=status::success"
+      #   working-directory: ./output
 
-      - name: Upload firmware to outside of Github
-        id: transfer
-        if: steps.organize.outputs.status == 'success' && (env.UPLOAD_COWTRANSFER == 'true' || env.UPLOAD_WETRANSFER == 'true') && !cancelled()
-        run: |
-          curl -fsSL git.io/file-transfer | sh
+      # - name: Upload firmware to outside of Github
+      #   id: transfer
+      #   if: steps.organize.outputs.status == 'success' && (env.UPLOAD_COWTRANSFER == 'true' || env.UPLOAD_WETRANSFER == 'true') && !cancelled()
+      #   run: |
+      #     curl -fsSL git.io/file-transfer | sh
 
-      - name: Upload firmware to Cowtransfer
-        id: cowtransfer
-        if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
-        run: |
-          ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
+      # - name: Upload firmware to Cowtransfer
+      #   id: cowtransfer
+      #   if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+      #   run: |
+      #     ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
 
-          L2=`sed -n '2p' cowtransfer.log`
-          L3=`sed -n '3p' cowtransfer.log`
-          DownloadLink=${L2#*: }
-          DownloadCode=${L3#*: }
+      #     L2=`sed -n '2p' cowtransfer.log`
+      #     L3=`sed -n '3p' cowtransfer.log`
+      #     DownloadLink=${L2#*: }
+      #     DownloadCode=${L3#*: }
 
-          curl --location --request POST "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${ACCESS_TOKEN}" \
-          --header 'Content-Type: application/json' \
-          --data-raw '{
-            "touser" : "@all",
-            "msgtype" : "textcard",
-            "agentid" : '"${{ secrets.WECHATWORK_APP_AGENTID }}"',
-            "textcard" : {
-              "title" : "Github Action 生成固件",
-              "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">固件已上传CowTransfer，取件码：'"${DownloadCode}"'</div><div class=\"highlight\">请于24小时内下载</div>",
-              "url" : "'"${DownloadLink}"'"
-            }
-          }'
+      #     curl --location --request POST "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${ACCESS_TOKEN}" \
+      #     --header 'Content-Type: application/json' \
+      #     --data-raw '{
+      #       "touser" : "@all",
+      #       "msgtype" : "textcard",
+      #       "agentid" : '"${{ secrets.WECHATWORK_APP_AGENTID }}"',
+      #       "textcard" : {
+      #         "title" : "Github Action 生成固件",
+      #         "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">固件已上传CowTransfer，取件码：'"${DownloadCode}"'</div><div class=\"highlight\">请于24小时内下载</div>",
+      #         "url" : "'"${DownloadLink}"'"
+      #       }
+      #     }'
 
-      - name: Upload firmware to WeTransfer
-        id: wetransfer
-        if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
-        run: |
-          ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
+      # - name: Upload firmware to WeTransfer
+      #   id: wetransfer
+      #   if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
+      #   run: |
+      #     ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
 
-          L3=`sed -n '3p' wetransfer.log`
-          DownloadLink=${L3#*: }
+      #     L3=`sed -n '3p' wetransfer.log`
+      #     DownloadLink=${L3#*: }
 
-          curl --location --request POST "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${ACCESS_TOKEN}" \
-          --header 'Content-Type: application/json' \
-          --data-raw '{
-            "touser" : "@all",
-            "msgtype" : "textcard",
-            "agentid" : '"${{ secrets.WECHATWORK_APP_AGENTID }}"',
-            "textcard" : {
-              "title" : "Github Action 生成固件",
-              "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>",
-              "url" : "'"${DownloadLink}"'"
-            }
-          }'
+      #     curl --location --request POST "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${ACCESS_TOKEN}" \
+      #     --header 'Content-Type: application/json' \
+      #     --data-raw '{
+      #       "touser" : "@all",
+      #       "msgtype" : "textcard",
+      #       "agentid" : '"${{ secrets.WECHATWORK_APP_AGENTID }}"',
+      #       "textcard" : {
+      #         "title" : "Github Action 生成固件",
+      #         "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">固件已上传WeTransfer</div><div class=\"highlight\">请于7日内下载</div>",
+      #         "url" : "'"${DownloadLink}"'"
+      #       }
+      #     }'
 
-      - name: Create Release
-        id: create_release
-        if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{needs.job_env.outputs.DATE_VERSION}}
-          release_name: Release ${{needs.job_env.outputs.DATE_VERSION}}
-          draft: false
-          prerelease: false
+      # - name: Create Release
+      #   id: create_release
+      #   if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{needs.job_env.outputs.DATE_VERSION}}
+      #     release_name: Release ${{needs.job_env.outputs.DATE_VERSION}}
+      #     draft: false
+      #     prerelease: false
 
-      - name: Upload Release Asset
-        if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/SD_Flash.zip
-          asset_name: SD_Flash.zip
-          asset_content_type: application/zip
+      # - name: Upload Release Asset
+      #   if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./output/SD_Flash.zip
+      #     asset_name: SD_Flash.zip
+      #     asset_content_type: application/zip

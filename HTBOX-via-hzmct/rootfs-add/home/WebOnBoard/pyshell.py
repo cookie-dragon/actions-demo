@@ -372,6 +372,8 @@ class Config(object):
                 with open(abpath_udhcpd_conf, 'w+') as f:
                     f.writelines(udhcpd_conf_lines)
         else:
+            os.system('ifdown ' + networkConfigRow[0].iface)
+            time.sleep(1)
             os.system('ifup ' + networkConfigRow[0].iface)
             time.sleep(3)
             for i in range(3):
@@ -448,6 +450,8 @@ class Config(object):
             with open(self.__abpath_interfaces, 'a+') as f:
                 f.writelines(interfaces_lines)
         else:
+            os.system('ifdown ' + networkConfigRow[0].iface)
+            time.sleep(1)
             os.system('ifup ' + networkConfigRow[0].iface)
             time.sleep(5)
             self.addDefaultRouterIntoDB()
@@ -520,6 +524,8 @@ class Config(object):
             with open(self.__abpath_interfaces, 'a+') as f:
                 f.writelines(interfaces_lines)
         else:
+            os.system('ifdown ' + networkConfigRow[0].iface)
+            time.sleep(1)
             os.system('ifup ' + networkConfigRow[0].iface)
             time.sleep(5)
             self.addDefaultRouterIntoDB()
