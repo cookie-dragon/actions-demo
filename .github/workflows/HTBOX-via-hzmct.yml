@@ -190,6 +190,7 @@ jobs:
           CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
         run: |
           export PATH=${TOOLCHAIN}/bin:$PATH
+          touch .scmversion
           make distclean CROSS_COMPILE=$CROSS_COMPILE
           make -j$(nproc) O=am335 CROSS_COMPILE=$CROSS_COMPILE am335x_evm
         working-directory: ./uboot
