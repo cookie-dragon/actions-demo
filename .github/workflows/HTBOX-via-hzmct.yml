@@ -342,10 +342,10 @@ jobs:
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/curl-7.65.1.tar.gz -C rootfs/usr/
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/sqlite-3.28.tar.gz -C rootfs/usr/
 
-          # sudo mkdir -p rootfs/usr/local
-          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openssh-8.0p1.tar.gz -C rootfs/usr/local/
+          sudo mkdir -p rootfs/usr/local
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openssh-8.0p1.tar.gz -C rootfs/usr/local/
           # sudo mkdir -p rootfs/var/run
-          # sudo mkdir -p rootfs/var/empty
+          sudo mkdir -p rootfs/var/empty
 
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openvpn-2.3.18.tar.gz -C rootfs/usr/
 
