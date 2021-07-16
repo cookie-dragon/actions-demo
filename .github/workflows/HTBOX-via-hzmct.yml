@@ -276,11 +276,11 @@ jobs:
           mkdir -p rootfs
           sudo tar xf rootfs.tar -C ./rootfs/
           
-      - name: Kernel Modules Install
-        env:
-          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-        run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
-        working-directory: ./kernel
+      # - name: Kernel Modules Install
+      #   env:
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
+      #   working-directory: ./kernel
 
       - name: Tar Buildroot Root File System With Modules
         run: sudo tar zcf rootfs.tar.gz rootfs/
