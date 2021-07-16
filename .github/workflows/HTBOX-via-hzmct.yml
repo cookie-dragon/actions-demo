@@ -333,42 +333,42 @@ jobs:
 
         working-directory: ./rootfs
 
-      # - name: Untar Package
-      #   run: |
-      #     sudo mkdir -p rootfs/usr
+      - name: Untar Package
+        run: |
+          sudo mkdir -p rootfs/usr
 
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openssl-1.0.2s.tar.gz -C rootfs/usr/
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/zlib-1.2.11.tar.gz -C rootfs/usr/
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/curl-7.65.1.tar.gz -C rootfs/usr/
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/sqlite-3.28.tar.gz -C rootfs/usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openssl-1.0.2s.tar.gz -C rootfs/usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/zlib-1.2.11.tar.gz -C rootfs/usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/curl-7.65.1.tar.gz -C rootfs/usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/sqlite-3.28.tar.gz -C rootfs/usr/
 
-      #     sudo mkdir -p rootfs/usr/local
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openssh-8.0p1.tar.gz -C rootfs/usr/local/
-      #     sudo mkdir -p rootfs/var/run
-      #     sudo mkdir -p rootfs/var/empty
+          sudo mkdir -p rootfs/usr/local
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openssh-8.0p1.tar.gz -C rootfs/usr/local/
+          sudo mkdir -p rootfs/var/run
+          sudo mkdir -p rootfs/var/empty
 
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openvpn-2.3.18.tar.gz -C rootfs/usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/openvpn-2.3.18.tar.gz -C rootfs/usr/
 
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/jq-1.5.tar.gz -C /usr/
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/bridge-utils-1.5.tar.gz -C rootfs/usr/
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/ntp-4.2.8p13.tar.gz -C rootfs/usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/jq-1.5.tar.gz -C /usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/bridge-utils-1.5.tar.gz -C rootfs/usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/ntp-4.2.8p13.tar.gz -C rootfs/usr/
 
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/bzip2-1.0.6.tar.gz -C rootfs/usr/
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/gdbm-1.18.1.tar.gz -C rootfs/usr/
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/readline-8.0.tar.gz -C rootfs/usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/bzip2-1.0.6.tar.gz -C rootfs/usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/gdbm-1.18.1.tar.gz -C rootfs/usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/readline-8.0.tar.gz -C rootfs/usr/
 
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/python-2.7.16.tar.gz -C rootfs/usr/
-      #     sudo rm -rf rootfs/usr/lib/python2.7/test
-      #     sudo find rootfs/usr/lib/python2.7 -name '__pycache__' -type d -exec sudo rm -rf {} \;
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/python-2.7.16.tar.gz -C rootfs/usr/
+          # sudo rm -rf rootfs/usr/lib/python2.7/test
+          # sudo find rootfs/usr/lib/python2.7 -name '__pycache__' -type d -exec sudo rm -rf {} \;
 
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/python-3.6.9.tar.gz -C rootfs/usr/
-      #     sudo rm -rf rootfs/usr/lib/python3.6/test
-      #     sudo find rootfs/usr/lib/python3.6 -name '__pycache__' -type d -exec sudo rm -rf {} \;
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/python-3.6.9.tar.gz -C rootfs/usr/
+          # sudo rm -rf rootfs/usr/lib/python3.6/test
+          # sudo find rootfs/usr/lib/python3.6 -name '__pycache__' -type d -exec sudo rm -rf {} \;
 
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/paho.mqtt.c-1.3.1.tar.gz -C rootfs/usr/
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-client.tar.gz -C rootfs/usr/
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-lib.tar.gz -C rootfs/usr/
-      #     sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-src.tar.gz -C rootfs/usr/
+          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/paho.mqtt.c-1.3.1.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-client.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-lib.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-src.tar.gz -C rootfs/usr/
 
       # - name: Link Init
       #   run: |
