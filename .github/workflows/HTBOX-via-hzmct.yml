@@ -276,11 +276,11 @@ jobs:
           mkdir -p rootfs
           sudo tar xf rootfs.tar -C ./rootfs/
           
-      # - name: Kernel Modules Install
-      #   env:
-      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
-      #   run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
-      #   working-directory: ./kernel
+      - name: Kernel Modules Install
+        env:
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
+        working-directory: ./kernel
 
       - name: Tar Buildroot Root File System With Modules
         run: sudo tar zcf rootfs.tar.gz rootfs/
@@ -304,34 +304,34 @@ jobs:
           sudo cp -rf HTBOX-via-hzmct/rootfs-add/* rootfs/
           sudo cp -rf rootfs/home/WebOnBoard/shell/pyconfig.sh rootfs/etc/init.d/
           sudo cp -rf rootfs/home/WebOnBoard/shell/pynet.sh rootfs/etc/init.d/
-          sudo chown -R root:root rootfs
+          # sudo chown -R root:root rootfs
 
-      - name: Fix
-        run: |
-          sudo mkdir -p etc/rc5.d
-          sudo mkdir -p media/card
+      # - name: Fix
+      #   run: |
+      #     sudo mkdir -p etc/rc5.d
+      #     sudo mkdir -p media/card
 
-          sudo find . -type d | xargs sudo chmod 755
-          sudo find . \( -path ./usr/lib/python3.6 -o -path ./usr/lib/python2.7 \) -prune -o -type f | xargs sudo chmod 644
+      #     sudo find . -type d | xargs sudo chmod 755
+      #     sudo find . \( -path ./usr/lib/python3.6 -o -path ./usr/lib/python2.7 \) -prune -o -type f | xargs sudo chmod 644
 
-          sudo chmod 755 etc/init.d/*
-          sudo chmod 755 etc/quectel-CM
-          sudo chmod 755 usr/bin/*
+      #     sudo chmod 755 etc/init.d/*
+      #     sudo chmod 755 etc/quectel-CM
+      #     sudo chmod 755 usr/bin/*
 
-          sudo chmod 750 ./home/WebOnBoard
-          sudo find ./home/WebOnBoard -type d | xargs sudo chmod 750
-          sudo find ./home/WebOnBoard -type f | xargs sudo chmod 640
-          sudo chmod 750 ./home/WebOnBoard/auto_start.sh
-          sudo chmod 750 ./home/WebOnBoard/autorun.sh
-          sudo chmod 750 ./home/WebOnBoard/HtBoxMain
-          sudo chmod 750 ./home/WebOnBoard/main_opc.py
-          sudo chmod 750 ./home/WebOnBoard/openvpn.sh
-          sudo chmod 750 ./home/WebOnBoard/setup.sh
-          sudo chmod 750 ./home/WebOnBoard/static_config2.py
-          sudo chmod 750 ./home/WebOnBoard/static_monitor.py
-          sudo chmod 750 ./home/WebOnBoard/static_start2.py
+      #     sudo chmod 750 ./home/WebOnBoard
+      #     sudo find ./home/WebOnBoard -type d | xargs sudo chmod 750
+      #     sudo find ./home/WebOnBoard -type f | xargs sudo chmod 640
+      #     sudo chmod 750 ./home/WebOnBoard/auto_start.sh
+      #     sudo chmod 750 ./home/WebOnBoard/autorun.sh
+      #     sudo chmod 750 ./home/WebOnBoard/HtBoxMain
+      #     sudo chmod 750 ./home/WebOnBoard/main_opc.py
+      #     sudo chmod 750 ./home/WebOnBoard/openvpn.sh
+      #     sudo chmod 750 ./home/WebOnBoard/setup.sh
+      #     sudo chmod 750 ./home/WebOnBoard/static_config2.py
+      #     sudo chmod 750 ./home/WebOnBoard/static_monitor.py
+      #     sudo chmod 750 ./home/WebOnBoard/static_start2.py
 
-        working-directory: ./rootfs
+      #   working-directory: ./rootfs
 
       - name: Untar Package
         run: |
@@ -370,13 +370,13 @@ jobs:
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-lib.tar.gz -C rootfs/usr/
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-src.tar.gz -C rootfs/usr/
 
-      - name: Link Init
-        run: |
-          sudo ln -s ../init.d/sshd.sh S99sshd.sh
-          sudo ln -s ../init.d/mosquitto.sh S98mosquitto.sh
-          sudo ln -s ../init.d/sztenv S99sztenv
-          sudo ln -s ../init.d/pynet.sh S99pynet.sh
-        working-directory: ./rootfs/etc/rc5.d
+      # - name: Link Init
+      #   run: |
+      #     sudo ln -s ../init.d/sshd.sh S99sshd.sh
+      #     sudo ln -s ../init.d/mosquitto.sh S98mosquitto.sh
+      #     sudo ln -s ../init.d/sztenv S99sztenv
+      #     sudo ln -s ../init.d/pynet.sh S99pynet.sh
+      #   working-directory: ./rootfs/etc/rc5.d
 
       - name: Link user lib
         run: |
@@ -432,14 +432,14 @@ jobs:
           sudo rm -rf rootfs/lib/modules/*/build
           sudo rm -rf rootfs/lib/modules/*/source
 
-      # - name: Download Artifact rootfs_part_business
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: rootfs_part_business
-      #     path: ./
+      - name: Download Artifact rootfs_part_business
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_part_business
+          path: ./
 
-      # - name: Untar rootfs_part_business
-      #   run: sudo tar zxf rootfs_part_business.tgz
+      - name: Untar rootfs_part_business
+        run: sudo tar zxf rootfs_part_business.tgz
 
       - name: Tar Final Root File System (Business)
         run: sudo tar zcf rootfs_final_business.tar.gz rootfs/
