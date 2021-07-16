@@ -432,14 +432,14 @@ jobs:
           sudo rm -rf rootfs/lib/modules/*/build
           sudo rm -rf rootfs/lib/modules/*/source
 
-      - name: Download Artifact rootfs_part_business
-        uses: actions/download-artifact@v2
-        with:
-          name: rootfs_part_business
-          path: ./
+      # - name: Download Artifact rootfs_part_business
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: rootfs_part_business
+      #     path: ./
 
-      - name: Untar rootfs_part_business
-        run: sudo tar zxf rootfs_part_business.tgz
+      # - name: Untar rootfs_part_business
+      #   run: sudo tar zxf rootfs_part_business.tgz
 
       - name: Tar Final Root File System (Business)
         run: sudo tar zcf rootfs_final_business.tar.gz rootfs/
