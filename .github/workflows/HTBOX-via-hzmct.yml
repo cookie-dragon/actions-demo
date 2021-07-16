@@ -370,13 +370,13 @@ jobs:
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-lib.tar.gz -C rootfs/usr/
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-src.tar.gz -C rootfs/usr/
 
-      # - name: Link Init
-      #   run: |
-      #     sudo ln -s ../init.d/sshd.sh S99sshd.sh
-      #     sudo ln -s ../init.d/mosquitto.sh S98mosquitto.sh
-      #     sudo ln -s ../init.d/sztenv S99sztenv
-      #     sudo ln -s ../init.d/pynet.sh S99pynet.sh
-      #   working-directory: ./rootfs/etc/rc5.d
+      - name: Link Init
+        run: |
+          sudo ln -s ../init.d/sshd.sh S50sshd
+          sudo ln -s ../init.d/mosquitto.sh S50mosquitto
+          sudo ln -s ../init.d/sztenv S99sztenv
+          sudo ln -s ../init.d/pynet.sh S99pynet.sh
+        working-directory: ./rootfs/etc/rc5.d
 
       - name: Link user lib
         run: |
