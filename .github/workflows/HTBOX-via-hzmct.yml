@@ -366,9 +366,9 @@ jobs:
           sudo find rootfs/usr/lib/python3.6 -name '__pycache__' -type d -exec sudo rm -rf {} \;
 
           sudo tar zxf HTBOX-via-hzmct/rootfs-untar/paho.mqtt.c-1.3.1.tar.gz -C rootfs/usr/
-          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-client.tar.gz -C rootfs/usr/
-          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-lib.tar.gz -C rootfs/usr/
-          # sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-src.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-client.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-lib.tar.gz -C rootfs/usr/
+          sudo tar zxf HTBOX-via-hzmct/rootfs-untar/mosquitto-1.4.15-src.tar.gz -C rootfs/usr/
 
       # - name: Link Init
       #   run: |
