@@ -92,7 +92,14 @@ jobs:
             "agentid" : '"${{ secrets.WECHATWORK_APP_AGENTID }}"',
             "textcard" : {
               "title" : "Github Action 生成固件",
-              "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">固件生成</div>"
+              "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">固件生成</div>",
+              "url" : "https://m.baidu.com"
             }
           }'
-          
+
+
+
+
+
+
+
