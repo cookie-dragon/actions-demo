@@ -32,6 +32,7 @@ jobs:
 
   job_github_release:
     name: Job Github Release
+    needs: [job_prepare]
     runs-on: ubuntu-18.04
     steps:
       - name: Download Artifact
