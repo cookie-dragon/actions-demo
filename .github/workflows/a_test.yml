@@ -66,3 +66,33 @@ jobs:
           asset_path: ./download_artifact/publish.zip
           asset_name: publish.zip
           asset_content_type: application/zip
+
+  job_notification:
+    name: Job Notification
+    needs: [job_github_release]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Get WECHATWORK ACCESS TOKEN
+        id: get_token
+        run: |
+          RTN_gettoken=`curl --location --request GET "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=${{ secrets.WECHATWORK_CORPID }}&corpsecret=${{ secrets.WECHATWORK_APP_CORPSECRET }}"`
+          access_token=`echo ${RTN_gettoken} | jq -r '.access_token'`
+          echo "ACCESS_TOKEN=${access_token}" >> $GITHUB_ENV
+
+          echo "::set-output name=status::success"
+
+      - name: Notification
+        if: steps.get_token.outputs.status == 'success'
+        run: |
+          curl --location --request POST "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${ACCESS_TOKEN}" \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+            "touser" : "@all",
+            "msgtype" : "textcard",
+            "agentid" : '"${{ secrets.WECHATWORK_APP_AGENTID }}"',
+            "textcard" : {
+              "title" : "Github Action 生成固件",
+              "description" : "<div class=\"gray\">'"$(date "+%Y年%m月%d日 %H:%M:%S")"'</div><div class=\"normal\">固件生成</div>"
+            }
+          }'
+          
