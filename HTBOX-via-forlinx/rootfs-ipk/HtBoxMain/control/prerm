@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# 停止服务
+if [[ -f /etc/init.d/S99HtBoxMainApp ]]; then
+    cd /etc/init.d
+	./S99HtBoxMainApp stop
+fi
+
+# 备份配置文件到/tmp/htbox/backup
+mkdir -p /tmp/htbox/backup
+
+if [[ -f /etc/htbox/config.json ]]; then
+	mv -f /etc/htbox/config.json /tmp/htbox/backup/
+fi
+
+if [[ -f /etc/htbox/nodes_config.json ]]; then
+	mv -f /etc/htbox/nodes_config.json /tmp/htbox/backup/
+fi

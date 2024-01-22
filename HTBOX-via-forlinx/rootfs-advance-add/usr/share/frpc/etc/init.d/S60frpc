@@ -1,0 +1,27 @@
+#!/bin/sh
+
+case "$1" in
+start)
+	echo -e "\nStarting Frp Client..."
+
+	/usr/bin/frpc -c /etc/frp/frpc.ini >/dev/null &
+
+	echo -e "\nStarting Frp Client: OK"
+	;;
+restart|reload)
+	echo -e "\nReloading Frp Client..."
+	/usr/bin/frpc reload -c /etc/frp/frpc.ini >/dev/null &
+	echo -e "\nReloading Frp Client: OK"
+	;;
+stop)
+	echo -e "\nStoping Frp Client..."
+	kill -9 `ps | grep /usr/bin/frpc | grep -v "grep" | head -1 | awk '{printf $1}'`
+	echo -e "\nStoping Frp Client: OK"
+	;;
+*)
+	echo "Usage: $0 {start} {restart|reload} {stop}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

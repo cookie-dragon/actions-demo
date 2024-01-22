@@ -1,0 +1,30 @@
+--- buildroot-2019.02.11.orgi/package/Config.in	2021-10-19 01:50:55.708285000 +0000
++++ buildroot-2019.02.11/package/Config.in	2021-10-19 01:54:48.951353000 +0000
+@@ -751,6 +751,7 @@
+ 	source "package/perl-number-bytes-human/Config.in"
+ 	source "package/perl-package-stash/Config.in"
+ 	source "package/perl-params-util/Config.in"
++	source "package/perl-parse-yapp/Config.in"
+ 	source "package/perl-path-tiny/Config.in"
+ 	source "package/perl-plack/Config.in"
+ 	source "package/perl-posix-strftime-compiler/Config.in"
+@@ -798,6 +799,11 @@
+ 	source "package/python3/Config.in"
+ if BR2_PACKAGE_PYTHON || BR2_PACKAGE_PYTHON3
+ menu "External python modules"
++	source "package/python-htbox/Config.in"
++	source "package/python-pyotp/Config.in"
++	source "package/python-asyncua/Config.in"
++	source "package/python-aiofiles/Config.in"
++	source "package/python-aiosqlite/Config.in"
+ 	source "package/python-aiocoap/Config.in"
+ 	source "package/python-aiodns/Config.in"
+ 	source "package/python-aiohttp/Config.in"
+@@ -856,6 +862,7 @@
+ 	source "package/python-dialog3/Config.in"
+ 	source "package/python-dicttoxml/Config.in"
+ 	source "package/python-django/Config.in"
++	source "package/python-dnspython/Config.in"
+ 	source "package/python-docker/Config.in"
+ 	source "package/python-dockerpty/Config.in"
+ 	source "package/python-docker-pycreds/Config.in"

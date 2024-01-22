@@ -1,0 +1,48 @@
+#!/bin/sh
+
+reset_root_pwd() {
+	s_line=`cat /proc/cpuinfo | grep Serial`
+	s=`echo ${s_line#*": "}`
+	s_md5=`echo -n ${s}|md5sum |cut -d" " -f1`
+	echo -e "${s_md5}\n${s_md5}" | passwd root >/dev/null
+}
+
+rm_ssh_root_login() {
+	findstr="PermitRootLogin"
+	n=`sed -n "/^${findstr}/=" /etc/ssh/sshd_config`
+	if [[ -n $n ]]; then
+		x="#PermitRootLogin prohibit-password"
+		sed -i "${n}c ${x}" /etc/ssh/sshd_config
+	fi
+}
+
+rm_ssh_emptypwd_login() {
+	findstr="PermitEmptyPasswords"
+	n=`sed -n "/^${findstr}/=" /etc/ssh/sshd_config`
+	if [[ -n $n ]]; then
+		x="#PermitEmptyPasswords no"
+		sed -i "${n}c ${x}" /etc/ssh/sshd_config
+	fi
+}
+
+rm_otg_serial_debug() {
+	findstr="ttyGS0"
+	n=`sed -n "/${findstr}/=" /etc/inittab`
+	if [[ -n $n ]]; then
+		sed -i "${n}d" /etc/inittab
+	fi
+
+	findstr="g_serial"
+	n=`sed -n "/${findstr}/=" /etc/init.d/S89sysinit`
+	if [[ -n $n ]]; then
+		sed -i "${n}d" /etc/init.d/S89sysinit
+	fi
+}
+
+reset_root_pwd
+rm_ssh_root_login
+rm_ssh_emptypwd_login
+rm_otg_serial_debug
+
+# 备份配置文件到/tmp/htdebug/backup
+mkdir -p /tmp/htdebug/backup

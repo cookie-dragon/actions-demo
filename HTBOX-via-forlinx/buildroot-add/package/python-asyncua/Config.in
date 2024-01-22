@@ -1,0 +1,12 @@
+config BR2_PACKAGE_PYTHON_ASYNCUA
+	bool "python-asyncua"
+	select BR2_PACKAGE_PYTHON_AIOFILES # runtime
+	select BR2_PACKAGE_PYTHON_AIOSQLITE # runtime
+	select BR2_PACKAGE_PYTHON_DATEUTIL # runtime
+	select BR2_PACKAGE_PYTHON_PYTZ # runtime
+	select BR2_PACKAGE_PYTHON_CRYPTOGRAPHY # runtime
+	select BR2_PACKAGE_PYTHON_SORTEDCONTAINERS # runtime
+	help
+	  Pure Python OPC-UA client and server library.
+
+	  http://freeopcua.github.io/

@@ -1,0 +1,11 @@
+--- 1/etc/mdev.conf	2021-02-21 23:03:57.000000000 -0800
++++ 2/etc/mdev.conf	2020-12-21 23:47:23.000000000 -0800
+@@ -37,3 +37,8 @@
+ 
+ # load modules
+ $MODALIAS=.*	root:root 660 @modprobe "$MODALIAS"
++
++mmcblk[0-9]p[0-9]  0:0 644 @/etc/mdev/insert
++mmcblk[0-9]        0:0 644 $/etc/mdev/remove
++sd[a-z][0-9]       0:0 644 @/etc/mdev/insert
++sd[a-z]            0:0 644 $/etc/mdev/remove

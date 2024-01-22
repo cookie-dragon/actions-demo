@@ -1,0 +1,11 @@
+--- buildroot-2019.02.11.orgi/package/ncurses/ncurses.mk	2020-04-09 03:44:12.000000000 -0700
++++ buildroot-2019.02.11/package/ncurses/ncurses.mk	2021-02-19 21:20:08.745300868 -0800
+@@ -12,7 +12,7 @@
+ NCURSES_LICENSE_FILES = COPYING
+ NCURSES_CONFIG_SCRIPTS = ncurses$(NCURSES_LIB_SUFFIX)6-config
+ NCURSES_PATCH = \
+-	$(addprefix https://invisible-mirror.net/archives/ncurses/$(NCURSES_VERSION)/, \
++	$(addprefix http://sources.buildroot.net/ncurses/, \
+ 		ncurses-6.1-20190609-patch.sh.bz2 \
+ 		ncurses-6.1-20190615.patch.gz \
+ 		ncurses-6.1-20190623.patch.gz \

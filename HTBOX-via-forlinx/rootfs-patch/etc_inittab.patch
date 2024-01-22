@@ -1,0 +1,11 @@
+--- 1/etc/inittab	2021-02-21 23:03:57.000000000 -0800
++++ 2/etc/inittab	2020-12-21 23:47:23.000000000 -0800
+@@ -28,7 +28,7 @@
+ ::sysinit:/etc/init.d/rcS
+ 
+ # Put a getty on the serial port
+-ttyO0::respawn:/sbin/getty -L  ttyO0 0 vt100 # GENERIC_SERIAL
++ttyO0::respawn:/bin/login -f user
+ 
+ # Stuff to do for the 3-finger salute
+ #::ctrlaltdel:/sbin/reboot

@@ -1,0 +1,49 @@
+#!/bin/sh
+
+chmod +x /etc/init.d/S32boxreset /etc/init.d/S33boxinit
+chmod +x /opt/bin/box_init /opt/bin/box_openvpn /opt/bin/box_reset /opt/bin/defroute_monitor
+
+cd /root/python_pkg/htbox
+pip install .
+
+# 4G模块判断
+exist_ec20_module=0
+exist_ec200s_module=0
+
+exist_ec20=`lsusb | grep "2c7c:0125" | grep -v "grep"`
+exist_ec200s=`lsusb | grep "2c7c:6002" | grep -v "grep"`
+
+if [[ ! -z $exist_ec20 ]] ; then
+	echo "There is a supported 4G module: EC20"
+	exist_ec20_module=1
+elif [[ ! -z $exist_ec200s ]]; then
+	echo "There is a supported 4G module: EC200S"
+	exist_ec200s_module=1
+else
+	echo "There is no supported 4G module"
+fi
+
+# 通用配置文件处理
+if [[ $exist_ec20_module -eq 1 ]] && [[ $exist_ec200s_module -eq 0 ]]; then
+	echo "There is a supported 4G module: EC20"
+	cp -f /opt/share/htbox/htbox_ec20.conf.def /etc/htbox/htbox.conf.def
+elif [[ $exist_ec20_module -eq 0 ]] && [[ $exist_ec200s_module -eq 1 ]]; then
+	echo "There is a supported 4G module: EC200S"
+	cp -f /opt/share/htbox/htbox_ec200s.conf.def /etc/htbox/htbox.conf.def
+elif [[ $exist_ec20_module -eq 0 ]] && [[ $exist_ec200s_module -eq 0 ]]; then
+	echo "There is no supported 4G module"
+else
+	echo "There is no supported 4G module ERROR!!!!!!!!!!"
+fi
+
+/opt/bin/defroute_monitor >/dev/null &
+
+# 从/tmp/htbox/backup恢复配置文件
+# 若为重置包则不恢复
+: '
+mkdir -p /etc/htbox
+
+if [[ -f /tmp/htbox/backup/htbox.conf ]]; then
+	mv -f /tmp/htbox/backup/htbox.conf /etc/htbox/
+fi
+'

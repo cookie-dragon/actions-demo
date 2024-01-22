@@ -1,0 +1,38 @@
+#!/bin/sh
+
+case "$1" in
+start)
+    echo -e "\nStarting Box..."
+
+    /opt/bin/box_init start >/dev/null
+    
+    rst=$?
+    if [[ ${rst} == 0 ]]; then
+        echo -e "\nStarting Box: SUCCESS"
+    elif [[ ${rst} == 1 ]]; then
+        echo -e "\nStarting Box: FAIL"
+    else
+        echo -e "\nStarting Box: ERROR"
+    fi
+    ;;
+stop)
+    echo -e "\nStopping Box..."
+
+    /opt/bin/box_init stop >/dev/null
+
+    rst=$?
+    if [[ ${rst} == 0 ]]; then
+        echo -e "\nStopping Box: SUCCESS"
+    elif [[ ${rst} == 1 ]]; then
+        echo -e "\nStopping Box: FAIL"
+    else
+        echo -e "\nStopping Box: ERROR"
+    fi
+    ;;
+*)
+    echo "Usage: $0 {start} {stop}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0

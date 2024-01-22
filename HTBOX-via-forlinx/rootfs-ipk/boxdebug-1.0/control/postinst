@@ -1,0 +1,58 @@
+#!/bin/sh
+
+empty_root_pwd() {
+	s_md5=""
+	echo -e "${s_md5}\n${s_md5}" | passwd root >/dev/null
+}
+
+set_ssh_root_login() {
+	findstr0="PermitRootLogin"
+	n=`sed -n "/^${findstr0}/=" /etc/ssh/sshd_config`
+	if [[ -z $n ]]; then
+		findstr1="#PermitRootLogin"
+		n=`sed -n "/^${findstr1}/=" /etc/ssh/sshd_config`
+	fi
+	if [[ -n $n ]]; then
+		x="PermitRootLogin yes"
+		sed -i "${n}c ${x}" /etc/ssh/sshd_config
+	fi
+}
+
+set_ssh_emptypwd_login() {
+	findstr0="PermitEmptyPasswords"
+	n=`sed -n "/^${findstr0}/=" /etc/ssh/sshd_config`
+	if [[ -z $n ]]; then
+		findstr1="#PermitEmptyPasswords"
+		n=`sed -n "/^${findstr1}/=" /etc/ssh/sshd_config`
+	fi
+	if [[ -n $n ]]; then
+		x="PermitEmptyPasswords yes"
+		sed -i "${n}c ${x}" /etc/ssh/sshd_config
+	fi
+}
+
+set_otg_serial_debug() {
+	findstr="ttyO0"
+	n=`sed -n "/${findstr}/=" /etc/inittab`
+	if [[ -n $n ]]; then
+		x="ttyGS0::respawn:/bin/login -f user"
+		sed -i "${n}a\\${x}" /etc/inittab
+	fi
+
+	findstr="Starting Sys: OK"
+	n=`sed -n "/${findstr}/=" /etc/init.d/S89sysinit`
+	if [[ -n $n ]]; then
+		x="\tmodprobe g_serial"
+		sed -i "${n}i\\${x}" /etc/init.d/S89sysinit
+	fi
+}
+
+empty_root_pwd
+set_ssh_root_login
+set_ssh_emptypwd_login
+set_otg_serial_debug
+
+# 从/tmp/htdebug/backup恢复配置文件
+# 若为重置包则不恢复
+: '
+'

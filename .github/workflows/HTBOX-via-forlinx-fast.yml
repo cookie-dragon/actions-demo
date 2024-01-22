@@ -1,0 +1,1323 @@
+name: HTBOX-via-forlinx FAST CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      cross_compile:
+        description: 'PREFIX'
+        required: true
+        default: 'arm-linux-gnueabihf'
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+
+jobs:
+
+  job_env:
+    name: ENV
+    runs-on: ubuntu-18.04
+    outputs:
+      KERNEL_VERSION: ${{steps.step_set_version.outputs.KERNEL_VERSION}}
+      KERNEL_SUBVERSION: ${{steps.step_set_version.outputs.KERNEL_SUBVERSION}}
+      FILE_SYS_VERSION: ${{steps.step_set_version.outputs.FILE_SYS_VERSION}}
+      DATE_VERSION: ${{steps.step_set_version.outputs.DATE_VERSION}}
+      S_FILENAME: ${{steps.step_set_filename.outputs.S_FILENAME}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - id: step_set_version
+        name: Set Version
+        run: |
+          KERNEL_VERSION=`cat HTBOX-via-forlinx/version.json | jq -r '.kernel_version'`
+          KERNEL_SUBVERSION=`cat HTBOX-via-forlinx/version.json | jq -r '.kernel_subversion'`
+          FILE_SYS_VERSION=`cat HTBOX-via-forlinx/version.json | jq -r '.file_sys_version'`
+          DATE_VERSION=`cat HTBOX-via-forlinx/version.json | jq -r '.date_version'`
+          
+          echo ${KERNEL_VERSION} ${KERNEL_SUBVERSION} ${FILE_SYS_VERSION} ${DATE_VERSION}
+
+          echo "::set-output name=KERNEL_VERSION::${KERNEL_VERSION}"
+          echo "::set-output name=KERNEL_SUBVERSION::${KERNEL_SUBVERSION}"
+          echo "::set-output name=FILE_SYS_VERSION::${FILE_SYS_VERSION}"
+          echo "::set-output name=DATE_VERSION::${DATE_VERSION}"
+
+      - id: step_set_filename
+        name: Set Filename
+        run: |
+          S_FILENAME=B2-Kernel-V${{steps.step_set_version.outputs.KERNEL_SUBVERSION}}-Filesys-V${{steps.step_set_version.outputs.FILE_SYS_VERSION}}-S-${{steps.step_set_version.outputs.DATE_VERSION}}
+
+          echo ${S_FILENAME}
+
+          echo "::set-output name=S_FILENAME::${S_FILENAME}"
+
+  job_toolchain:
+    name: Toolchain
+    runs-on: ubuntu-18.04
+    outputs:
+      TOOLCHAIN: ${{steps.step_set_toolchain.outputs.TOOLCHAIN}}
+      PREFIX: ${{steps.step_set_prefix_cross_compile.outputs.PREFIX}}
+      CROSS_COMPILE: ${{steps.step_set_prefix_cross_compile.outputs.CROSS_COMPILE}}
+    steps:
+      
+      # - name: Wget Toolchain
+      #   run: wget https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+      # - name: Untar Toolchain
+      #   run: tar jxf gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+      
+      - name: Rename Toolchain
+        run: |
+          # mv gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux toolchain
+          mkdir -p toolchain
+        
+      - id: step_set_toolchain
+        name: Set TOOLCHAIN
+        run: |
+          TOOLCHAIN=`pwd`
+          echo "::set-output name=TOOLCHAIN::${TOOLCHAIN}"
+        working-directory: ./toolchain
+        
+      - id: step_set_prefix_cross_compile
+        name: Set PREFIX and CROSS_COMPILE
+        run: |
+          if [ -z "${{github.event.inputs.cross_compile}}" ]; then
+            PREFIX=arm-linux-gnueabihf
+          else
+            PREFIX=${{github.event.inputs.cross_compile}}
+          fi
+          echo "::set-output name=PREFIX::${PREFIX}"
+          CROSS_COMPILE=${PREFIX}-
+          echo "::set-output name=CROSS_COMPILE::${CROSS_COMPILE}"
+
+      - name: Retar Toolchain
+        run: tar zcf toolchain.tar.gz toolchain
+
+      - name: Upload Artifact toolchain  # 交叉编译工具链
+        uses: actions/upload-artifact@v2
+        with:
+          name: toolchain
+          path: ./toolchain.tar.gz
+
+  job_cc_via_python:
+    name: Job - CC via Python
+    needs: [job_toolchain]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
+
+      # - name: Apt
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get remove python2.7 python2.7-minimal python3.6 python3.6-minimal python-pip-whl
+      #     sudo apt-get install -y build-essential libffi-dev libssl-dev libsqlite3-dev libbz2-dev libgdbm-dev libreadline-dev zlib1g-dev
+
+      # - name: Download Python
+      #   run: |
+      #     wget https://www.python.org/ftp/python/3.7.7/Python-3.7.7.tgz
+      #     tar zxf Python-3.7.7.tgz
+
+      # - name: Install Host Python
+      #   run: |
+      #     ./configure
+      #     make 
+      #     sudo make install
+      #   working-directory: ./Python-3.7.7
+
+      # - name: Pip
+      #   run: |
+      #     sudo pip3.7 install --upgrade pip
+      #     sudo pip3.7 install IPy
+      #     sudo pip3.7 install cython
+
+      # - name: Untar Python Again
+      #   run: |
+      #     sudo rm -rf Python-3.7.7
+      #     tar zxf Python-3.7.7.tgz
+
+      # - name: Install CC Python
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+      #     ./configure \
+      #     CC=arm-linux-gnueabihf-gcc \
+      #     CXX=arm-linux-gnueabihf-g++ \
+      #     AR=arm-linux-gnueabihf-ar \
+      #     RANLIB=arm-linux-gnueabihf-ranlib \
+      #     LD=arm-linux-gnueabihf-ld \
+      #     STRIP=arm-linux-gnueabihf-strip \
+      #     STRINGS=arm-linux-gnueabihf-strings \
+      #     READELF=arm-linux-gnueabihf-readelf \
+      #     --host=arm-linux-gnueabihf \
+      #     --build=arm \
+      #     --enable-ipv6 \
+      #     --enable-shared \
+      #     --prefix=/opt/Python-3.7.7 \
+      #     ac_cv_file__dev_ptmx=yes \
+      #     ac_cv_file__dev_ptc=yes
+      #     make 
+      #     sudo make install
+      #   working-directory: ./Python-3.7.7
+
+      - name: Cython htbox-dev  
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          # export PATH=${TOOLCHAIN}/bin:$PATH
+          # chmod +x htbox-dev-cython-build.sh
+          # bash htbox-dev-cython-build.sh htbox-dev/
+          mkdir -p so_htbox-dev/htbox
+          touch so_htbox-dev/htbox/placeholder
+          touch so_htbox-dev/box_init
+          touch so_htbox-dev/defroute_monitor
+          tar zcf htbox-dev.tar.gz so_htbox-dev
+        working-directory: ./HTBOX-via-forlinx/dev/python_pkg
+
+      - name: Upload Artifact htbox-dev  # 自制python包htbox-dev
+        uses: actions/upload-artifact@v2
+        with:
+          name: htbox-dev
+          path: ./HTBOX-via-forlinx/dev/python_pkg/htbox-dev.tar.gz
+
+      # - name: Cython executable
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+      #     chmod +x executable-cython-build.sh
+      #     bash executable-cython-build.sh executable/
+      #   working-directory: ./HTBOX-via-forlinx/dev/python_public_executable
+
+      - name: Tar 1  # 可执行python二进制程序（直接做进文件系统）
+        run: |
+          sudo mkdir -p rootfs/opt/sbin
+
+          # sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/dev_led rootfs/opt/sbin
+          sudo touch rootfs/opt/sbin/dev_led
+          # sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_chpwd rootfs/opt/sbin
+          sudo touch rootfs/opt/sbin/sys_admin_totp_chpwd
+          # sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_admin_totp_show rootfs/opt/sbin
+          sudo touch rootfs/opt/sbin/sys_admin_totp_show
+          # sudo cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/sys_mount_tools rootfs/opt/sbin
+          sudo touch rootfs/opt/sbin/sys_mount_tools
+
+          sudo tar zcf rootfs_python_public_executable_rfs.tgz rootfs/
+          sudo rm -rf rootfs/
+
+      - name: Upload Artifact python_public_executable_rfs  # 可执行python二进制程序（直接做进文件系统）
+        uses: actions/upload-artifact@v2
+        with:
+          name: python_public_executable_rfs
+          path: ./rootfs_python_public_executable_rfs.tgz
+
+      - name: Tar 2  # 可执行python二进制程序（做进htbox.ipk）
+        run: |
+          mkdir -p data/opt/bin
+
+          # cp -rf HTBOX-via-forlinx/dev/python_public_executable/so_executable/box_set_vpn_cert data/opt/bin
+          touch data/opt/bin/box_set_vpn_cert
+
+          tar zcf data_python_public_executable_ipk_htbox.tgz data/
+          rm -rf data/
+
+      - name: Upload Artifact python_public_executable_ipk_htbox  # 可执行python二进制程序（做进htbox.ipk）
+        uses: actions/upload-artifact@v2
+        with:
+          name: python_public_executable_ipk_htbox
+          path: ./data_python_public_executable_ipk_htbox.tgz
+
+  job_rootfs_buildroot:
+    name: Buildroot Root File System
+    needs: [job_toolchain, job_cc_via_python]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # - name: Install APT Packages
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y python-setuptools python3-setuptools
+
+      # - name: Install PIP Packages
+      #   run: pip3 install setuptools_rust
+
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
+
+      - name: Get Buildroot
+        run: |
+          wget https://buildroot.org/downloads/buildroot-2019.02.11.tar.gz
+          wget https://buildroot.org/downloads/buildroot-2017.02.11.tar.gz
+          wget https://buildroot.org/downloads/buildroot-2016.02.tar.gz
+
+          tar zxf buildroot-2019.02.11.tar.gz
+          tar zxf buildroot-2017.02.11.tar.gz
+          tar zxf buildroot-2016.02.tar.gz
+
+      - name: Replace Buildroot Package Version
+        run: |
+          rm -rf buildroot-2019.02.11/package/openssh
+          cp -rf buildroot-2016.02/package/openssh buildroot-2019.02.11/package/
+
+          rm -rf buildroot-2019.02.11/package/openssl
+          cp -rf buildroot-2016.02/package/openssl buildroot-2019.02.11/package/
+
+          rm -rf buildroot-2019.02.11/package/zlib
+          cp -rf buildroot-2016.02/package/zlib buildroot-2019.02.11/package/
+
+          rm -rf buildroot-2019.02.11/package/mosquitto
+          cp -rf buildroot-2016.02/package/mosquitto buildroot-2019.02.11/package/
+
+          rm -rf buildroot-2019.02.11/package/iproute2
+          cp -rf buildroot-2017.02.11/package/iproute2 buildroot-2019.02.11/package/
+
+      - name: Download Artifact htbox-dev  # 自制python包htbox-dev
+        uses: actions/download-artifact@v2
+        with:
+          name: htbox-dev
+          path: ./
+      
+      - name: Untar htbox-dev  # 自制python包htbox-dev
+        run: tar zxf htbox-dev.tar.gz
+
+      - name: Copy To Buildroot Package  # 自制python包htbox-dev放入buildroot的package，做文件系统的时候直接做进去（包信息setup.py不复制）
+        run: |
+          cp -rf htbox/* ../HTBOX-via-forlinx/buildroot-add/package/python-htbox/htbox/htbox/
+        working-directory: ./so_htbox-dev
+
+      - name: Add Buildroot Files
+        run: cp -rf HTBOX-via-forlinx/buildroot-add/* buildroot-2019.02.11/
+
+      # - name: Install Buildroot Package by Scanpypi
+      #   run: |
+      #     python3 support/scripts/scanpypi3 pyotp -o package
+      #   working-directory: ./buildroot-2019.02.11
+
+      - name: Patch Buildroot
+        run: |
+          patch -p1 < ../HTBOX-via-forlinx/buildroot-patch/cjson.mk.patch
+          patch -p1 < ../HTBOX-via-forlinx/buildroot-patch/ncurses.mk.patch
+          patch -p1 < ../HTBOX-via-forlinx/buildroot-patch/python-ipy_Config.in.patch
+          patch -p1 < ../HTBOX-via-forlinx/buildroot-patch/paho-mqtt-c.mk.patch
+          patch -p1 < ../HTBOX-via-forlinx/buildroot-patch/package_Config.in.patch
+        working-directory: ./buildroot-2019.02.11
+
+      - name: Config Buildroot
+        run: |
+          cp -f HTBOX-via-forlinx/buildroot-config/config.buildroot buildroot-2019.02.11/.config
+
+          sed -i "/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH=\"${{needs.job_toolchain.outputs.TOOLCHAIN}}\"" buildroot-2019.02.11/.config
+          sed -i "/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}\"" buildroot-2019.02.11/.config
+          sed -i "/BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX=\"${{needs.job_toolchain.outputs.PREFIX}}\"" buildroot-2019.02.11/.config
+
+          # sed -i '/BR2_TOOLCHAIN_EXTERNAL_PATH/cBR2_TOOLCHAIN_EXTERNAL_PATH="$(TOPDIR)/../toolchain"' buildroot-2019.02.11/.config
+          # sed -i '/BR2_TOOLCHAIN_EXTERNAL_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_PREFIX="$(ARCH)-linux-gnueabihf"' buildroot-2019.02.11/.config
+          # sed -i '/BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX/cBR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-linux-gnueabihf"' buildroot-2019.02.11/.config
+
+      # - name: Build Buildroot
+      #   run: make -j$(nproc)
+      #   working-directory: ./buildroot-2019.02.11
+
+      # - name: Config BusyBox
+      #   run: |
+      #     cp -f HTBOX-via-forlinx/buildroot-config/config.busybox buildroot-2019.02.11/output/build/busybox-1.29.3/.config
+      #     rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_configured
+      #     rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_built
+      #     rm -f buildroot-2019.02.11/output/build/busybox-1.29.3/.stamp_target_installed
+
+      - name: Build Buildroot Again
+        run: |
+          # make -j$(nproc)
+          mkdir -p output/images/rootfs
+          touch output/images/rootfs/placeholder
+          tar cvf output/images/rootfs.tar -C output/images/rootfs placeholder
+        working-directory: ./buildroot-2019.02.11
+
+      - name: Upload Artifact rootfs_buildroot  # 文件系统buildroot版
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_buildroot
+          path: ./buildroot-2019.02.11/output/images/rootfs.tar
+
+  job_kernel:
+    name: Kernel
+    needs: [job_env, job_toolchain, job_rootfs_buildroot]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # - name: Install APT Packages
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y u-boot-tools
+
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
+
+      - name: Get Kernel
+        run: git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-kernel.git kernel
+
+      - name: Add Kernel File
+        run: cp -rf HTBOX-via-forlinx/kernel-add/* kernel/
+
+      - name: Patch Kernel
+        run : |
+          patch -p1 < ../common/kernel-patch/timeconst.pl.x64.patch
+          sed -i "2469c ret = sprintf(buffer, \"${{needs.job_env.outputs.KERNEL_SUBVERSION}}\\\n${{needs.job_env.outputs.KERNEL_VERSION}}\\\n${{needs.job_env.outputs.DATE_VERSION}}\\\n\");" arch/arm/mach-omap2/board-am335xevm-htbox.c
+        working-directory: ./kernel
+
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh != 'false') || contains(github.event.action, 'ssh')
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      - name: Tar Kernel
+        run: tar zcf kernel.tar.gz kernel/
+
+      - name: Upload Artifact Kernel
+        uses: actions/upload-artifact@v2
+        with:
+          name: kernel
+          path: ./kernel.tar.gz
+
+      - name: Build Kernel
+        env:
+          TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+          CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+        run: |
+          # export PATH=${TOOLCHAIN}/bin:$PATH
+          # touch .scmversion
+          # make distclean ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+          # make ok335xhtbox_evm_linux_defconfig ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+          # make -j$(nproc) ARCH=arm CROSS_COMPILE=$CROSS_COMPILE
+          # make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE uImage
+          # make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules
+          mkdir -p arch/arm/boot
+          touch arch/arm/boot/uImage
+        working-directory: ./kernel
+
+      - name: Upload Artifact uImage  # 内核
+        uses: actions/upload-artifact@v2
+        with:
+          name: uImage
+          path: ./kernel/arch/arm/boot/uImage
+
+      - name: Download Artifact rootfs_buildroot  # 文件系统buildroot版
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_buildroot
+          path: ./
+
+      - name: Untar Buildroot Root File System  # 文件系统buildroot版
+        run: |
+          mkdir -p rootfs
+          sudo tar xf rootfs.tar -C ./rootfs/
+          
+      # - name: Kernel Modules Install  # 文件系统安装内核M包
+      #   env:
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: sudo make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE modules_install INSTALL_MOD_PATH=../rootfs/
+      #   working-directory: ./kernel
+
+      - name: Tar Buildroot Root File System With Modules
+        run: sudo tar zcf rootfs.tar.gz rootfs/
+
+      - name: Upload Artifact rootfs_buildroot_with_modules  # 文件系统内核版
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_buildroot_with_modules
+          path: ./rootfs.tar.gz
+
+  job_cc_stress:
+    name: Job - stress
+    needs: [job_toolchain]
+    runs-on: ubuntu-18.04
+    steps:
+    
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
+
+      - name: Get
+        run: |
+          wget https://fossies.org/linux/privat/old/stress-1.0.4.tar.gz
+          tar zxf stress-1.0.4.tar.gz
+         
+      # - name: Build
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+      #     ./configure CC=${CROSS_COMPILE}gcc --host=$CROSS_COMPILE
+      #     make
+      #   working-directory: ./stress-1.0.4
+
+      - name: Tar
+        run: |
+          sudo mkdir -p rootfs/usr/local/bin
+          # sudo cp -rf stress-1.0.4/src/stress rootfs/usr/local/bin
+          sudo touch rootfs/usr/local/bin/stress
+
+          sudo tar zcf rootfs-stress.tgz rootfs/
+
+      - name: Upload Artifact stress  # 独立交叉编译stress包
+        uses: actions/upload-artifact@v2
+        with:
+          name: stress
+          path: ./rootfs-stress.tgz
+
+  job_cc_rt-tests:
+    name: Job - rt-tests
+    needs: [job_toolchain]
+    runs-on: ubuntu-18.04
+    steps:
+    
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
+        
+      - name: Get
+        run: |
+          git clone git://git.kernel.org/pub/scm/utils/rt-tests/rt-tests.git
+          cd rt-tests
+          git checkout stable/v1.0
+
+      - name: Fix
+        run: |
+          sed -i '2c CC=${CROSS_COMPILE}gcc' Makefile
+          sed -i '3c AR=${CROSS_COMPILE}ar' Makefile
+        working-directory: ./rt-tests
+        
+      # - name: Build
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+      #     make
+      #   working-directory: ./rt-tests
+
+      - name: Tar
+        run: |
+          sudo mkdir -p rootfs/usr/local/bin
+          # sudo cp -rf rt-tests/cyclictest rootfs/usr/local/bin
+          sudo touch rootfs/usr/local/bin/cyclictest
+
+          sudo tar zcf rootfs-rt-tests.tgz rootfs/
+
+      - name: Upload Artifact rt-tests  # 独立交叉编译rt-tests包
+        uses: actions/upload-artifact@v2
+        with:
+          name: rt-tests
+          path: ./rootfs-rt-tests.tgz
+
+  job_cc_wireless:
+    name: Job - wireless
+    needs: [job_toolchain]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
+        
+      - name: Git RTL8723D
+        run: git clone -b v5.2.15.1_26226.20180129_COEX20171212-2222 https://github.com/cookie-dragon/realtek-rtl8723d.git 
+
+      - name: Untar WirelessTools
+        run: |
+          tar zxf wireless_tools.30.rtl.tar.gz
+        working-directory: ./realtek-rtl8723d/wireless_tools
+
+      - name: Fix WirelessTools
+        run: |
+          sed -i "8c PREFIX = ./usr/local" Makefile
+          sed -i "12c CC = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}gcc" Makefile
+          sed -i "14c AR = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}ar" Makefile
+          sed -i "15c RANLIB = ${{needs.job_toolchain.outputs.CROSS_COMPILE}}ranlib" Makefile
+        working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+
+      # - name: Build WirelessTools
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+      #     make
+      #     sudo make install
+      #   working-directory: ./realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl
+
+      - name: Untar WpaSupplicant And Hostapd
+        run: |
+          tar zxf wpa_supplicant_hostapd-0.8_rtw_r24647.20171025.tar.gz
+        working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd
+
+      # - name: Build Hostapd
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+      #     make CC=${CROSS_COMPILE}gcc
+      #     sudo make install
+      #   working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/hostapd
+
+      # - name: Build WpaSupplicant
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+      #     make CC=${CROSS_COMPILE}gcc
+      #     sudo make install
+      #   working-directory: ./realtek-rtl8723d/wpa_supplicant_hostapd/wpa_supplicant_hostapd-0.8_rtw_r24647.20171025/wpa_supplicant
+
+      - name: Tar
+        run: |
+          sudo mkdir -p rootfs
+          # sudo cp -rf realtek-rtl8723d/wireless_tools/wireless_tools.30.rtl/usr rootfs
+          sudo mkdir -p rootfs/usr
+          sudo mkdir -p rootfs/usr/local/bin
+          # sudo cp -rf /usr/local/bin/hostapd rootfs/usr/local/bin
+          sudo touch rootfs/usr/local/bin/hostapd
+          # sudo cp -rf /usr/local/bin/hostapd_cli rootfs/usr/local/bin
+          sudo touch rootfs/usr/local/bin/hostapd_cli
+          sudo mkdir -p rootfs/usr/local/sbin
+          # sudo cp -rf /usr/local/sbin/wpa_cli rootfs/usr/local/sbin
+          sudo touch rootfs/usr/local/sbin/wpa_cli
+          # sudo cp -rf /usr/local/sbin/wpa_passphrase rootfs/usr/local/sbin
+          sudo touch rootfs/usr/local/sbin/wpa_passphrase
+          # sudo cp -rf /usr/local/sbin/wpa_supplicant rootfs/usr/local/sbin
+          sudo touch rootfs/usr/local/sbin/wpa_supplicant
+
+          sudo tar zcf rootfs-wireless.tgz rootfs/
+
+      - name: Upload Artifact wireless  # 独立交叉编译wireless包
+        uses: actions/upload-artifact@v2
+        with:
+          name: wireless
+          path: ./rootfs-wireless.tgz
+
+  job_cc_snap7:
+    name: Job - snap7
+    needs: [job_toolchain]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
+        
+      - name: Get
+        run: |
+          wget https://netix.dl.sourceforge.net/project/snap7/Snap7-IoT/snap7-iot-arm/snap7-iot-arm-1.4.2.tar.gz
+          tar zxf snap7-iot-arm-1.4.2.tar.gz
+
+      - name: Fix
+        run: |
+          sed -i '8c LinkerName := ${CROSS_COMPILE}g++' common.mk
+          sed -i '9c SharedObjectLinkerName := ${CROSS_COMPILE}g++ -shared -fPIC' common.mk
+          sed -i '30c AR := ${CROSS_COMPILE}ar rcus' common.mk
+          sed -i '31c CXX := ${CROSS_COMPILE}g++' common.mk
+          sed -i '32c CC := ${CROSS_COMPILE}gcc' common.mk
+        working-directory: ./snap7-iot-arm-1.4.2/build/unix
+
+      # - name: Build
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+      #     make -f arm_v7_linux.mk
+      #     sudo cp -f ../bin/arm_v7-linux/libsnap7.so /usr/lib
+      #   working-directory: ./snap7-iot-arm-1.4.2/build/unix
+
+      - name: Tar
+        run: |
+          sudo mkdir -p rootfs/usr/lib
+          # sudo cp -rf /usr/lib/libsnap7.so rootfs/usr/lib
+          sudo touch rootfs/usr/lib/libsnap7.so
+
+          sudo tar zcf rootfs-snap7.tgz rootfs/
+
+      - name: Upload Artifact snap7  # 独立交叉编译snap7包
+        uses: actions/upload-artifact@v2
+        with:
+          name: snap7
+          path: ./rootfs-snap7.tgz
+
+  job_rootfs_part_cc:
+    name: Job - Rootfs Part - Cross Compile
+    needs: [job_cc_via_python, job_cc_stress, job_cc_rt-tests, job_cc_wireless, job_cc_snap7]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Download Artifact python_public_executable_rfs  # 可执行python二进制程序（直接做进文件系统）
+        uses: actions/download-artifact@v2
+        with:
+          name: python_public_executable_rfs
+          path: ./
+
+      - name: Untar python_public_executable_rfs  # 可执行python二进制程序（直接做进文件系统）
+        run: sudo tar zxf rootfs_python_public_executable_rfs.tgz
+
+      - name: Download Artifact stress  # 独立交叉编译stress包
+        uses: actions/download-artifact@v2
+        with:
+          name: stress
+          path: ./
+
+      - name: Untar stress  # 独立交叉编译stress包
+        run: sudo tar zxf rootfs-stress.tgz
+
+      - name: Download Artifact rt-tests  # 独立交叉编译rt-tests包
+        uses: actions/download-artifact@v2
+        with:
+          name: rt-tests
+          path: ./ 
+
+      - name: Untar rt-tests  # 独立交叉编译rt-tests包
+        run: sudo tar zxf rootfs-rt-tests.tgz
+
+      - name: Download Artifact wireless  # 独立交叉编译wireless包
+        uses: actions/download-artifact@v2
+        with:
+          name: wireless
+          path: ./
+
+      - name: Untar wireless  # 独立交叉编译wireless包
+        run: sudo tar zxf rootfs-wireless.tgz
+
+      - name: Download Artifact snap7  # 独立交叉编译snap7包
+        uses: actions/download-artifact@v2
+        with:
+          name: snap7
+          path: ./
+
+      - name: Untar snap7  # 独立交叉编译snap7包
+        run: sudo tar zxf rootfs-snap7.tgz
+
+      - name: Fix
+        run: |
+          sudo chown -R root:root *
+
+          tree -pug
+        working-directory: ./rootfs
+
+      - name: Tar
+        run: sudo tar zcf rootfs_part_cc.tgz rootfs/
+
+      - name: Upload Artifact  # 独立交叉编译包（包含直接做进文件系统的可执行python二进制程序）
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_part_cc
+          path: ./rootfs_part_cc.tgz
+
+  job_rootfs_part_base:
+    name: Job - Rootfs Part - Base
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Make Rootfs Dir
+        run: |
+          sudo mkdir -p rootfs
+          sudo cp -rf HTBOX-via-forlinx/rootfs-base-add/* rootfs/
+
+      - name: Fix
+        run: |
+          sudo chown -R root:root *
+
+          sudo find . -type d | xargs sudo chmod 755
+          sudo find . -type f | xargs sudo chmod 644
+
+          tree -pug
+        working-directory: ./rootfs
+
+      - name: Tar
+        run: sudo tar zcf rootfs_part_base.tgz rootfs/
+
+      - name: Upload Artifact  # 文件系统base包
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_part_base
+          path: ./rootfs_part_base.tgz
+
+  job_rootfs_part_advance:
+    name: Job - Rootfs Part - Advance
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Make Rootfs Dir
+        run: |
+          sudo mkdir -p rootfs
+          sudo cp -rf HTBOX-via-forlinx/rootfs-advance-add/* rootfs/
+
+      - name: Fix
+        run: |
+          sudo chown -R root:root *
+
+          sudo find . -type d | xargs sudo chmod 755
+          sudo find . -type f | xargs sudo chmod 644
+
+          # sudo chmod 666 etc/frp/*
+          # sudo chmod 777 usr/bin/*
+          # sudo chmod 777 usr/share/frpc/etc/init.d/S60frpc
+
+          tree -pug
+        working-directory: ./rootfs
+
+      - name: Tar
+        run: sudo tar zcf rootfs_part_advance.tgz rootfs/
+
+      - name: Upload Artifact  # 文件系统advance包
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_part_advance
+          path: ./rootfs_part_advance.tgz
+
+  job_rootfs_part_custom:
+    name: Job - Rootfs Part - Custom
+    needs: [job_toolchain, job_kernel, job_cc_via_python]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download Artifact toolchain
+        uses: actions/download-artifact@v2
+        with:
+          name: toolchain
+          path: ./
+      
+      - name: Untar Toolchain
+        run: tar zxf toolchain.tar.gz
+
+      # - name: Apt
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y shc
+
+      # - name: encrypt shell 0  # shell脚本转换成可执行二进制程序（rfs:/etc/mdev）
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+
+      #     shc -r -f insert.sh
+      #     arm-linux-gnueabihf-gcc insert.sh.x.c -o insert
+      #     rm -rf insert.sh insert.sh.x.c insert.sh.x
+
+      #     shc -r -f remove.sh
+      #     arm-linux-gnueabihf-gcc remove.sh.x.c -o remove
+      #     rm -rf remove.sh remove.sh.x.c remove.sh.x
+
+      #   working-directory: ./HTBOX-via-forlinx/rootfs-custom-add/etc/mdev
+
+      # - name: encrypt shell 1  # shell脚本转换成可执行二进制程序（ipk_htbox:/opt/bin）
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+          
+      #     shc -r -f box_openvpn.sh
+      #     arm-linux-gnueabihf-gcc box_openvpn.sh.x.c -o box_openvpn
+      #     rm -rf box_openvpn.sh box_openvpn.sh.x.c box_openvpn.sh.x
+
+      #     shc -r -f box_reset.sh
+      #     arm-linux-gnueabihf-gcc box_reset.sh.x.c -o box_reset
+      #     rm -rf box_reset.sh box_reset.sh.x.c box_reset.sh.x
+      #   working-directory: ./HTBOX-via-forlinx/rootfs-ipk/htbox/data/opt/bin
+
+      # - name: encrypt shell 2  # shell脚本转换成可执行二进制程序（rfs:/opt/sbin）
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+
+      #     shc -r -f dev_bt.sh
+      #     arm-linux-gnueabihf-gcc dev_bt.sh.x.c -o dev_bt
+      #     rm -rf dev_bt.sh dev_bt.sh.x.c dev_bt.sh.x
+
+      #     shc -r -f dev_can.sh
+      #     arm-linux-gnueabihf-gcc dev_can.sh.x.c -o dev_can
+      #     rm -rf dev_can.sh dev_can.sh.x.c dev_can.sh.x
+
+      #     shc -r -f sys_init.sh
+      #     arm-linux-gnueabihf-gcc sys_init.sh.x.c -o sys_init
+      #     rm -rf sys_init.sh sys_init.sh.x.c sys_init.sh.x
+
+      #     shc -r -f sys_reset.sh
+      #     arm-linux-gnueabihf-gcc sys_reset.sh.x.c -o sys_reset
+      #     rm -rf sys_reset.sh sys_reset.sh.x.c sys_reset.sh.x
+
+      #     shc -r -f sys_update.sh
+      #     arm-linux-gnueabihf-gcc sys_update.sh.x.c -o sys_update
+      #     rm -rf sys_update.sh sys_update.sh.x.c sys_update.sh.x
+
+      #   working-directory: ./HTBOX-via-forlinx/rootfs-custom-add/opt/sbin
+
+      # - name: encrypt shell 3  # shell脚本转换成可执行二进制程序（rfs:/usr/local/bin）
+      #   env:
+      #     TOOLCHAIN: ${{needs.job_toolchain.outputs.TOOLCHAIN}}
+      #     CROSS_COMPILE: ${{needs.job_toolchain.outputs.CROSS_COMPILE}}
+      #   run: |
+      #     export PATH=${TOOLCHAIN}/bin:$PATH
+
+      #     shc -r -f ip-up.sh
+      #     arm-linux-gnueabihf-gcc ip-up.sh.x.c -o ip-up
+      #     rm -rf ip-up.sh ip-up.sh.x.c ip-up.sh.x
+
+      #     shc -r -f quectel-ppp-kill.sh
+      #     arm-linux-gnueabihf-gcc quectel-ppp-kill.sh.x.c -o quectel-ppp-kill
+      #     rm -rf quectel-ppp-kill.sh quectel-ppp-kill.sh.x.c quectel-ppp-kill.sh.x
+
+      #     shc -r -f quectel-pppd.sh
+      #     arm-linux-gnueabihf-gcc quectel-pppd.sh.x.c -o quectel-pppd
+      #     rm -rf quectel-pppd.sh quectel-pppd.sh.x.c quectel-pppd.sh.x
+      #   working-directory: ./HTBOX-via-forlinx/rootfs-custom-add/usr/local/bin
+
+      - name: Download Artifact htbox-dev  # 自制python包htbox-dev
+        uses: actions/download-artifact@v2
+        with:
+          name: htbox-dev
+          path: ./
+      
+      - name: Untar htbox-dev  # 自制python包htbox-dev
+        run: tar zxf htbox-dev.tar.gz
+
+      - name: Copy To Buildroot Package  # 自制python包htbox-dev放入buildroot的package，做文件系统的时候直接做进去（包信息setup.py不复制）
+        run: |
+          cp -rf htbox/* ../HTBOX-via-forlinx/buildroot-add/package/python-htbox/htbox/htbox/
+        working-directory: ./so_htbox-dev
+
+      - name: Download Artifact python_public_executable_ipk_htbox  # 可执行python二进制程序（做进htbox.ipk）
+        uses: actions/download-artifact@v2
+        with:
+          name: python_public_executable_ipk_htbox
+          path: ./
+
+      - name: Untar python_public_executable_ipk_htbox  # 可执行python二进制程序（做进htbox.ipk）
+        run: sudo tar zxf data_python_public_executable_ipk_htbox.tgz
+
+      - name: Pack htbox.ipk
+        run: |
+          # cp -rf ../../buildroot-add/package/python-htbox/htbox/* ./data/root/python_pkg/htbox/
+
+          # cp -rf ../../../so_htbox-dev/box_init ./data/opt/bin/
+          # cp -rf ../../../so_htbox-dev/defroute_monitor ./data/opt/bin/
+
+          # cp -rf ../../../data/* ./data/
+          # rm -rf ../../../data/
+
+          # sudo chown -R root:root ./data/*
+
+          # chmod +x build.sh
+          # sh build.sh
+          touch htbox.ipk
+        working-directory: ./HTBOX-via-forlinx/rootfs-ipk/htbox
+
+      - name: Upload Artifact  # htbox.ipk
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipk_htbox
+          path: ./HTBOX-via-forlinx/rootfs-ipk/htbox/htbox.ipk
+
+      - name: Download Artifact uImage
+        uses: actions/download-artifact@v2
+        with:
+          name: uImage
+          path: ./
+
+      - name: Make Rootfs Dir
+        run: |
+          sudo mkdir -p rootfs
+          sudo cp -rf HTBOX-via-forlinx/rootfs-custom-add/* rootfs/
+
+          sudo mkdir -p rootfs/media/factory
+          git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-uboot.git
+          sudo cp -rf forlinx-335xS-II-uboot/256M/MLO rootfs/media/factory/
+          sudo cp -rf forlinx-335xS-II-uboot/256M/u-boot.img rootfs/media/factory/
+          sudo cp -rf uImage rootfs/media/factory/
+          
+          sudo cp -rf HTBOX-via-forlinx/rootfs-ipk/htbox/htbox.ipk rootfs/media/factory/
+
+      - name: Fix
+        run: |
+          sudo chown -R root:root *
+
+          sudo find . -type d | xargs sudo chmod 755
+          sudo find . -type f | xargs sudo chmod 640
+
+          # sudo chmod 600 etc/cron/crontabs/*
+          # sudo chmod 750 etc/init.d/*
+          # sudo chmod 755 etc/mdev/*
+          # sudo chmod 644 etc/boxid
+          
+          # sudo chmod 750 opt/sbin/*
+
+          # sudo chmod 750 usr/local/bin/*
+
+          tree -pug
+        working-directory: ./rootfs
+
+      - name: Tar
+        run: sudo tar zcf rootfs_part_custom.tgz rootfs/
+
+      - name: Upload Artifact  # 文件系统custom包
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_part_custom
+          path: ./rootfs_part_custom.tgz
+
+  job_rootfs_part_business:
+    name: Job - Rootfs Part - Business
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Pack HtBoxMain.ipk
+        run: |
+          # sudo chown -R root:root ./data/*
+          # chmod +x build.sh
+          # sh build.sh
+          touch HtBoxMain.ipk
+        working-directory: ./HTBOX-via-forlinx/rootfs-ipk/HtBoxMain
+
+      - name: Upload Artifact  # HtBoxMain.ipk
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipk_HtBoxMain
+          path: ./HTBOX-via-forlinx/rootfs-ipk/HtBoxMain/HtBoxMain.ipk
+
+      - name: Make Rootfs Dir
+        run: |
+          sudo mkdir -p rootfs
+          sudo cp -rf HTBOX-via-forlinx/rootfs-business-add/* rootfs/
+
+          sudo mkdir -p rootfs/media/factory
+          sudo cp -rf HTBOX-via-forlinx/rootfs-ipk/HtBoxMain/HtBoxMain.ipk rootfs/media/factory/
+
+      - name: Fix
+        run: |
+          sudo chown -R root:root *
+
+          sudo find . -type d | xargs sudo chmod 755
+          sudo find . -type f | xargs sudo chmod 640
+
+          tree -pug
+        working-directory: ./rootfs
+
+      - name: Tar
+        run: sudo tar zcf rootfs_part_business.tgz rootfs/
+
+      - name: Upload Artifact  # 文件系统business包
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_part_business
+          path: ./rootfs_part_business.tgz
+
+  job_final_rootfs:
+    name: Final Root File System
+    needs: [job_env, job_kernel, job_rootfs_part_cc, job_rootfs_part_base, job_rootfs_part_advance, job_rootfs_part_custom, job_rootfs_part_business]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # - name: Install APT Packages
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y mtd-utils
+
+      - name: Download Artifact rootfs_buildroot_with_modules  # 文件系统内核版
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_buildroot_with_modules
+          path: ./
+
+      - name: Untar Root File System  # 文件系统内核版
+        run: sudo tar zxf rootfs.tar.gz
+
+      # ########## # ########## # ########## # ########## # ########## #
+
+      # - name: Fix Root File System (Base)
+      #   run: |
+      #     sudo rm -rf rootfs/lib/modules/*/build
+      #     sudo rm -rf rootfs/lib/modules/*/source
+
+      - name: Download Artifact rootfs_part_base  # 文件系统base包
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_part_base
+          path: ./
+
+      - name: Untar rootfs_part_base  # 文件系统base包
+        run: sudo tar zxf rootfs_part_base.tgz
+
+      # - name: Patch Root File System (Base)
+      #   run: |
+      #     sudo patch -p1 < ../HTBOX-via-forlinx/rootfs-patch/etc_profile.patch
+      #   working-directory: ./rootfs
+
+      # ########## # ########## # ########## # ########## # ########## #
+
+      - name: Download Artifact rootfs_part_cc  # 独立交叉编译包（包含直接做进文件系统的可执行python二进制程序）
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_part_cc
+          path: ./
+
+      - name: Untar rootfs_part_cc  # 独立交叉编译包（包含直接做进文件系统的可执行python二进制程序）
+        run: sudo tar zxf rootfs_part_cc.tgz
+
+      - name: Download Artifact rootfs_part_advance  # 文件系统advance包
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_part_advance
+          path: ./
+
+      - name: Untar rootfs_part_advance  # 文件系统advance包
+        run: sudo tar zxf rootfs_part_advance.tgz
+
+      # - name: Patch Root File System (Advance)
+      #   run: |
+      #     sudo patch -p1 < ../HTBOX-via-forlinx/rootfs-patch/etc_bluetooth_main.conf.patch
+      #   working-directory: ./rootfs
+
+      # ########## # ########## # ########## # ########## # ########## #
+
+      - name: Download Artifact rootfs_part_custom  # 文件系统custom包
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_part_custom
+          path: ./
+
+      - name: Untar rootfs_part_custom  # 文件系统custom包
+        run: sudo tar zxf rootfs_part_custom.tgz
+
+      # - name: Patch Root File System (Custom)
+      #   run: |
+      #     sudo patch -p1 < ../HTBOX-via-forlinx/rootfs-patch/etc_mdev.conf.patch
+      #     sudo patch -p1 < ../HTBOX-via-forlinx/rootfs-patch/etc_inittab.patch
+      #   working-directory: ./rootfs
+
+      # ########## # ########## # ########## # ########## # ########## #
+
+      # - name: Fix Root File System (Business)
+      #   run: |
+      #     sudo mv -f rootfs/etc/init.d/S50mosquitto rootfs/etc/init.d/50mosquitto
+      #     sudo mv -f rootfs/etc/init.d/S50nginx rootfs/etc/init.d/50nginx
+      #     sudo mv -f rootfs/etc/init.d/S50redis rootfs/etc/init.d/50redis
+      #     sudo mv -f rootfs/etc/init.d/S60openvpn rootfs/etc/init.d/60openvpn
+
+      - name: Download Artifact rootfs_part_business  # 文件系统business包
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_part_business
+          path: ./
+
+      - name: Untar rootfs_part_business  # 文件系统business包
+        run: |
+          sudo tar zxf rootfs_part_business.tgz
+          sudo echo ${{needs.job_env.outputs.FILE_SYS_VERSION}} > version
+          sudo echo ${{needs.job_env.outputs.DATE_VERSION}} >> version
+          sudo mv -f version rootfs/
+
+      - name: Tar Final Root File System (Business)
+        run: sudo tar zcf rootfs_final_business.tar.gz rootfs/
+
+      - name: Upload Artifact rootfs_final_business (Business)
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs_final_business
+          path: ./rootfs_final_business.tar.gz
+
+      - name: Build UBI File System (Business)
+        run: |
+          # sudo mkfs.ubifs -F -r rootfs -m 2048 -e 126976 -c 1866 -o ubifs.img
+          # sudo ubinize -o ubi.img -m 2048 -p 128KiB -s 2048 -O 2048 HTBOX-via-forlinx/rootfs-config/ubinize-256M.cfg
+          touch ubi.img
+
+      - name: Upload Artifact ubi_business (Business)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ubi_business
+          path: ./ubi.img
+
+  job_final_package:
+    name: Final Package
+    needs: [job_env, job_kernel, job_final_rootfs]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Download Artifact uImage
+        uses: actions/download-artifact@v2
+        with:
+          name: uImage
+          path: ./
+
+      - name: Download Artifact ubi_business (Business)
+        uses: actions/download-artifact@v2
+        with:
+          name: ubi_business
+          path: ./
+
+      - name: Prepare Dir
+        run: |
+          mkdir -p output/${{needs.job_env.outputs.S_FILENAME}}
+
+      - name: Prepare File
+        run: |
+          git clone -b 20200803 https://github.com/cookie-dragon/forlinx-335xS-II-uboot.git
+
+          cp forlinx-335xS-II-uboot/256M/MLO output/${{needs.job_env.outputs.S_FILENAME}}/
+          cp forlinx-335xS-II-uboot/256M/u-boot.img output/${{needs.job_env.outputs.S_FILENAME}}/
+          cp uImage output/${{needs.job_env.outputs.S_FILENAME}}/
+          cp ubi.img output/${{needs.job_env.outputs.S_FILENAME}}/
+
+      - name: Upload Artifact S
+        if: ${{ github.ref != 'refs/heads/main'}}
+        # if: ${{ github.ref == 'refs/heads/main'}}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{needs.job_env.outputs.S_FILENAME}}
+          path: ./output
+
+      - name: Create Release
+        id: create_release
+        if: ${{ github.ref == 'refs/heads/main'}}
+        # if: ${{ github.ref != 'refs/heads/main'}}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{needs.job_env.outputs.DATE_VERSION}}
+          release_name: Release ${{needs.job_env.outputs.DATE_VERSION}}
+          draft: false
+          prerelease: false
+
+      - name: Zip S
+        if: ${{ github.ref == 'refs/heads/main'}}
+        # if: ${{ github.ref != 'refs/heads/main'}}
+        run: zip -qr ${{needs.job_env.outputs.S_FILENAME}}.zip ${{needs.job_env.outputs.S_FILENAME}}
+        working-directory: ./output
+
+      - name: Upload Release Asset S
+        if: ${{ github.ref == 'refs/heads/main'}}
+        # if: ${{ github.ref != 'refs/heads/main'}}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./output/${{needs.job_env.outputs.S_FILENAME}}.zip
+          asset_name: ${{needs.job_env.outputs.S_FILENAME}}.zip
+          asset_content_type: application/zip
+
+      - name: Download Artifact Kernel (./kernel.tar.gz)
+        if: ${{ github.ref == 'refs/heads/main'}}
+        # if: ${{ github.ref != 'refs/heads/main'}}
+        uses: actions/download-artifact@v2
+        with:
+          name: kernel
+          path: ./
+
+      - name: Upload Release Asset Kernel
+        if: ${{ github.ref == 'refs/heads/main'}}
+        # if: ${{ github.ref != 'refs/heads/main'}}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./kernel.tar.gz
+          asset_name: kernel.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Download Artifact rootfs_final_business (Business)
+        if: ${{ github.ref == 'refs/heads/main'}}
+        # if: ${{ github.ref != 'refs/heads/main'}}
+        uses: actions/download-artifact@v2
+        with:
+          name: rootfs_final_business
+          path: ./
+
+      - name: Untar rootfs_final_business (Business)
+        if: ${{ github.ref == 'refs/heads/main'}}
+        # if: ${{ github.ref != 'refs/heads/main'}}
+        run: sudo tar zxf rootfs_final_business.tar.gz
+
+      - name: Tar rootfs_final_business (Business)
+        if: ${{ github.ref == 'refs/heads/main'}}
+        # if: ${{ github.ref != 'refs/heads/main'}}
+        run: sudo tar zcf rootfs.tar.gz rootfs/
+
+      - name: Upload Release Asset rootfs_final_business
+        if: ${{ github.ref == 'refs/heads/main'}}
+        # if: ${{ github.ref != 'refs/heads/main'}}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./rootfs.tar.gz
+          asset_name: rootfs.tar.gz
+          asset_content_type: application/gzip

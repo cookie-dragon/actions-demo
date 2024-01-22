@@ -1,0 +1,31 @@
+#!/bin/sh
+
+case "$1" in
+start)
+  source /etc/profile
+
+  PROCESS_NUM=$(ps | grep "auto_start.sh" | grep -v "grep" | wc -l)
+  if [ $PROCESS_NUM -gt 0 ]; then
+    exit 0
+  fi
+
+  if [ -f "/opt/bin/auto_start.sh" ]; then
+    cd /opt/bin
+    sh auto_start.sh &
+  fi
+  ;;
+stop)
+  PID_NUM=$(ps | grep "auto_start.sh" | grep -v "grep" | head -1 | awk ' {print $1}')
+  SH_NUM=$(ps | grep "auto_start.sh" | grep -v "grep" | wc -l)
+  if [ $SH_NUM -gt 0 ]; then
+    kill -9 $PID_NUM
+    killall -9 HtBoxMain
+  fi
+  ;;
+*)
+  echo "Usage: $0 {start} {stop}" >&2
+  exit 1
+  ;;
+esac
+
+exit 0

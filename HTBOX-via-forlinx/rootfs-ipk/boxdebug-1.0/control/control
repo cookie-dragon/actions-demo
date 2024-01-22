@@ -1,0 +1,5 @@
+Package: boxdebug
+Version: 1.0
+Architecture: arm
+Maintainer: lj12875@mail.haitian.com
+Description: This is a debug package on htbox.(for debug only)

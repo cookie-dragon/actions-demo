@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# 备份配置文件到/tmp/demo/backup
+mkdir -p /tmp/flaskonbox/backup

@@ -1,0 +1,20 @@
+#!/bin/sh
+
+case "$1" in
+start)
+  source /etc/profile
+
+  if [ -f "/opt/sbin/KeyMonitor" ]; then
+    exec /opt/sbin/KeyMonitor &
+  fi
+  ;;
+stop)
+  killall -9 KeyMonitor
+  ;;
+*)
+  echo "Usage: $0 {start} {stop}" >&2
+  exit 1
+  ;;
+esac
+
+exit 0

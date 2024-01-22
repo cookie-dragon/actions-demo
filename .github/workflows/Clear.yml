@@ -1,0 +1,33 @@
+name: Clear CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      rm_old_artifacts_age:
+        description: 'Artifacts older than this will be deleted (e.g. "2 months", "1 day"). Parsed by moment.'
+        required: true
+        default: '5 minutes'
+      del_workflow_runs_retain_days:
+        description: 'The number of days that is used to compare with the retention days of each workflow.'
+        required: true
+        default: 1
+      del_workflow_runs_keep_minimum_runs:
+        description: 'The minimum runs to keep for each workflow.'
+        required: true
+        default: 2
+
+jobs:
+  job_clear:
+    name: Clear
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Remove old artifacts
+        uses: c-hive/gha-remove-artifacts@v1
+        with:
+          age: ${{github.event.inputs.rm_old_artifacts_age}}
+
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          retain_days: ${{github.event.inputs.del_workflow_runs_retain_days}}
+          keep_minimum_runs: ${{github.event.inputs.del_workflow_runs_keep_minimum_runs}}

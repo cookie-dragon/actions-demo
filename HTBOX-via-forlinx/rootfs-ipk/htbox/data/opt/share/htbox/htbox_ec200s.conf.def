@@ -1,0 +1,103 @@
+{
+  "interface": {
+    "eth0": {
+      "mode": "main",
+      "device": {
+        "inet": "static",
+        "inet_static": {
+          "address": "172.18.57.66",
+          "netmask": "255.255.255.0",
+          "gateway": "172.18.57.254",
+          "dns_nameserver1": "114.114.114.114",
+          "dns_nameserver2": "8.8.8.8"
+        }
+      },
+      "gateway": {
+        "subnet": "255.255.255.0",
+        "router": "192.168.0.1",
+        "inet": "dhcp",
+        "inet_dhcp": {
+          "dns1": "114.114.114.114",
+          "dns2": "8.8.8.8",
+          "start": "192.168.0.2",
+          "end": "192.168.0.254",
+          "max_leases": 253
+        }
+      }
+    },
+    "eth1": {
+      "mode": "gateway",
+      "device": {
+        "inet": "dhcp",
+        "inet_static": {
+          "address": "192.168.1.2",
+          "netmask": "255.255.255.0",
+          "gateway": "192.168.1.1",
+          "dns_nameserver1": "114.114.114.114",
+          "dns_nameserver2": "8.8.8.8"
+        }
+      },
+      "gateway": {
+        "subnet": "255.255.255.0",
+        "router": "192.168.1.66",
+        "inet": "static",
+        "inet_dhcp": {
+          "dns1": "114.114.114.114",
+          "dns2": "8.8.8.8",
+          "start": "192.168.1.2",
+          "end": "192.168.1.254",
+          "max_leases": 253
+        }
+      }
+    },
+    "wlan0": {
+      "mode": "off",
+      "station": {
+        "ssid": "ssid-undefined",
+        "psk": "password",
+        "inet": "dhcp",
+        "inet_static": {
+          "address": "192.168.2.2",
+          "netmask": "255.255.255.0",
+          "gateway": "192.168.2.1",
+          "dns_nameserver1": "114.114.114.114",
+          "dns_nameserver2": "8.8.8.8"
+        }
+      },
+      "ap": {
+        "ssid": "htbox-undefined",
+        "wpa_passphrase": "12345678",
+        "subnet": "255.255.255.0",
+        "router": "192.168.2.1",
+        "inet": "dhcp",
+        "inet_dhcp": {
+          "dns1": "114.114.114.114",
+          "dns2": "8.8.8.8",
+          "start": "192.168.2.2",
+          "end": "192.168.2.254",
+          "max_leases": 253
+        }
+      }
+    },
+    "ppp0": {
+      "mode": "off",
+      "ppp": {
+        "devname": "/dev/ttyUSB2",
+        "apn": "3gnet",
+        "user": "user",
+        "password": "passwd"
+      },
+      "at": {
+        "devname": "/dev/ttyUSB1"
+      }
+    }
+  },
+  "routetable": {
+    "host": [
+    ],
+    "net": [
+    ]
+  },
+  "ip_forward": 0,
+  "openvpn_iface": "eth1"
+}

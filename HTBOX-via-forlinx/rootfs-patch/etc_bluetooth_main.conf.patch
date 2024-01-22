@@ -1,0 +1,11 @@
+--- 1/etc/bluetooth/main.conf	2021-02-21 22:49:29.000000000 -0800
++++ 2/etc/bluetooth/main.conf	2020-12-30 21:56:06.480000000 -0800
+@@ -6,7 +6,7 @@
+ # Default adaper name
+ # %h - substituted for hostname
+ # %d - substituted for adapter id
+-Name = %h-%d
++Name = htbox-undefined
+ 
+ # Default device class. Only the major and minor device class bits are
+ # considered.

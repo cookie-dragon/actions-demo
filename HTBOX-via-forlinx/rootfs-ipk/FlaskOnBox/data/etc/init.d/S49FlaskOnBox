@@ -1,0 +1,25 @@
+#!/bin/sh
+
+case "$1" in
+start)
+	echo -e "\nStarting Gunicorn..."
+
+	cd /var/www/FlaskOnBox
+	/usr/bin/gunicorn --config /etc/gunicorn/gunicorn.conf.py app:app
+
+	echo -e "\nStarting Gunicorn: OK"
+	;;
+stop)
+	echo -e "\nStopping Gunicorn..."
+
+	killall -9 gunicorn
+
+	echo -e "\nStopping Gunicorn: SUCCESS"
+	;;
+*)
+	echo "Usage: $0 {start} {stop}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

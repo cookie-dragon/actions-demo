@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# 恢复KeyMonitor
+if [[ -f /opt/sbin/KeyMonitor.bak ]]; then
+	mv /opt/sbin/KeyMonitor.bak /opt/sbin/KeyMonitor 
+fi

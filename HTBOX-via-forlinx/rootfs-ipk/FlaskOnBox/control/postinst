@@ -1,0 +1,8 @@
+#!/bin/sh
+
+chmod +x /etc/init.d/S49FlaskOnBox
+
+# 从/tmp/flaskonbox/backup恢复配置文件
+# 若为重置包则不恢复
+: '
+'

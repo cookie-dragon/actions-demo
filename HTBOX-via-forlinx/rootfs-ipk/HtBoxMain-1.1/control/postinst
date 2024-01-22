@@ -1,0 +1,76 @@
+#!/bin/sh
+
+chmod 755 /opt/bin/HtBoxMain
+chmod 755 /opt/bin/auto_start.sh
+
+chmod 755 /etc/init.d/S99HtBoxMainApp
+
+# 创建配置目录
+mkdir -p /etc/htbox
+# 创建日志目录
+mkdir -p /var/BoxMainAppLog
+# 创建备份目录
+mkdir -p /tmp/htbox/backup
+
+# 4G模块和WIFI模块判断
+exist_4g_module=0
+exist_wifi_module=0
+
+exist_ec20=`lsusb | grep "2c7c:0125" | grep -v "grep"`
+exist_ec200s=`lsusb | grep "2c7c:6002" | grep -v "grep"`
+exist_rtl8723du=`lsusb | grep "0bda:d723" | grep -v "grep"`
+
+if [[ -z $exist_ec20 ]] && [[ -z $exist_ec200s ]]; then
+	echo "There is no supported 4G module"
+else
+	echo "There is a supported 4G module"
+	exist_4g_module=1
+fi
+
+if [[ -z $exist_rtl8723du ]]; then
+	echo "There is no supported WiFi module"
+else
+	echo "There is a supported WiFi module"
+	exist_wifi_module=1
+fi
+
+# 通用配置文件处理
+if [[ $exist_4g_module -eq 1 ]] && [[ $exist_wifi_module -eq 1 ]]; then
+	echo "There is a supported 4G module and a supported WiFi module"
+	cp -f /opt/share/HtBoxMain/config_4G.json /etc/htbox/config.json
+elif [[ $exist_4g_module -eq 1 ]] && [[ $exist_wifi_module -eq 0 ]]; then
+	echo "There is a supported 4G module but no supported WiFi module"
+	cp -f /opt/share/HtBoxMain/config_4G.json /etc/htbox/config.json
+elif [[ $exist_4g_module -eq 0 ]] && [[ $exist_wifi_module -eq 1 ]]; then
+	echo "There is no supported 4G module but a supported WiFi module"
+	cp -f /opt/share/HtBoxMain/config_wifi.json /etc/htbox/config.json
+else
+	echo "There is no supported 4G module and WiFi module"
+	cp -f /opt/share/HtBoxMain/config_eth.json /etc/htbox/config.json
+fi
+
+
+# 下方区分更新包和重置包
+
+# 【更新包】从/tmp/htbox/backup恢复配置文件
+: '
+if [[ -f /tmp/htbox/backup/config.json ]]; then
+	mv -f /tmp/htbox/backup/config.json /etc/htbox/
+fi
+
+if [[ -f /tmp/htbox/backup/nodes_config.json ]]; then
+	mv -f /tmp/htbox/backup/nodes_config.json /etc/htbox/
+fi
+'
+
+
+# 恢复BOXID(json_obj.box_id)
+if [[ -f /etc/boxid ]]; then
+	objK="box_id"
+	objV=`cat /etc/boxid`
+	output=`cat /etc/htbox/config.json |
+	  jq --arg objK "$objK" \
+	     --arg objV "$objV" \
+	    '.[$objK] = $objV'`
+	echo $output > /etc/htbox/config.json
+fi
